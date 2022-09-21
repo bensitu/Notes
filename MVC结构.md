@@ -18,7 +18,7 @@
 
 我们在 com.example 目录下新建四个目录，分别是 Controller、DAO (Mapper)、Entity (Domain)、Service。
 
-![chengxujiegou](Resources\chengxujiegou.png)
+![chengxujiegou](Resources/chengxujiegou.png)
 
 - Controller 层负责前端传过来的具体的业务模块流程的控制，交给 Service 层处理。
 - Entity 层用于存放我们的实体类，与数据库中的属性值基本保持一致，实现 set 和 get 的方法
