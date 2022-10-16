@@ -400,7 +400,7 @@ RENAME [TO] detail_dept;	-- [TO]可以省略
 
 ### 增加数据
 
-#### 方式1：VALUES 的方式添加
+#### 1：VALUES 的方式添加
 
 使用这种语法一次只能向表中插入一条数据。
 
@@ -466,7 +466,7 @@ VALUES
 
 
 
-#### 方式2：将查询结果插入到表中
+#### 2：将查询结果插入到表中
 
 INSERT 还可以将 SELECT 语句查询的结果插入到表中，此时不需要把每一条记录的值一个一个输入，只需要使用一条 INSERT 语句和一条 SELECT 语句组成的组合语句即可快速地从一个或多个表中向一个表中插入多行。
 
@@ -484,6 +484,52 @@ FROM 源表名
 - 在 INSERT 语句中加入子查询。
 - 不必书写 VALUES 子句。
 - 子查询中的值列表应与 INSERT 子句中的列名对应。
+
+
+
+#### 3：插入或替换
+
+如果我们希望插入一条新记录（INSERT），但如果记录已经存在，就**先删除**原记录，再插入新记录。此时，可以使用 `REPLACE` 语句，这样就不必先查询，再决定是否先删除再插入：
+
+```sql
+REPLACE INTO 目标表名 
+(column1, column2, column3...) 
+VALUES 
+(value1, value2, value3...);
+```
+
+若 `column1=value1` 的记录不存在，`REPLACE`语句将插入新记录，否则，当前 `column1=value1` 的记录将被删除，然后再插入新记录。
+
+
+
+#### 4：插入或更新
+
+如果我们希望插入一条新记录（INSERT），但如果记录已经存在，就**更新**该记录。此时，可以使用 `INSERT INTO ... ON DUPLICATE KEY UPDATE ...`语句：
+
+```sql
+INSERT INTO 目标表名 
+(column1, column2, column3...) 
+VALUES 
+(value1, value2, value3...)
+ON DUPLICATE KEY UPDATE column3=value3, column4=value4, column5=value5;
+```
+
+若 `column1=value1` 的记录不存在，`INSERT ` 语句将插入新记录，否则，当前 `column1=value1` 的记录将被更新，更新的字段由 `UPDATE` 指定。
+
+
+
+#### 5：插入或忽略
+
+如果我们希望插入一条新记录（INSERT），但如果记录已经存在，就啥事也不干直接忽略，此时，可以使用 `INSERT IGNORE INTO ...` 语句：
+
+```sql
+INSERT IGNORE INTO 目标表名 
+(column1, column2, column3...) 
+VALUES 
+(value1, value2, value3...);
+```
+
+若 `column1=value1` 的记录不存在，`INSERT` 语句将插入新记录，否则，不执行任何操作。
 
 
 
@@ -764,5 +810,4 @@ default-character-set=utf8
 character-set-server=utf8 
 collation-server=utf8_general_ci
 ```
-
 
