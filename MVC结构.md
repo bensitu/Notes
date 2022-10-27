@@ -96,6 +96,21 @@ Domain -> Mapper (DAO) -> Service -> Controller
 
 
 
+我们项目编程规约,结合swaggger看：
+
+1. Controller 层接收 DTO 请求参数 ，并进行简单参数校验。
+
+2. Controller 层调用了 Service 层的接口方法。
+
+3. Service 层调用 Dao 层的方法，返回 DO 的 Entity 对象。
+
+4. Service 层封装了前端需要 VO 对象，返回给 Controller 层
+
+5. Controller 层返回 VO 给前端。
+   
+
+
+
 ## 5. 方法命名和方法签名
 
 
