@@ -369,11 +369,19 @@ JOIN table3 ON table2 和 table3 的连接条件
 
 #### 内连接 (INNER JOIN)
 
-语法：
+隐式内连接：
 
 ```sql
 SELECT 字段列表
-FROM A表 INNER JOIN B表
+FROM A表, B表
+WHERE A表与B表相同的字段名;
+```
+
+显式内连接：
+
+```sql
+SELECT 字段列表
+FROM A表 [INNER] JOIN B表
 ON 关联条件
 WHERE 等其他子句;
 ```
@@ -382,12 +390,14 @@ WHERE 等其他子句;
 
 #### 左外连接 (LEFT OUTER JOIN)
 
+查询左表的全部信息，以及交集的部分。
+
 语法：
 
 ```sql
 #实现查询结果是A
 SELECT 字段列表
-FROM A表 LEFT JOIN B表
+FROM A表 LEFT [outer] JOIN B表
 ON 关联条件
 WHERE 等其他子句;
 ```
@@ -396,10 +406,12 @@ WHERE 等其他子句;
 
 #### 右外连接 (RIGHT OUTER JOIN)
 
+查询右表的全部信息，以及交集的部分。
+
 语法：
 
 ```sql
-FROM A表 RIGHT JOIN B表
+FROM A表 RIGHT [outer] JOIN B表
 ON 关联条件
 WHERE 等其他子句;
 ```
@@ -517,6 +529,58 @@ UNION ALL
 SELECT employee_id,last_name,department_name
 FROM employees e RIGHT JOIN departments d
 ON e.department_id = d.department_id
-WHERE e.department_id IS NULL
-
+WHERE e.department_id IS NULL;
 ```
+
+
+
+### 子查询
+
+在查询中嵌套另一个查询。
+
+子查询的结果是**单行单列**时，可以用 = != < >的那个进行判断。
+
+```sql
+SELECT 字段列表 FROM 表1 WHERE 字段名 = (子查询);
+
+例如：
+SELECT * 
+FROM employee 
+WHERE employee.salary < (SELECT AVG(salary) FROM employee);
+```
+
+
+
+子查询的结果是**多行单列**时，可以用 in 等关键字进行判断。
+
+```sql
+SELECT 字段列表 FROM 表1 WHERE 字段名 IN (子查询);
+
+例如：
+SELECT * 
+FROM employee 
+WHERE dept_id 
+IN (SELECT id FROM employee WHERE NAME = '财务部' OR NAME = '市场部');
+```
+
+
+
+子查询的结果是**多行多列**时，可以作为一张虚拟表参与查询。
+
+```sql
+SELECT 字段列表 FROM (子查询) WHERE 条件;
+
+例如：
+SELECT *
+FROM employees t1, (SELECT * FROM deptments WHERE deptments.join_date > 2022-10-01) t2
+WHERE t1.id = t2.dept_id;
+```
+
+
+
+
+
+
+
+
+
