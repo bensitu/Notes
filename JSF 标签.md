@@ -155,41 +155,36 @@ public class UserBean{
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core">
     <h:body>
+      <!--  this is param 0 : Number 1, param 1 : Number 2  -->
         <h:outputFormat value="this is param 0 : {0}, param 1 : {1}" >
          <f:param value="Number 1" />
          <f:param value="Number 2" />
        </h:outputFormat>
      <br/>
+      <!--  Hello baidu.com  -->
        <h:outputFormat value="#{user.text}" >
          <f:param value="baidu.com" />
        </h:outputFormat>
     <br/>
+      <!--  <a href='http://www.baidu.com'>  -->
       <h:outputFormat value="#{user.htmlInput}" >
          <f:param value="text" />
          <f:param value="size='30'" />
        </h:outputFormat>
     <br/>
+      <!--  text  -->
       <h:outputFormat value="#{user.htmlInput}" escape="false" >
          <f:param value="text" />
          <f:param value="size='30'" />
        </h:outputFormat>
     <br/>
+      <!--  button  -->
       <h:outputFormat value="#{user.htmlInput}" escape="false" >
          <f:param value="button" />
          <f:param value="value='Click Me'" />
        </h:outputFormat>
     </h:body>
 </html>
-```
-
-输出为：
-
-```
-this is param 0 : Number 1, param 1 : Number 2
-Hello baidu.com
-<a href='http://www.baidu.com'>
-text
-button
 ```
 
 
@@ -295,7 +290,7 @@ button
 
 h:outputLink标签渲染一个HTML“anchor"元素。
 
-以下JSF标记
+以下为 JSF 标记：
 
 ```html
 <h:outputLink value="page1.jsf" >Page 1</h:outputLink>
@@ -344,8 +339,6 @@ name="user-form:submit-button" value="Submit" type="submit">
 
 
 
-
-
 ### <h:commandLink>
 
 JSF 将`<h:commandLink>`标签作为一个 HTML “`a`”锚点元素，当单击时，它就像一个表单提交按钮。 因此，您可以使用此标签创建锚标签。 `<h:commandLink>`标签必须包含一个嵌套的`<h:outputText>`标记，表示用户单击文本以生成事件。 它还需要放在`<h:form>`标签中。
@@ -360,13 +353,8 @@ JSF渲染`<h:commandLink>`标签后，如下所示：
 
 ```html
 <a id="user-form:image-link-id" href="#"  
-onclick="mojarra.jsfcljs(document.getElementById('user-form'),{'user-form:image-link-id':'user-form:image-link-id'},'');return  
-false">Click here</a>
+onclick="mojarra.jsfcljs(document.getElementById('user-form'),{'user-form:image-link-id':'user-form:image-link-id'},'');return false">Click here</a>
 ```
-
-
-
-
 
 
 
@@ -420,7 +408,7 @@ Length is less than allowable minimum of '5'</span>
 
 h:messages标记在与UI元素对应的一个地方显示所有消息。
 
-以下JSF标记
+以下为 JSF 标记：
 
 ```html
 <h:messages style="color:red;margin:8px;" />
@@ -554,7 +542,7 @@ public class UserBean implements Serializable{
 </h:selectOneMenu>
 ```
 
-被渲染成以下HTML代码 -
+被渲染成以下HTML代码：
 
 ```html
 <select name="j_idt6:j_idt8">  
@@ -744,7 +732,7 @@ public class UserBean implements Serializable{
 </h:selectOneListbox>
 ```
 
-被渲染成以下HTML标签-
+被渲染成以下HTML标签：
 
 ```html
 <select name="j_idt6:j_idt8" size="2">  
@@ -936,7 +924,7 @@ public class UserBean implements Serializable{
 </h:selectOneListbox>
 ```
 
-被渲染成以下HTML代码 - 
+被渲染成以下HTML代码：
 
 ```html
 <select name="j_idt6:j_idt8" size="2" multiple="multiple">  
@@ -1136,24 +1124,24 @@ public class UserBean implements Serializable{
 
 ### <h:selectBooleanCheckbox>
 
-h:selectBooleanCheckbox标签渲染类型为“checkbox"的HTML输入元素。
+h:selectBooleanCheckbox 标签渲染类型为“checkbox"的 HTML 输入元素。
 
-以下JSF标记
+以下为 JSF 标记：
 
 ```html
 <h:selectBooleanCheckbox value="Remember Me" id="chkRememberMe" />
 ```
 
-渲染到以下HTML标记。
+渲染到以下HTML标记：
 
 ```html
 <input id="jsfForm1:chkRememberMe" type="checkbox" 
    name="jsfForm1:chkRememberMe" checked="checked" />
 ```
 
-h:selectManyCheckbox标签呈现一组HTML输入元素，并使用HTML表格和标签标签格式化。
+h:selectManyCheckbox 标签呈现一组 HTML 输入元素，并使用 HTML 表格和标签标签格式化。
 
-JSF中的以下标记
+JSF 中的以下标记：
 
 ```html
 <h:selectManyCheckbox value="#{userData.data}">
@@ -1162,7 +1150,7 @@ JSF中的以下标记
 </h:selectManyCheckbox>
 ```
 
-被渲染到以下HTML标记中。
+被渲染到以下HTML标记中：
 
 ```html
 <table>
@@ -1341,7 +1329,7 @@ JSF 支持使用`f:ajax`标签进行Ajax调用。
 <f:ajax execute="input-component-name" render="output-component-name" />
 ```
 
-`<h:inputText>`创建一个输入字段框。创建一个输入字段框。 它使用来调用。
+用`<h:inputText>`创建一个输入字段框，在它里面使用`f:ajax`标签来调用。
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1368,11 +1356,11 @@ JSF 支持使用`f:ajax`标签进行Ajax调用。
 
 # JSF 转换器标签
 
-JSF有转换器将其UI组件的数据转换为托管bean中使用的对象，反之亦然。
+JSF 有转换器将其 UI 组件的数据转换为托管 bean 中使用的对象，反之亦然。
 
 例如，我们可以将文本转换为日期对象，并且可以验证输入的格式。
 
-要使用转换器标签，我们必须在`html`节点中使用URI的以下命名空间。
+要使用转换器标签，我们必须在 `html` 节点中使用 URI 的以下命名空间。
 
 ```html
 <html 
@@ -1665,9 +1653,9 @@ public class URLConverter implements Converter {
 
 # JSF 验证器标签
 
-JSF有内置的验证器验证其UI组件。验证器标签可以验证可以是自定义对象的字段长度，输入类型。
+JSF 有内置的验证器验证其 UI 组件。验证器标签可以验证可以是自定义对象的字段长度，输入类型。
 
-我们必须在`html`节点中使用URI的以下命名空间来包含验证器标签。
+我们必须在`html`节点中使用 URI 的以下命名空间来包含验证器标签。
 
 ```html
 <html 
@@ -1936,7 +1924,7 @@ JSF中有一个叫作`DataTable`的控件，可用来渲染和格式化`html`表
 
 `DataTable`具有以简单的方式修改其数据的属性。
 
-要使用`DataTable`，我们需要添加以下HTML头。
+要使用`DataTable`，我们需要添加以下HTML头：
 
 ```html
 <html 
@@ -2619,7 +2607,7 @@ JSF规范定义了JavaServer Faces应用程序的生命周期。以下步骤为�
 2. 如果可用的`UIViewRoot`应用于`Facelets`， 视图可以填充组件进行渲染。
 3. 新建的视图作为对客户端的响应而被渲染。
 4. 在渲染时，存储此视图的状态用于下一个请求。 存储输入组件和表单数据的状态。
-5. 客户端可以与视图交互，并从JSF应用程序请求另一个视图。 此时，保存的视图从存储状态恢复。
+5. 客户端可以与视图交互，并从 JSF 应用程序请求另一个视图。 此时，保存的视图从存储状态恢复。
 6. 恢复视图再次通过JSF生命周期，如果没有验证问题，并且没有触发任何操作，最终将生成新视图或重新呈现当前视图。
 7. 如果请求相同的视图，则再次呈现存储的视图。
 8. 如果要求新视图，则继续执行【**步骤2**】。
@@ -2714,7 +2702,7 @@ Facelets HTML标签以`h:`开头，用于在网页和核心标签上添加组件
 
 `Facelets`模板是提供实现用户界面的工具的工具。 模板化是一个有用的`Facelets`功能，允许您创建一个页面，作为应用程序中其他页面的基础。 通过使用模板，您可以重用代码，并避免重复类似的页面。模板化还有助于简化在具有大量页面的应用程序中维护标准外观和感觉。
 
-下表包含用于创建模板的Facelets标签。
+下表包含用于创建模板的 Facelets 标签。
 
 **模板标签**
 
@@ -2744,7 +2732,6 @@ Facelets 标签库包括主模板标签 `ui:insert`。 使用此标签创建的�
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:h="http://xmlns.jcp.org/jsf/html">
-
     <h:head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <h:outputStylesheet name="./css/default.css"/>
@@ -2764,11 +2751,7 @@ Facelets 标签库包括主模板标签 `ui:insert`。 使用此标签创建的�
             </div>
         </div>
     </h:body>
-
 </html>
-
-
-HTML
 ```
 
 上述模板文件分为四个部分：顶部，左部分，内容部分。 我们可以对应用程序的其他页面进一步重用此结构。
@@ -2867,9 +2850,9 @@ JSF 通过 Facelets 提供复合组件(有点类似于`Widget`)的概念。复�
 </html>
 ```
 
-在上面的例子中，`composite:interface`标签用于声明可配置的值。 `composite:implementation`标签用于声明所有XHTML标记和`cc.attrs.username`用于定义`inputText`组件的值。 ccs是JSF中复合组件的保留字。 表达式`#{cc.attrs.attribute-name}`用于访问为组合组件界面定义的属性。
+在上面的例子中，`composite:interface`标签用于声明可配置的值。 `composite:implementation`标签用于声明所有 XHTML 标记和`cc.attrs.username`用于定义`inputText`组件的值。 CSS 是 JSF 中复合组件的保留字。 表达式`#{cc.attrs.attribute-name}`用于访问为组合组件界面定义的属性。
 
-上述代码作为名为`composite-component.xhtml`的文件存储在应用程序Web根目录的 `resources/com` 文件夹中。
+上述代码作为名为`composite-component.xhtml`的文件存储在应用程序 Web 根目录的 `resources/com` 文件夹中。
 
 
 
@@ -2879,9 +2862,6 @@ JSF 通过 Facelets 提供复合组件(有点类似于`Widget`)的概念。复�
 
 ```html
 <html xmlns:co="http://xmlns.jcp.org/jsf/composite/com">
-
-
-HTML
 ```
 
 这里，`com`是存储文件的文件夹，`co`是用于访问组件的引用。
