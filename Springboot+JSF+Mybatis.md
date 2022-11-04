@@ -1,6 +1,6 @@
 # 前因
 
-新公司使用springbean+jsf2.0开发demo，感觉使用起来不太顺手且不大习惯，所以自己使用SpringBoot整合了JSF2.0，故此记录。
+新公司使用 springbean+jsf2.0 开发 demo，感觉使用起来不太顺手且不大习惯，所以自己使用 SpringBoot 整合了 JSF2.0，故此记录。
 
 
 
