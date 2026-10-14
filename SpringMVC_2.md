@@ -1,4 +1,23 @@
-## SpringMVC_day02
+# Spring MVC：整合、异常处理与拦截器
+
+学习整合、结果封装、异常处理和拦截器，开发时检查调用顺序与错误响应。
+
+**学习前提与版本：** 先读 SpringMVC_1。本篇沿用 Spring 5.2 / javax 的历史项目；示例业务码与 HTTP 状态码是两种不同概念。Spring 6 整合见 SSM.md。
+
+**截图说明：** 图片保留原教学环境的操作过程；若截图中的旧写法与正文不同，以修订后的正文和所选版本的官方文档为准。
+
+**示例使用：** 除明确列出全部文件和运行步骤的项目外，代码块是各小节的独立片段。省略号、占位名称需要补齐；标明错误的行用于说明问题。同节替代写法不要合并。
+
+[学习索引与常见词](README.md) · [官方参考](https://docs.spring.io/spring-framework/docs/5.2.10.RELEASE/spring-framework-reference/web.html)
+
+**内容导航**
+
+- [1，SSM整合](#section-1)
+- [2，统一结果封装](#section-2)
+- [3，统一异常处理](#section-3)
+- [4，前后台协议联调](#section-4)
+- [5，拦截器](#section-5)
+
 
 **今日内容**
 
@@ -6,6 +25,8 @@
 > * 能够理解并实现统一结果封装与统一异常处理
 > * 能够完成前后台功能整合开发
 > * 掌握拦截器的编写
+
+<a id="section-1"></a>
 
 ## 1，SSM整合
 
@@ -60,7 +81,7 @@
     * @RequestParam
     * @PathVariable
     * @RequestBody
-  * 转发业务层 
+  * 转发业务层
     * @Autowired
   * 响应结果
     * @ResponseBody
@@ -275,19 +296,19 @@ public class SpringMvcConfig {
 
 ```java
 public class ServletConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
-    //加载Spring配置类
+    // See note 1 below.
     protected Class<?>[] getRootConfigClasses() {
         return new Class[]{SpringConfig.class};
     }
-    //加载SpringMVC配置类
+    // See note 2 below.
     protected Class<?>[] getServletConfigClasses() {
         return new Class[]{SpringMvcConfig.class};
     }
-    //设置SpringMVC请求地址拦截规则
+    // See note 3 below.
     protected String[] getServletMappings() {
         return new String[]{"/"};
     }
-    //设置post请求中文乱码过滤器
+    // See note 4 below.
     @Override
     protected Filter[] getServletFilters() {
         CharacterEncodingFilter filter = new CharacterEncodingFilter();
@@ -297,6 +318,14 @@ public class ServletConfig extends AbstractAnnotationConfigDispatcherServletInit
 }
 
 ```
+
+示例说明：
+
+1. 加载Spring配置类
+2. 加载SpringMVC配置类
+3. 设置SpringMVC请求地址拦截规则
+4. 设置post请求中文乱码过滤器
+
 
 至此SSM整合的环境就已经搭建好了。在这个环境上，我们如何进行功能模块的开发呢?
 
@@ -327,9 +356,14 @@ public class Book {
     private String type;
     private String name;
     private String description;
-    //getter...setter...toString省略
+    // See note 1 below.
 }
 ```
+
+示例说明：
+
+1. getter...setter...toString省略
+
 
 #### 步骤3:编写Dao接口
 
@@ -359,41 +393,31 @@ public interface BookDao {
 ```java
 @Transactional
 public interface BookService {
-    /**
-     * 保存
-     * @param book
-     * @return
-     */
+    /* See note 1 below. */
     public boolean save(Book book);
 
-    /**
-     * 修改
-     * @param book
-     * @return
-     */
+    /* See note 2 below. */
     public boolean update(Book book);
 
-    /**
-     * 按id删除
-     * @param id
-     * @return
-     */
+    /* See note 3 below. */
     public boolean delete(Integer id);
 
-    /**
-     * 按id查询
-     * @param id
-     * @return
-     */
+    /* See note 4 below. */
     public Book getById(Integer id);
 
-    /**
-     * 查询全部
-     * @return
-     */
+    /* See note 5 below. */
     public List<Book> getAll();
 }
 ```
+
+示例说明：
+
+1. 保存；@param book；@return
+2. 修改；@param book；@return
+3. 按id删除；@param id；@return
+4. 按id查询；@param id；@return
+5. 查询全部；@return
+
 
 ```java
 @Service
@@ -443,7 +467,6 @@ public class BookServiceImpl implements BookService {
   * 设置错误提示级别
 
     ![](Resources/1630600227357.png)
-
 
 
 #### 步骤5:编写Contorller类
@@ -556,7 +579,7 @@ public class BookServiceTest {
 
 ```json
 {
-	"type":"类别测试数据",
+    "type":"类别测试数据",
     "name":"书名测试数据",
     "description":"描述测试数据"
 }
@@ -571,7 +594,7 @@ public class BookServiceTest {
 ```json
 {
     "id":13,
-	"type":"类别测试数据",
+    "type":"类别测试数据",
     "name":"书名测试数据",
     "description":"描述测试数据"
 }
@@ -596,6 +619,8 @@ public class BookServiceTest {
 `http://localhost/books`
 
 ![1630652867493](Resources/1630652867493.png)
+
+<a id="section-2"></a>
 
 ## 2，统一结果封装
 
@@ -629,9 +654,9 @@ SSM整合以及功能模块开发完成后，接下来，我们在上述案例�
 
 ```java
 public class Result{
-	private Object data;
-	private Integer code;
-	private String msg;
+    private Object data;
+    private Integer code;
+    private String msg;
 }
 ```
 
@@ -663,34 +688,44 @@ public class Result{
 
 ```java
 public class Result {
-    //描述统一格式中的数据
+    // See note 1 below.
     private Object data;
-    //描述统一格式中的编码，用于区分操作，可以简化配置0或1表示成功失败
+    // See note 2 below.
     private Integer code;
-    //描述统一格式中的消息，可选属性
+    // See note 3 below.
     private String msg;
 
     public Result() {
     }
-	//构造方法是方便对象的创建
+    // See note 4 below.
     public Result(Integer code,Object data) {
         this.data = data;
         this.code = code;
     }
-	//构造方法是方便对象的创建
+    // See note 5 below.
     public Result(Integer code, Object data, String msg) {
         this.data = data;
         this.code = code;
         this.msg = msg;
     }
-	//setter...getter...省略
+    // See note 6 below.
 }
 ```
+
+示例说明：
+
+1. 描述统一格式中的数据
+2. 描述统一格式中的编码，用于区分操作，可以简化配置0或1表示成功失败
+3. 描述统一格式中的消息，可选属性
+4. 构造方法是方便对象的创建
+5. 构造方法是方便对象的创建
+6. setter...getter...省略
+
 
 ##### 步骤2:定义返回码Code类
 
 ```java
-//状态码
+// See note 1 below.
 public class Code {
     public static final Integer SAVE_OK = 20011;
     public static final Integer DELETE_OK = 20021;
@@ -705,12 +740,19 @@ public class Code {
 
 ```
 
+示例说明：
+
+1. 状态码
+
+
+这里的 20011、50001 等都是响应体中的业务编号，不是 HTTP 状态码。后续异常示例分别设置 HTTP 400 与 500；真实接口中，资源不存在宜返回 404，成功创建可返回 201。返回空列表仍是查询成功。Axios 对默认的非 2xx 响应进入 catch，需要同时处理网络错误和业务错误。
+
 **注意:**code类中的常量设计也不是固定的，可以根据需要自行增减，例如将查询再进行细分为GET_OK,GET_ALL_OK,GET_PAGE_OK等。
 
 ##### 步骤3:修改Controller类的返回值
 
 ```java
-//统一每一个控制器方法返回值
+// See note 1 below.
 @RestController
 @RequestMapping("/books")
 public class BookController {
@@ -754,11 +796,18 @@ public class BookController {
 }
 ```
 
+示例说明：
+
+1. 统一每一个控制器方法返回值
+
+
 ##### 步骤4:启动服务测试
 
 ![1630656326477](Resources/1630656326477.png)
 
 至此，我们的返回结果就已经能以一种统一的格式返回给前端。前端根据返回的结果，先从中获取`code`,根据code判断，如果成功则取`data`属性的值，如果失败，则取`msg`中的值做提示。
+
+<a id="section-3"></a>
 
 ## 3，统一异常处理
 
@@ -769,7 +818,7 @@ public class BookController {
 ```java
 @GetMapping("/{id}")
 public Result getById(@PathVariable Integer id) {
-    //手动添加一个错误信息
+    // See note 1 below.
     if(id==1){
         int i = 1/0;
     }
@@ -779,6 +828,11 @@ public Result getById(@PathVariable Integer id) {
     return new Result(code,book,msg);
 }
 ```
+
+示例说明：
+
+1. 手动添加一个错误信息
+
 
 重新启动运行项目，使用PostMan发送请求，当传入的id为1，则会出现如下效果：
 
@@ -800,7 +854,7 @@ public Result getById(@PathVariable Integer id) {
 
 1. 各个层级均出现异常，异常处理代码书写在哪一层?
 
-   ==所有的异常均抛出到表现层进行处理==
+   对于 Web 请求，把无法在当前层恢复的异常交给统一异常处理器；后台任务、过滤器和容器层异常可能不经过 ControllerAdvice，需分别处理。
 
 2. 异常的种类很多，表现层如何将所有的异常都处理到呢?
 
@@ -808,7 +862,7 @@ public Result getById(@PathVariable Integer id) {
 
 3. 表现层处理异常，每个方法中单独书写，代码书写量巨大且意义不强，如何解决?
 
-   ==AOP==
+   使用 Spring MVC 的异常解析机制，例如 @RestControllerAdvice 与 @ExceptionHandler；这不是给每个方法手写 Spring AOP 切面。
 
 对于上面这些问题及解决方案，SpringMVC已经为我们提供了一套解决方案:
 
@@ -839,17 +893,24 @@ public Result getById(@PathVariable Integer id) {
 ##### 步骤1:创建异常处理器类
 
 ```java
-//@RestControllerAdvice用于标识当前类为REST风格对应的异常处理器
+// See note 1 below.
 @RestControllerAdvice
 public class ProjectExceptionAdvice {
-    //除了自定义的异常处理器，保留对Exception类型的异常处理，用于处理非预期的异常
+    // See note 2 below.
     @ExceptionHandler(Exception.class)
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
     public void doException(Exception ex){
-      	System.out.println("嘿嘿,异常你哪里跑！")
+          System.out.println("An exception was handled.");
     }
 }
 
 ```
+
+示例说明：
+
+1. @RestControllerAdvice用于标识当前类为REST风格对应的异常处理器
+2. 除了自定义的异常处理器，保留对Exception类型的异常处理，用于处理非预期的异常
+
 
 ==确保SpringMvcConfig能够扫描到异常处理器类==
 
@@ -860,7 +921,7 @@ public class ProjectExceptionAdvice {
 ```java
 @GetMapping("/{id}")
 public Result getById(@PathVariable Integer id) {
-  	int i = 1/0;
+      int i = 1/0;
     Book book = bookService.getById(id);
     Integer code = book != null ? Code.GET_OK : Code.GET_ERR;
     String msg = book != null ? "" : "数据查询失败，请重试！";
@@ -877,18 +938,25 @@ public Result getById(@PathVariable Integer id) {
 ##### 异常处理器类返回结果给前端
 
 ```java
-//@RestControllerAdvice用于标识当前类为REST风格对应的异常处理器
+// See note 1 below.
 @RestControllerAdvice
 public class ProjectExceptionAdvice {
-    //除了自定义的异常处理器，保留对Exception类型的异常处理，用于处理非预期的异常
+    // See note 2 below.
     @ExceptionHandler(Exception.class)
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
     public Result doException(Exception ex){
-      	System.out.println("嘿嘿,异常你哪里跑！")
+          System.out.println("An exception was handled.");
         return new Result(666,null,"嘿嘿,异常你哪里跑！");
     }
 }
 
 ```
+
+示例说明：
+
+1. @RestControllerAdvice用于标识当前类为REST风格对应的异常处理器
+2. 除了自定义的异常处理器，保留对Exception类型的异常处理，用于处理非预期的异常
+
 
 启动运行程序，测试
 
@@ -928,7 +996,7 @@ public class ProjectExceptionAdvice {
 
 - 业务异常（BusinessException）
 
-  - 规范的用户行为产生的异常
+  - 正常业务流程中无法完成操作的情况
 
     - 用户在页面输入内容的时候未按照指定格式进行数据填写，如在年龄框输入的是字符串
 
@@ -986,7 +1054,7 @@ public class ProjectExceptionAdvice {
 ##### 步骤1:自定义异常类
 
 ```java
-//自定义异常处理器，用于封装异常信息，对异常进行分类
+// See note 1 below.
 public class SystemException extends RuntimeException{
     private Integer code;
 
@@ -1010,7 +1078,7 @@ public class SystemException extends RuntimeException{
 
 }
 
-//自定义异常处理器，用于封装异常信息，对异常进行分类
+// See note 2 below.
 public class BusinessException extends RuntimeException{
     private Integer code;
 
@@ -1037,6 +1105,12 @@ public class BusinessException extends RuntimeException{
 
 ```
 
+示例说明：
+
+1. 自定义异常处理器，用于封装异常信息，对异常进行分类
+2. 自定义异常处理器，用于封装异常信息，对异常进行分类
+
+
 **说明:**
 
 * 让自定义异常类继承`RuntimeException`的好处是，后期在抛出这两个异常的时候，就不用在try...catch...或throws了
@@ -1048,19 +1122,25 @@ public class BusinessException extends RuntimeException{
 
 ```java
 public Book getById(Integer id) {
-    //模拟业务异常，包装成自定义异常
+    // See note 1 below.
     if(id == 1){
         throw new BusinessException(Code.BUSINESS_ERR,"请不要使用你的技术挑战我的耐性!");
     }
-    //模拟系统异常，将可能出现的异常进行包装，转换成自定义异常
+    // See note 2 below.
     try{
         int i = 1/0;
     }catch (Exception e){
-        throw new SystemException(Code.SYSTEM_TIMEOUT_ERR,"服务器访问超时，请重试!",e);
+        throw new SystemException(Code.SYSTEM_ERR,"服务器处理失败，请稍后重试。",e);
     }
     return bookDao.getById(id);
 }
 ```
+
+示例说明：
+
+1. 模拟业务异常，包装成自定义异常
+2. 模拟系统异常，将可能出现的异常进行包装，转换成自定义异常
+
 
 具体的包装方式有：
 
@@ -1070,7 +1150,7 @@ public Book getById(Integer id) {
 上面为了使`code`看着更专业些，我们在Code类中再新增需要的属性
 
 ```java
-//状态码
+// See note 1 below.
 public class Code {
     public static final Integer SAVE_OK = 20011;
     public static final Integer DELETE_OK = 20021;
@@ -1090,36 +1170,57 @@ public class Code {
 
 ```
 
+示例说明：
+
+1. 状态码
+
+
 ##### 步骤3:处理器类中处理自定义异常
 
 ```java
-//@RestControllerAdvice用于标识当前类为REST风格对应的异常处理器
+// See note 1 below.
 @RestControllerAdvice
 public class ProjectExceptionAdvice {
-    //@ExceptionHandler用于设置当前处理器类对应的异常类型
+    // See note 2 below.
     @ExceptionHandler(SystemException.class)
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
     public Result doSystemException(SystemException ex){
-        //记录日志
-        //发送消息给运维
-        //发送邮件给开发人员,ex对象发送给开发人员
-        return new Result(ex.getCode(),null,ex.getMessage());
+        // See note 3 below.
+        // See note 4 below.
+        // See note 5 below.
+        return new Result(ex.getCode(),null,"服务器处理失败，请稍后重试");
     }
 
     @ExceptionHandler(BusinessException.class)
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.BAD_REQUEST)
     public Result doBusinessException(BusinessException ex){
         return new Result(ex.getCode(),null,ex.getMessage());
     }
 
-    //除了自定义的异常处理器，保留对Exception类型的异常处理，用于处理非预期的异常
+    // See note 6 below.
     @ExceptionHandler(Exception.class)
+    @org.springframework.web.bind.annotation.ResponseStatus(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
     public Result doOtherException(Exception ex){
-        //记录日志
-        //发送消息给运维
-        //发送邮件给开发人员,ex对象发送给开发人员
+        // See note 7 below.
+        // See note 8 below.
+        // See note 9 below.
         return new Result(Code.SYSTEM_UNKNOW_ERR,null,"系统繁忙，请稍后再试！");
     }
 }
 ```
+
+示例说明：
+
+1. @RestControllerAdvice用于标识当前类为REST风格对应的异常处理器
+2. @ExceptionHandler用于设置当前处理器类对应的异常类型
+3. 记录日志
+4. 发送消息给运维
+5. 发送邮件给开发人员,ex对象发送给开发人员
+6. 除了自定义的异常处理器，保留对Exception类型的异常处理，用于处理非预期的异常
+7. 记录日志
+8. 发送消息给运维
+9. 发送邮件给开发人员,ex对象发送给开发人员
+
 
 ##### 步骤4:运行程序
 
@@ -1133,13 +1234,15 @@ public class ProjectExceptionAdvice {
 
 ![1630661192383](Resources/1630661192383.png)
 
-对于异常我们就已经处理完成了，不管后台哪一层抛出异常，都会以我们与前端约定好的方式进行返回，前端只需要把信息获取到，根据返回的正确与否来展示不同的内容即可。
+对于异常我们就已经处理完成了，进入 Spring MVC 异常解析流程的异常可以统一返回；Filter、后台任务和容器错误需要各自的处理机制，前端只需要把信息获取到，根据返回的正确与否来展示不同的内容即可。
 
 **小结**
 
 以后项目中的异常处理方式为:
 
 ![1630658821746](Resources/1630658821746.png)
+
+<a id="section-4"></a>
 
 ## 4，前后台协议联调
 
@@ -1222,7 +1325,7 @@ public class ProjectExceptionAdvice {
             "type": "计算机理论",
             "name": "Spring 5核心原理与30个类手写实践",
             "description": "十年沉淀之作，手写Spring精华思想"
-        },...
+        }
     ],
     "code": 20041,
     "msg": ""
@@ -1232,13 +1335,22 @@ public class ProjectExceptionAdvice {
 发送方式:
 
 ```js
+const componentOptions = {
+  methods: {
 getAll() {
-    //发送ajax请求
+    // See note 1 below.
     axios.get("/books").then((res)=>{
         this.dataList = res.data.data;
     });
 }
+  }
+};
 ```
+
+示例说明：
+
+1. 发送ajax请求
+
 
 ![1630666787456](Resources/1630666787456.png)
 
@@ -1261,23 +1373,37 @@ getAll() {
 `handleCreate`打开新增面板
 
 ```js
+const componentOptions = {
+  methods: {
 handleCreate() {
     this.dialogFormVisible = true;
 },
+  }
+};
 ```
 
 `handleAdd`方法发送异步请求并携带数据
 
 ```js
+const componentOptions = {
+  methods: {
 handleAdd () {
-    //发送ajax请求
-    //this.formData是表单中的数据，最后是一个json数据
+    // See note 1 below.
+    // See note 2 below.
     axios.post("/books",this.formData).then((res)=>{
         this.dialogFormVisible = false;
         this.getAll();
     });
 }
+  }
+};
 ```
+
+示例说明：
+
+1. 发送ajax请求
+2. this.formData是表单中的数据，最后是一个json数据
+
 
 ### 4.4 添加功能状态处理
 
@@ -1294,10 +1420,12 @@ handleAdd () {
 (1)修改前端页面
 
 ```js
+const componentOptions = {
+  methods: {
 handleAdd () {
-    //发送ajax请求
+    // See note 1 below.
     axios.post("/books",this.formData).then((res)=>{
-        //如果操作成功，关闭弹层，显示数据
+        // See note 2 below.
         if(res.data.code == 20011){
             this.dialogFormVisible = false;
             this.$message.success("添加成功");
@@ -1306,11 +1434,22 @@ handleAdd () {
         }else{
             this.$message.error(res.data.msg);
         }
+    }).catch(error => {
+        console.error(error);
+        this.$message.error("请求失败，请稍后重试");
     }).finally(()=>{
         this.getAll();
     });
 }
+  }
+};
 ```
+
+示例说明：
+
+1. 发送ajax请求
+2. 如果操作成功，关闭弹层，显示数据
+
 
 (2)后台返回操作结果，将Dao层的增删改方法返回值从`void`改成`int`
 
@@ -1359,11 +1498,11 @@ public class BookServiceImpl implements BookService {
         if(id == 1){
             throw new BusinessException(Code.BUSINESS_ERR,"请不要使用你的技术挑战我的耐性!");
         }
-//        //将可能出现的异常进行包装，转换成自定义异常
+// See note 1 below.
 //        try{
 //            int i = 1/0;
 //        }catch (Exception e){
-//            throw new SystemException(Code.SYSTEM_TIMEOUT_ERR,"服务器访问超时，请重试!",e);
+// See note 2 below.
 //        }
         return bookDao.getById(id);
     }
@@ -1375,6 +1514,12 @@ public class BookServiceImpl implements BookService {
 
 ```
 
+示例说明：
+
+1. //将可能出现的异常进行包装，转换成自定义异常
+2. throw new SystemException(Code.SYSTEM_ERR,"服务器处理失败，请稍后重试。",e);
+
+
 (4)测试错误情况，将图书类别长度设置超出范围即可
 
 ![1630668954348](Resources/1630668954348.png)
@@ -1384,13 +1529,17 @@ public class BookServiceImpl implements BookService {
 新增成功后，再次点击`新增`按钮会发现之前的数据还存在，这个时候就需要在新增的时候将表单内容清空。
 
 ```js
+const componentOptions = {
+  methods: {
 resetForm(){
-	this.formData = {};
-}
+    this.formData = {};
+},
 handleCreate() {
     this.dialogFormVisible = true;
     this.resetForm();
 }
+  }
+};
 ```
 
 ### 4.5 修改功能
@@ -1405,7 +1554,7 @@ handleCreate() {
 >
 >3.根据后台返回的结果，判断是否查询成功
 >
->​	如果查询成功打开修改面板回显数据，如果失败提示错误信息
+>	如果查询成功打开修改面板回显数据，如果失败提示错误信息
 >
 >4.修改完成后找到修改面板的`确定`按钮，该按钮绑定了`@click="handleEdit()"`
 >
@@ -1413,7 +1562,7 @@ handleCreate() {
 >
 >6.根据后台返回的结果，判断是否修改成功
 >
->​	如果成功提示错误信息，关闭修改面板，重新查询数据，如果失败提示错误信息
+>	如果成功提示成功信息，关闭修改面板，重新查询数据，如果失败提示错误信息
 
 scope.row代表的是当前行的行数据，也就是说,scope.row就是选中行对应的json数据，如下:
 
@@ -1429,13 +1578,15 @@ scope.row代表的是当前行的行数据，也就是说,scope.row就是选中�
 修改`handleUpdate`方法
 
 ```js
-//弹出编辑窗口
+const componentOptions = {
+  methods: {
+// See note 1 below.
 handleUpdate(row) {
-    // console.log(row);   //row.id 查询条件
-    //查询数据，根据id查询
+    // See note 2 below.
+    // See note 3 below.
     axios.get("/books/"+row.id).then((res)=>{
         if(res.data.code == 20041){
-            //展示弹层，加载数据
+            // See note 4 below.
             this.formData = res.data.data;
             this.dialogFormVisible4Edit = true;
         }else{
@@ -1443,15 +1594,27 @@ handleUpdate(row) {
         }
     });
 }
+  }
+};
 ```
+
+示例说明：
+
+1. 弹出编辑窗口
+2. console.log(row);   //row.id 查询条件
+3. 查询数据，根据id查询
+4. 展示弹层，加载数据
+
 
 修改`handleEdit`方法
 
 ```js
+const componentOptions = {
+  methods: {
 handleEdit() {
-    //发送ajax请求
+    // See note 1 below.
     axios.put("/books",this.formData).then((res)=>{
-        //如果操作成功，关闭弹层，显示数据
+        // See note 2 below.
         if(res.data.code == 20031){
             this.dialogFormVisible4Edit = false;
             this.$message.success("修改成功");
@@ -1460,11 +1623,22 @@ handleEdit() {
         }else{
             this.$message.error(res.data.msg);
         }
+    }).catch(error => {
+        console.error(error);
+        this.$message.error("请求失败，请稍后重试");
     }).finally(()=>{
         this.getAll();
     });
 }
+  }
+};
 ```
+
+示例说明：
+
+1. 发送ajax请求
+2. 如果操作成功，关闭弹层，显示数据
+
 
 至此修改功能就已经完成。
 
@@ -1484,34 +1658,48 @@ handleEdit() {
 >
 > 5.根据后台返回结果做不同的操作
 >
-> ​	如果返回成功，提示成功信息，并重新查询数据
+> 	如果返回成功，提示成功信息，并重新查询数据
 >
-> ​	如果返回失败，提示错误信息，并重新查询数据
+> 	如果返回失败，提示错误信息，并重新查询数据
 
 修改`handleDelete`方法
 
 ```js
+const componentOptions = {
+  methods: {
 handleDelete(row) {
-    //1.弹出提示框
+    // See note 1 below.
     this.$confirm("此操作永久删除当前数据，是否继续？","提示",{
         type:'info'
     }).then(()=>{
-        //2.做删除业务
+        // See note 2 below.
         axios.delete("/books/"+row.id).then((res)=>{
             if(res.data.code == 20021){
                 this.$message.success("删除成功");
             }else{
                 this.$message.error("删除失败");
             }
-        }).finally(()=>{
+        }).catch(error => {
+        console.error(error);
+        this.$message.error("请求失败，请稍后重试");
+    }).finally(()=>{
             this.getAll();
         });
     }).catch(()=>{
-        //3.取消删除
+        // See note 3 below.
         this.$message.info("取消删除操作");
     });
 }
+  }
+};
 ```
+
+示例说明：
+
+1. 1.弹出提示框
+2. 2.做删除业务
+3. 3.取消删除
+
 
 接下来，下面是一个完整页面
 
@@ -1522,7 +1710,7 @@ handleDelete(row) {
 
     <head>
 
-        <!-- 页面meta -->
+        <!-- See note 1 below. -->
 
         <meta charset="utf-8">
 
@@ -1532,7 +1720,7 @@ handleDelete(row) {
 
         <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
 
-        <!-- 引入样式 -->
+        <!-- See note 2 below. -->
 
         <link rel="stylesheet" href="../plugins/elementui/index.css">
 
@@ -1590,7 +1778,7 @@ handleDelete(row) {
 
                     </el-table>
 
-                    <!-- 新增标签弹层 -->
+                    <!-- See note 3 below. -->
 
                     <div class="add-form">
 
@@ -1651,7 +1839,7 @@ handleDelete(row) {
 
                     </div>
 
-                    <!-- 编辑标签弹层 -->
+                    <!-- See note 4 below. -->
 
                     <div class="add-form">
 
@@ -1719,7 +1907,7 @@ handleDelete(row) {
 
     </body>
 
-    <!-- 引入组件库 -->
+    <!-- See note 5 below. -->
 
     <script src="../js/vue.js"></script>
 
@@ -1735,47 +1923,47 @@ handleDelete(row) {
             el: '#app',
             data:{
                 pagination: {},
-				dataList: [],//当前页要展示的列表数据
-                formData: {},//表单数据
-                dialogFormVisible: false,//控制表单是否可见
-                dialogFormVisible4Edit:false,//编辑表单是否可见
-                rules: {//校验规则
+                dataList: [],// See note 6 below.
+                formData: {},// See note 7 below.
+                dialogFormVisible: false,// See note 8 below.
+                dialogFormVisible4Edit:false,// See note 9 below.
+                rules: {// See note 10 below.
                     type: [{ required: true, message: '图书类别为必填项', trigger: 'blur' }],
                     name: [{ required: true, message: '图书名称为必填项', trigger: 'blur' }]
                 }
             },
 
-            //钩子函数，VUE对象初始化完成后自动执行
+            // See note 11 below.
             created() {
                 this.getAll();
             },
 
             methods: {
-                //列表
+                // See note 12 below.
                 getAll() {
-                    //发送ajax请求
+                    // See note 13 below.
                     axios.get("/books").then((res)=>{
                         this.dataList = res.data.data;
                     });
                 },
 
-                //弹出添加窗口
+                // See note 14 below.
                 handleCreate() {
                     this.dialogFormVisible = true;
                     this.resetForm();
                 },
 
-                //重置表单
+                // See note 15 below.
                 resetForm() {
                     this.formData = {};
                 },
 
-                //添加
+                // See note 16 below.
                 handleAdd () {
-                    //发送ajax请求
+                    // See note 17 below.
                     axios.post("/books",this.formData).then((res)=>{
                         console.log(res.data);
-                        //如果操作成功，关闭弹层，显示数据
+                        // See note 18 below.
                         if(res.data.code == 20011){
                             this.dialogFormVisible = false;
                             this.$message.success("添加成功");
@@ -1784,19 +1972,22 @@ handleDelete(row) {
                         }else{
                             this.$message.error(res.data.msg);
                         }
-                    }).finally(()=>{
+                    }).catch(error => {
+        console.error(error);
+        this.$message.error("请求失败，请稍后重试");
+    }).finally(()=>{
                         this.getAll();
                     });
                 },
 
-                //弹出编辑窗口
+                // See note 19 below.
                 handleUpdate(row) {
-                    // console.log(row);   //row.id 查询条件
-                    //查询数据，根据id查询
+                    // See note 20 below.
+                    // See note 21 below.
                     axios.get("/books/"+row.id).then((res)=>{
                         // console.log(res.data.data);
                         if(res.data.code == 20041){
-                            //展示弹层，加载数据
+                            // See note 22 below.
                             this.formData = res.data.data;
                             this.dialogFormVisible4Edit = true;
                         }else{
@@ -1805,11 +1996,11 @@ handleDelete(row) {
                     });
                 },
 
-                //编辑
+                // See note 23 below.
                 handleEdit() {
-                    //发送ajax请求
+                    // See note 24 below.
                     axios.put("/books",this.formData).then((res)=>{
-                        //如果操作成功，关闭弹层，显示数据
+                        // See note 25 below.
                         if(res.data.code == 20031){
                             this.dialogFormVisible4Edit = false;
                             this.$message.success("修改成功");
@@ -1818,29 +2009,35 @@ handleDelete(row) {
                         }else{
                             this.$message.error(res.data.msg);
                         }
-                    }).finally(()=>{
+                    }).catch(error => {
+        console.error(error);
+        this.$message.error("请求失败，请稍后重试");
+    }).finally(()=>{
                         this.getAll();
                     });
                 },
 
-                // 删除
+                // See note 26 below.
                 handleDelete(row) {
-                    //1.弹出提示框
+                    // See note 27 below.
                     this.$confirm("此操作永久删除当前数据，是否继续？","提示",{
                         type:'info'
                     }).then(()=>{
-                        //2.做删除业务
+                        // See note 28 below.
                         axios.delete("/books/"+row.id).then((res)=>{
                             if(res.data.code == 20021){
                                 this.$message.success("删除成功");
                             }else{
                                 this.$message.error("删除失败");
                             }
-                        }).finally(()=>{
+                        }).catch(error => {
+        console.error(error);
+        this.$message.error("请求失败，请稍后重试");
+    }).finally(()=>{
                             this.getAll();
                         });
                     }).catch(()=>{
-                        //3.取消删除
+                        // See note 29 below.
                         this.$message.info("取消删除操作");
                     });
                 }
@@ -1851,6 +2048,41 @@ handleDelete(row) {
 
 </html>
 ```
+
+示例说明：
+
+1. 页面meta
+2. 引入样式
+3. 新增标签弹层
+4. 编辑标签弹层
+5. 引入组件库
+6. 当前页要展示的列表数据
+7. 表单数据
+8. 控制表单是否可见
+9. 编辑表单是否可见
+10. 校验规则
+11. 钩子函数，VUE对象初始化完成后自动执行
+12. 列表
+13. 发送ajax请求
+14. 弹出添加窗口
+15. 重置表单
+16. 添加
+17. 发送ajax请求
+18. 如果操作成功，关闭弹层，显示数据
+19. 弹出编辑窗口
+20. console.log(row);   //row.id 查询条件
+21. 查询数据，根据id查询
+22. 展示弹层，加载数据
+23. 编辑
+24. 发送ajax请求
+25. 如果操作成功，关闭弹层，显示数据
+26. 删除
+27. 1.弹出提示框
+28. 2.做删除业务
+29. 3.取消删除
+
+
+<a id="section-5"></a>
 
 ## 5，拦截器
 
@@ -1914,16 +2146,16 @@ handleDelete(row) {
 
   ```xml
   <?xml version="1.0" encoding="UTF-8"?>
-  
+
   <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-  
+
     <groupId>com.itheima</groupId>
     <artifactId>springmvc_12_interceptor</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
-  
+
     <dependencies>
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -1942,7 +2174,7 @@ handleDelete(row) {
         <version>2.9.0</version>
       </dependency>
     </dependencies>
-  
+
     <build>
       <plugins>
         <plugin>
@@ -1965,7 +2197,7 @@ handleDelete(row) {
       </plugins>
     </build>
   </project>
-  
+
   ```
 
 - 创建对应的配置类
@@ -1975,16 +2207,16 @@ handleDelete(row) {
       protected Class<?>[] getRootConfigClasses() {
           return new Class[0];
       }
-  
+
       protected Class<?>[] getServletConfigClasses() {
           return new Class[]{SpringMvcConfig.class};
       }
-  
+
       protected String[] getServletMappings() {
           return new String[]{"/"};
       }
-  
-      //乱码处理
+
+      // See note 1 below.
       @Override
       protected Filter[] getServletFilters() {
           CharacterEncodingFilter filter = new CharacterEncodingFilter();
@@ -1992,14 +2224,19 @@ handleDelete(row) {
           return new Filter[]{filter};
       }
   }
-  
+
   @Configuration
   @ComponentScan({"com.itheima.controller"})
   @EnableWebMvc
   public class SpringMvcConfig{
-     
+
   }
   ```
+
+示例说明：
+
+1. 乱码处理
+
 
 - 创建模型类Book
 
@@ -2007,23 +2244,23 @@ handleDelete(row) {
   public class Book {
       private String name;
       private double price;
-  
+
       public String getName() {
           return name;
       }
-  
+
       public void setName(String name) {
           this.name = name;
       }
-  
+
       public double getPrice() {
           return price;
       }
-  
+
       public void setPrice(double price) {
           this.price = price;
       }
-  
+
       @Override
       public String toString() {
           return "Book{" +
@@ -2040,31 +2277,31 @@ handleDelete(row) {
   @RestController
   @RequestMapping("/books")
   public class BookController {
-  
+
       @PostMapping
       public String save(@RequestBody Book book){
           System.out.println("book save..." + book);
           return "{'module':'book save'}";
       }
-  
+
       @DeleteMapping("/{id}")
       public String delete(@PathVariable Integer id){
           System.out.println("book delete..." + id);
           return "{'module':'book delete'}";
       }
-  
+
       @PutMapping
       public String update(@RequestBody Book book){
           System.out.println("book update..."+book);
           return "{'module':'book update'}";
       }
-  
+
       @GetMapping("/{id}")
       public String getById(@PathVariable Integer id){
           System.out.println("book getById..."+id);
           return "{'module':'book getById'}";
       }
-  
+
       @GetMapping
       public String getAll(){
           System.out.println("book getAll...");
@@ -2085,29 +2322,38 @@ handleDelete(row) {
 
 ```java
 @Component
-//定义拦截器类，实现HandlerInterceptor接口
-//注意当前类必须受Spring容器控制
+// See note 1 below.
+// See note 2 below.
 public class ProjectInterceptor implements HandlerInterceptor {
     @Override
-    //原始方法调用前执行的内容
+    // See note 3 below.
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         System.out.println("preHandle...");
         return true;
     }
 
     @Override
-    //原始方法调用后执行的内容
+    // See note 4 below.
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         System.out.println("postHandle...");
     }
 
     @Override
-    //原始方法调用完成后执行的内容
+    // See note 5 below.
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         System.out.println("afterCompletion...");
     }
 }
 ```
+
+示例说明：
+
+1. 定义拦截器类，实现HandlerInterceptor接口
+2. 注意当前类必须受Spring容器控制
+3. 原始方法调用前执行的内容
+4. 原始方法调用后执行的内容
+5. 原始方法调用完成后执行的内容
+
 
 **注意:**拦截器类要被SpringMVC容器扫描到。
 
@@ -2126,11 +2372,16 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport {
 
     @Override
     protected void addInterceptors(InterceptorRegistry registry) {
-        //配置拦截器
+        // See note 1 below.
         registry.addInterceptor(projectInterceptor).addPathPatterns("/books" );
     }
 }
 ```
+
+示例说明：
+
+1. 配置拦截器
+
 
 ##### 步骤3:SpringMVC添加SpringMvcSupport包扫描
 
@@ -2139,7 +2390,7 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport {
 @ComponentScan({"com.itheima.controller","com.itheima.config"})
 @EnableWebMvc
 public class SpringMvcConfig{
-   
+
 }
 ```
 
@@ -2166,11 +2417,16 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport {
 
     @Override
     protected void addInterceptors(InterceptorRegistry registry) {
-        //配置拦截器
+        // See note 1 below.
         registry.addInterceptor(projectInterceptor).addPathPatterns("/books","/books/*" );
     }
 }
 ```
+
+示例说明：
+
+1. 配置拦截器
+
 
 这个时候，如果再次访问`http://localhost/books/100`，拦截器就会被执行。
 
@@ -2182,18 +2438,24 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport {
 @Configuration
 @ComponentScan({"com.itheima.controller"})
 @EnableWebMvc
-//实现WebMvcConfigurer接口可以简化开发，但具有一定的侵入性
+// See note 1 below.
 public class SpringMvcConfig implements WebMvcConfigurer {
     @Autowired
     private ProjectInterceptor projectInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        //配置多拦截器
+        // See note 2 below.
         registry.addInterceptor(projectInterceptor).addPathPatterns("/books","/books/*");
     }
 }
 ```
+
+示例说明：
+
+1. 实现WebMvcConfigurer接口可以简化开发，但具有一定的侵入性
+2. 配置多拦截器
+
 
 此后咱们就不用再写`SpringMvcSupport`类了。
 
@@ -2203,9 +2465,9 @@ public class SpringMvcConfig implements WebMvcConfigurer {
 
 当有拦截器后，请求会先进入preHandle方法，
 
-​	如果方法返回true，则放行继续执行后面的handle[controller的方法]和后面的方法
+    如果方法返回true，则放行继续执行后面的handle[controller的方法]和后面的方法
 
-​	如果返回false，则直接跳过后面方法的执行。
+    如果返回false，则直接跳过后面方法的执行。
 
 ### 5.3 拦截器参数
 
@@ -2224,7 +2486,7 @@ public boolean preHandle(HttpServletRequest request,
 
 * request:请求对象
 * response:响应对象
-* handler:被调用的处理器对象，本质上是一个方法对象，对反射中的Method对象进行了再包装
+* handler：当前处理器对象。注解控制器通常是 HandlerMethod；静态资源等处理器可能是其他类型，强制转换前要检查类型。
 
 使用request对象可以获取请求数据中的内容，如获取请求头的`Content-Type`
 
@@ -2241,15 +2503,20 @@ public boolean preHandle(HttpServletRequest request, HttpServletResponse respons
 ```java
 public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
     HandlerMethod hm = (HandlerMethod)handler;
-    String methodName = hm.getMethod().getName();//可以获取方法的名称
+    String methodName = hm.getMethod().getName();// See note 1 below.
     System.out.println("preHandle..."+methodName);
     return true;
 }
 ```
 
+示例说明：
+
+1. 可以获取方法的名称
+
+
 #### 5.3.2 后置处理方法
 
-原始方法运行后运行，如果原始方法被拦截，则不执行  
+原始方法运行后运行，如果原始方法被拦截，则不执行
 
 ```java
 public void postHandle(HttpServletRequest request,
@@ -2268,7 +2535,7 @@ modelAndView:如果处理器执行完成具有返回结果，可以读取到对�
 
 #### 5.3.3 完成处理方法
 
-拦截器最后执行的方法，无论原始方法是否执行
+在请求完成后调用，但只对 preHandle 成功返回 true 的拦截器执行。当前拦截器返回 false 时，不会调用它自己的 afterCompletion；更早已放行的拦截器仍会收到完成回调。
 
 ```java
 public void afterCompletion(HttpServletRequest request,
@@ -2281,7 +2548,7 @@ public void afterCompletion(HttpServletRequest request,
 
 前三个参数与上面的是一致的。
 
-ex:如果处理器执行过程中出现异常对象，可以针对异常情况进行单独处理  
+ex:如果处理器执行过程中出现异常对象，可以针对异常情况进行单独处理
 
 因为我们现在已经有全局异常处理器类，所以该参数的使用率也不高。
 
@@ -2324,7 +2591,7 @@ public class ProjectInterceptor2 implements HandlerInterceptor {
 @Configuration
 @ComponentScan({"com.itheima.controller"})
 @EnableWebMvc
-//实现WebMvcConfigurer接口可以简化开发，但具有一定的侵入性
+// See note 1 below.
 public class SpringMvcConfig implements WebMvcConfigurer {
     @Autowired
     private ProjectInterceptor projectInterceptor;
@@ -2333,12 +2600,18 @@ public class SpringMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        //配置多拦截器
+        // See note 2 below.
         registry.addInterceptor(projectInterceptor).addPathPatterns("/books","/books/*");
         registry.addInterceptor(projectInterceptor2).addPathPatterns("/books","/books/*");
     }
 }
 ```
+
+示例说明：
+
+1. 实现WebMvcConfigurer接口可以简化开发，但具有一定的侵入性
+2. 配置多拦截器
+
 
 步骤3:运行程序，观察顺序
 
@@ -2353,7 +2626,7 @@ public class SpringMvcConfig implements WebMvcConfigurer {
 
 ![1630680579735](Resources/1630680579735.png)
 
-preHandle：与配置顺序相同，必定运行
+preHandle：按配置顺序执行；前一个返回 false 或抛出异常时，后续不会执行
 
 postHandle:与配置顺序相反，可能不运行
 

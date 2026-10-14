@@ -1,219 +1,186 @@
-## **一、注解详解（配备了完善的释义）** 
+# Spring Boot 与 Java Web 常用注解速查
+
+按用途查常用注解，理解使用条件、作用与常见误区。
+
+**学习前提与版本：** 这是一份常用注解速查，并非全部注解清单。以 Spring Boot 3 / Spring 6 / Jakarta 为主要范围；JPA、Jackson 和 Lombok 分属不同库，需要各自依赖。
+
+**示例使用：** 除明确列出全部文件和运行步骤的项目外，代码块是各小节的独立片段。省略号、占位名称需要补齐；标明错误的行用于说明问题。同节替代写法不要合并。
 
-`@SpringBootApplication`：申明让spring boot自动给程序进行必要的配置，这个配置等同于：@Configuration ，@EnableAutoConfiguration 和 @ComponentScan 三个配置。
+[学习索引与常见词](README.md) · [官方参考](https://docs.spring.io/spring-framework/reference/)
+
+**内容导航**
+
+- [如何阅读这份速查表](#section-1)
+- [Spring 容器与依赖注入](#section-2)
+- [Spring MVC 请求与响应](#section-3)
+- [校验、事务与异常](#section-4)
+- [JPA：实体与关联](#section-5)
+- [Jackson：JSON 映射](#section-6)
+- [Lombok：生成常见代码](#section-7)
+- [JPA 生命周期回调](#section-8)
 
-`@ResponseBody`：表示该方法的返回结果直接写入HTTP response body中，一般在异步获取数据时使用，用于构建RESTful的api。在使用@RequestMapping后，返回值通常解析为跳转路径，加上@Responsebody后返回结果不会被解析为跳转路径，而是直接写入HTTP response body中。比如异步获取json数据，加上@Responsebody后，会直接返回json数据。该注解一般会配合@RequestMapping一起使用。
+
+<a id="section-1"></a>
 
-`@Controller`：用于定义控制器类，在spring项目中由控制器负责将用户发来的URL请求转发到对应的服务接口（service层），一般这个注解在类中，通常方法需要配合注解@RequestMapping。
+## 如何阅读这份速查表
 
-`@RestController`：用于标注控制层组件(如struts中的action)是@ResponseBody和@Controller的合集。
+注解是在代码上添加的信息。只有编译器、框架或工具识别它时，才会产生相应作用。这份文档列出常用注解，不是“Spring Boot 的全部注解”。
 
-`@RequestMapping`：提供路由信息，负责URL到Controller中的具体函数的映射。
+Spring Boot 2 / Spring 5 的 Java EE API 通常使用 javax 包；Spring Boot 3、4 的对应 API 使用 jakarta 包。不是所有 javax 包都改名，例如 JDBC 的 javax.sql.DataSource 仍然使用 javax。先确认项目依赖版本，再查看 import。
 
-`@EnableAutoConfiguration`：SpringBoot自动配置（auto-configuration）：尝试根据你添加的jar依赖自动配置你的Spring应用。例如，如果你的classpath下存在HSQLDB，并且你没有手动配置任何[数据库](https://cloud.tencent.com/solution/database?from=10680)连接beans，那么我们将自动配置一个内存型（in-memory）数据库”。你可以将@EnableAutoConfiguration或者@SpringBootApplication注解添加到一个@Configuration类上来选择自动配置。如果发现应用了你不想要的特定自动配置类，你可以使用@EnableAutoConfiguration注解的排除属性来禁用它们。
+<a id="section-2"></a>
 
-`@ComponentScan`：表示将该类自动发现扫描组件。个人理解相当于，如果扫描到有@Component、@Controller、@Service等这些注解的类，并注册为Bean，可以自动收集所有的Spring组件，包括@Configuration类。我们经常使用@ComponentScan注解搜索beans，并结合@Autowired注解导入。可以自动收集所有的Spring组件，包括@Configuration类。我们经常使用@ComponentScan注解搜索beans，并结合@Autowired注解导入。如果没有配置的话，Spring Boot会扫描启动类所在包下以及子包下的使用了@Service,@Repository等注解的类。
+## Spring 容器与依赖注入
+
+| 注解 | 放在哪里 | 作用与注意事项 |
+| --- | --- | --- |
+| @SpringBootApplication | 启动类 | 组合启动配置、自动配置和组件扫描；默认扫描所在包及子包 |
+| @Configuration | 配置类 | 声明配置，可以在方法上使用 @Bean |
+| @Bean | 配置方法 | 把返回的对象交给 Spring 管理；默认名字为方法名 |
+| @Component | 类 | 注册普通组件 |
+| @Service | 类 | 标识业务服务，属于组件注解 |
+| @Repository | 类 | 标识持久层组件，可配合异常翻译机制使用；不是加上就自动实现 SQL |
+| @ComponentScan | 配置类 | 指定组件扫描范围 |
+| @Import | 配置类 | 导入配置类或其他可注册组件 |
+| @ImportResource | 配置类 | 加载 XML 配置 |
+| @EnableAutoConfiguration | 配置类 | 根据依赖和已有 Bean 尝试配置功能，通常通过启动注解间接使用 |
+| @Autowired | 构造器、字段或方法 | 按类型匹配依赖；可配合 @Qualifier、@Primary 处理多个候选 |
+| @Qualifier | 注入位置等 | 筛选同类型候选；名称只是其中一种筛选方式 |
+| @Primary | Bean 定义 | 多个候选中优先选择该 Bean |
+| @Value | 字段或参数等 | 读取单个配置值，例如 `${server.port}` |
+| @ConfigurationProperties | 配置类或 Bean 方法 | 按前缀绑定一组配置，比很多零散 @Value 更易维护 |
+| @Scope | Bean 定义 | 设置 singleton、prototype、request、session 等作用域 |
 
-`@Configuration`：相当于传统的xml配置文件，如果有些第三方库需要用到xml文件，建议仍然通过@Configuration类作为项目的配置主类——可以使用@ImportResource注解加载xml配置文件。
+只有一个构造器时，Spring 可以自动使用它，不必添加 @Autowired。构造器注入让必需依赖更清楚，也更便于测试。
 
-`@Import`：用来导入其他配置类。
+```java
+@Service
+public class UserService {
+    private final UserRepository repository;
 
-`@ImportResource`：用来加载xml配置文件。
+    public UserService(UserRepository repository) {
+        this.repository = repository;
+    }
+}
+```
+
+这是结构片段，还需要定义 UserRepository 并把它注册成 Bean。
+
+@Resource 属于 Java EE / Jakarta 注解，常按名称查找，再按规则回退到类型匹配。@Inject 也用于依赖注入，但没有 @Autowired 的 required 属性，不能认为两者在所有细节上完全相同。
+
+<a id="section-3"></a>
+
+## Spring MVC 请求与响应
+
+| 注解 | 作用 | 例子或限制 |
+| --- | --- | --- |
+| @Controller | 声明控制器 | 可以返回视图名，也可以配合 @ResponseBody 返回数据 |
+| @RestController | @Controller + @ResponseBody | 返回 HTTP 响应体；不保证接口设计本身就符合 REST |
+| @RequestMapping | 匹配请求 | path/value、method、params、headers、consumes、produces 等条件 |
+| @GetMapping / @PostMapping / @PutMapping / @DeleteMapping / @PatchMapping | 限定 HTTP 方法 | 用在控制器方法上 |
+| @PathVariable | 读取路径变量 | /users/{id} 中的 id |
+| @RequestParam | 读取查询参数或表单字段 | ?page=1；默认 required=true |
+| @RequestHeader | 读取请求头 | Accept、Authorization 等 |
+| @CookieValue | 读取 Cookie | 注意缺失时的处理 |
+| @RequestBody | 按消息转换器读取请求体 | 常用于 JSON，也可读取文本等格式；不是 JSON 专用 |
+| @ResponseBody | 把返回值写入响应体 | 不含 pattern 属性，具体格式由消息转换器决定 |
+| @DateTimeFormat | 转换查询参数、表单等日期字段 | pattern="yyyy-MM-dd"；不直接控制 JSON 日期格式 |
+| @JsonFormat | Jackson 日期等序列化格式 | 与 @DateTimeFormat 的用途不同 |
 
-`@Autowired`：自动导入依赖的bean
+```java
+@RestController
+@RequestMapping("/users")
+public class UserController {
+    @GetMapping("/{id}")
+    public Map<String, Long> find(@PathVariable("id") Long id) {
+        return Collections.singletonMap("id", id);
+    }
+}
+```
 
-`@Service`：一般用于修饰service层的组件
+导入 Spring MVC 注解、java.util.Map 和 java.util.Collections。项目需要 MVC 和 JSON 消息转换依赖；Spring Boot 的 Web starter 通常已提供。
 
-`@Repository`：使用@Repository注解可以确保DAO或者repositories提供异常转译，这个注解修饰的DAO或者repositories类会被ComponetScan发现并配置，同时也不需要为它们提供XML配置项。
+<a id="section-4"></a>
 
-`@Value`：注入Spring boot application.properties配置的属性的值。示例代码：
+## 校验、事务与异常
 
-`@Inject`：等价于默认的@Autowired，只是没有required属性；
+| 注解 | 作用 | 注意事项 |
+| --- | --- | --- |
+| @Valid | 触发 Bean Validation | 需要校验实现；常配合 @RequestBody |
+| @Validated | Spring 校验入口、校验分组等 | 与 @Valid 有交集，但不完全相同 |
+| @NotNull / @NotBlank / @Size | 声明校验约束 | 分别用于非 null、非空白字符串、长度或集合大小等 |
+| @Transactional | 声明事务 | 默认代理模式下，类内部直接调用自己的事务方法不会经过代理 |
+| @ControllerAdvice | 集中处理控制器相关逻辑 | 可用于异常、数据绑定等 |
+| @RestControllerAdvice | @ControllerAdvice + @ResponseBody | 常用于 API 异常响应 |
+| @ExceptionHandler | 声明异常处理方法 | 通常配合 Advice 或放在控制器内部 |
 
-`@Component`：泛指组件，当组件不好归类的时候，我们可以使用这个注解进行标注。
+@Transactional 默认对 RuntimeException 和 Error 回滚，受检异常默认不回滚。需要受检异常也回滚时，设置 rollbackFor=Exception.class。readOnly 是只读提示，其执行方式取决于事务管理器与数据库，不能当作通用权限控制。timeout 的单位是秒，不是毫秒。
 
-`@Bean`:相当于XML中的,放在方法的上面，而不是类，意思是产生一个bean,并交给spring管理。
+异常响应需要同时考虑响应体和 HTTP 状态码，不能只返回错误 JSON 却默认始终使用 200。
 
-`@AutoWired`：自动导入依赖的bean。byType方式。把配置好的Bean拿来用，完成属性、方法的组装，它可以对类成员变量、方法及构造函数进行标注，完成自动装配的工作。当加上（required=false）时，就算找不到bean也不报错。
+<a id="section-5"></a>
 
-`@Qualifier`：当有多个同一类型的Bean时，可以用@Qualifier(“name”)来指定。与@Autowired配合使用。@Qualifier限定描述符除了能根据名字进行注入，但能进行更细粒度的控制如何选择候选者，具体使用方式如下：
+## JPA：实体与关联
 
-`@Resource(name=”name”,type=”type”)`：没有括号内内容的话，默认byName。与@Autowired干类似的事。
+以下是 Jakarta Persistence / JPA 的注解，不是 MyBatis 注解。不要在纯 MyBatis 项目中期待 @Entity 自动创建数据库映射。
 
-## **二、注解列表如下** 
+| 注解 | 含义 |
+| --- | --- |
+| @Entity | 声明持久化实体，通常需要主键和可访问的无参构造器 |
+| @Table | 指定表名、索引等；命名策略也可能改变实际表名 |
+| @Id | 标识主键 |
+| @GeneratedValue | 指定主键生成策略 |
+| @SequenceGenerator | 定义序列生成器；数据库必须支持所选方式 |
+| @MappedSuperclass | 父类的映射属性由子实体继承；父类不是单独的实体表 |
+| @Column | 指定列名、nullable、length、precision、scale、insertable、updatable 等 |
+| @Transient | 不持久化该属性，不等于不参与 JSON 序列化 |
+| @Basic | 基本属性映射；LAZY 是提示，可能需要提供者增强支持 |
+| @OneToOne / @OneToMany / @ManyToOne / @ManyToMany | 定义实体关联 |
+| @JoinColumn | 定义关联使用的连接列，位置取决于关联类型与所有权 |
+| @NoRepositoryBean | Spring Data 排除基础仓库接口实例化，不是 JPA 注解 |
 
-`@SpringBootApplication`：包含了@ComponentScan、@Configuration和@EnableAutoConfiguration注解。其中@ComponentScan：让spring Boot扫描到Configuration类并把它加入到程序上下文。
+传统 JPA 主键策略为 AUTO、IDENTITY、SEQUENCE、TABLE；JPA 3.1 增加 UUID。native 不是 GenerationType 枚举成员。MySQL 常用 IDENTITY；不要直接复制其他数据库的 SEQUENCE 配置。
 
-`@Configuration` ：等同于spring的XML配置文件；使用Java代码可以检查类型安全。
+@Column(nullable=false) 主要描述映射与建表约束，不代替请求参数校验。precision/scale 用于精确小数列，金额通常使用 BigDecimal；不要把它们当成 double 的浮点精度控制。
 
-`@EnableAutoConfiguration`：自动配置。
+<a id="section-6"></a>
 
-`@ComponentScan` ：组件扫描，可自动发现和装配一些Bean。
+## Jackson：JSON 映射
 
-`@Component`：可配合CommandLineRunner使用，在程序启动后执行一些基础任务。
+- @JsonIgnore：通常忽略属性的序列化与反序列化，具体取决于属性上的组合配置。
+- @JsonManagedReference / @JsonBackReference：处理双向父子引用。BackReference 一侧不会正常输出成递归子对象。
+- 避免直接返回带复杂关联的 JPA 实体，使用明确的响应 DTO 更易控制字段和查询次数。
 
-`@RestController`：注解是@Controller和@ResponseBody的合集,表示这是个控制器bean,并且是将函数的返回值直 接填入HTTP响应体中,是REST风格的控制器。
+<a id="section-7"></a>
 
-`@PathVariable`：获取参数。
+## Lombok：生成常见代码
 
-`@JsonBackReference`：解决嵌套外链问题。
+| 注解或类型 | 作用与边界 |
+| --- | --- |
+| @Getter / @Setter | 生成访问方法，适用于字段或类；final 字段不会生成普通 setter |
+| @Data | 组合访问方法、equals/hashCode、toString 和必需参数构造器等；不是无条件给所有字段生成 setter |
+| @NoArgsConstructor | 生成无参构造器 |
+| @RequiredArgsConstructor | 为未初始化 final 字段及符合条件的 @NonNull 字段生成构造器 |
+| @AllArgsConstructor | 为实例字段生成全参构造器 |
+| @EqualsAndHashCode | 生成相等性方法，默认不包含 static 和 transient 字段 |
+| @ToString | 生成 toString；注意排除密码和可能递归的关联 |
+| @Log4j2 | 生成 Log4j 2 日志对象，需要匹配的日志依赖 |
+| @NonNull | 在 Lombok 支持的生成代码中增加参数检查，不是全局非空保证 |
+| val | 局部变量的类型推断，生成 final 局部变量；不能作为字段注解使用 |
 
-`@RepositoryRestResource`：配合spring-boot-starter-data-rest使用。
+Lombok 需要编译期注解处理支持。构造器注解可组合使用，但生成相同签名会冲突；手写构造器也要检查签名是否重复。
 
-## **三、JPA注解** 
+<a id="section-8"></a>
 
-`@Entity`：@Table(name=”“)：表明这是一个实体类。一般用于jpa这两个注解一般一块使用，但是如果表名和实体类名相同的话，@Table可以省略
+## JPA 生命周期回调
 
-`@MappedSuperClass`:用在确定是父类的entity上。父类的属性子类可以继承。
+| 回调 | 时机 |
+| --- | --- |
+| @PostLoad | 实体被加载或刷新后 |
+| @PrePersist / @PostPersist | 持久化前 / 插入操作后 |
+| @PreUpdate / @PostUpdate | 数据库更新操作前后 |
+| @PreRemove / @PostRemove | 删除前后 |
 
-`@NoRepositoryBean`:一般用作父类的repository，有这个注解，spring不会去实例化该repository。
+SQL 可能在 flush 时执行，不一定等到 commit。PostPersist、PostUpdate、PostRemove 也不表示事务已经成功提交。getReference 返回代理时，不一定立即加载实体或触发 PostLoad。
 
-`@Column`：如果字段名与列名相同，则可以省略。
-
-`@Id`：表示该属性为主键。
-
-`@GeneratedValue(strategy = GenerationType.SEQUENCE,generator = “repair_seq”)`：表示主键生成策略是sequence（可以为Auto、IDENTITY、native等，Auto表示可在多个数据库间切换），指定sequence的名字是repair_seq。
-
-`@SequenceGeneretor(name = “repair_seq”, sequenceName = “seq_repair”, allocationSize = 1)`：name为sequence的名称，以便使用，sequenceName为数据库的sequence名称，两个名称可以一致。
-
-`@Transient`：表示该属性并非一个到数据库表的字段的映射,ORM框架将忽略该属性。如果一个属性并非数据库表的字段映射,就务必将其标示为@Transient,否则,ORM框架默认其注解为@Basic。
-
-`@Basic(fetch=FetchType.LAZY)`：标记可以指定实体属性的加载方式
-
-`@JsonIgnore`：作用是json序列化时将Java bean中的一些属性忽略掉,序列化和反序列化都受影响。
-
-`@JoinColumn（name=”loginId”）`:一对一：本表中指向另一个表的外键。一对多：另一个表指向本表的外键。
-
-`@OneToOne、@OneToMany、@ManyToOne`：对应hibernate配置文件中的一对一，一对多，多对一。
-
-## **四、springMVC相关注解** 
-
-`@RequestMapping`：@RequestMapping(“/path”)表示该控制器处理所有“/path”的UR L请求。RequestMapping是一个用来处理请求地址映射的注解，可用于类或方法上。
-
-用于类上，表示类中的所有响应请求的方法都是以该地址作为父路径。该注解有六个属性：
-
-params:指定request中必须包含某些参数值是，才让该方法处理。headers:指定request中必须包含某些指定的header值，才能让该方法处理请求。value:指定请求的实际地址，指定的地址可以是URI Template 模式 method:指定请求的method类型， GET、POST、PUT、DELETE等 consumes:指定处理请求的提交内容类型（Content-Type），如application/json,text/html; produces:指定返回的内容类型，仅当request请求头中的(Accept)类型中包含该指定类型才返回
-
-`@RequestParam`：用在方法的参数前面。
-
-String a =request.getParameter(“a”)。
-
-`@PathVariable`:路径变量。如
-
-参数与大括号里的名字一样要相同。
-
-## **五、全局异常处理** 
-
-`@ControllerAdvice`：包含@Component。可以被扫描到。统一处理异常。
-
-`@ExceptionHandler（Exception.class）`：用在方法上面表示遇到这个异常就执行以下方法。
-
-## **六、项目中具体配置解析和使用环境** 
-
-`@MappedSuperclass`：
-
-1.@MappedSuperclass 注解使用在父类上面，是用来标识父类的
-
-2.@MappedSuperclass 标识的类表示其不能映射到数据库表，因为其不是一个完整的实体类，但是它所拥有的属性能够映射在其子类对用的数据库表中
-
-3.@MappedSuperclass 标识的类不能再有@Entity或@Table注解
-
-`@Column`：
-
-a.当实体的属性与其映射的数据库表的列不同名时需要使用@Column标注说明，该属性通常置于实体的属性声明语句之前，还可与 @Id 标注一起使用。
-
-b.@Column 标注的常用属性是name，用于设置映射数据库表的列名。此外，该标注还包含其它多个属性，如：unique、nullable、length、precision等。具体如下：
-
-（1） name属性：name属性定义了被标注字段在数据库表中所对应字段的名称
-
-（2） unique属性：unique属性表示该字段是否为唯一标识，默认为false，如果表中有一个字段需要唯一标识，则既可以使用该标记，也可以使用@Table注解中的@UniqueConstraint
-
-（3） nullable属性：nullable属性表示该字段是否可以为null值，默认为true
-
-（4） insertable属性：insertable属性表示在使用”INSERT”语句插入数据时，是否需要插入该字段的值
-
-（5） updateable属性：updateable属性表示在使用”UPDATE”语句插入数据时，是否需要更新该字段的值
-
-（6） insertable和updateable属性：一般多用于只读的属性，例如主键和外键等，这些字段通常是自动生成的
-
-（7） columnDefinition属性：columnDefinition属性表示创建表时，该字段创建的SQL语句，一般用于通过Entity生成表定义时使用，如果数据库中表已经建好，该属性没有必要使用
-
-（8） table属性：table属性定义了包含当前字段的表名
-
-（9） length属性：length属性表示字段的长度，当字段的类型为varchar时，该属性才有效，默认为255个字符
-
-（10）precision属性和scale属性：precision属性和scale属性一起表示精度，当字段类型为double时，precision表示数值的总长度，scale表示小数点所占的位数
-
-具体如下：
-
-double类型将在数据库中映射为double类型，precision和scale属性无效 double类型若在columnDefinition属性中指定数字类型为decimal并指定精度，则最终以columnDefinition为准
-
-BigDecimal类型在数据库中映射为decimal类型，precision和scale属性有效
-
-precision和scale属性只在BigDecimal类型中有效
-
-c.@Column 标注的columnDefinition属性: 表示该字段在数据库中的实际类型.通常 ORM 框架可以根据属性类型自动判断数据库中字段的类型,但是对于Date类型仍无法确定数据库中字段类型究竟是DATE,TIME还是TIMESTAMP.此外,String的默认映射类型为VARCHAR,如果要将 String 类型映射到特定数据库的 BLOB 或TEXT字段类型.
-
-d.@Column标注也可置于属性的getter方法之前
-
-`@Getter和@Setter`（Lombok）@Setter：注解在属性上；为属性提供 setting 方法 @Getter：注解在属性上；为属性提供 getting 方法
-
-`@Data`：注解在类上；提供类所有属性的 getting 和 setting 方法，此外还提供了equals、canEqual、hashCode、toString 方法
-
-`@Setter`：注解在属性上；为属性提供 setting 方法
-
-`@Getter`：注解在属性上；为属性提供 getting 方法
-
-`@Log4j2`：注解在类上；为类提供一个 属性名为log 的 log4j 日志对象，和@Log4j注解类似
-
-`@NoArgsConstructor`：注解在类上；为类提供一个无参的构造方法
-
-`@AllArgsConstructor`：注解在类上；为类提供一个全参的构造方法
-
-`@EqualsAndHashCode`:默认情况下，会使用所有非瞬态(non-transient)和非静态(non-static)字段来生成equals和hascode方法，也可以指定具体使用哪些属性。
-
-`@toString`:生成toString方法，默认情况下，会输出类名、所有属性，属性会按照顺序输出，以逗号分割。
-
-`@NoArgsConstructor, @RequiredArgsConstructor and @AllArgsConstructor`：无参构造器、部分参数构造器、全参构造器，当我们需要重载多个构造器的时候，只能自己手写了
-
-`@NonNull`：注解在属性上，如果注解了，就必须不能为Null
-
-`@val`:注解在属性上，如果注解了，就是设置为final类型，可查看源码的注释知道
-
-当你在执行各种持久化方法的时候，实体的状态会随之改变，状态的改变会引发不同的生命周期事件。这些事件可以使用不同的注释符来指示发生时的回调函数。
-
-@javax.persistence.PostLoad：加载后。@javax.persistence.PrePersist：持久化前。@javax.persistence.PostPersist：持久化后。@javax.persistence.PreUpdate：更新前。@javax.persistence.PostUpdate：更新后。@javax.persistence.PreRemove：删除前。@javax.persistence.PostRemove：删除后。
-
-1）数据库查询
-
-@PostLoad事件在下列情况下触发：
-
-执行EntityManager.find()或getreference()方法载入一个实体后。
-
-执行JPQL查询后。
-
-EntityManager.refresh()方法被调用后。
-
-2）数据库插入
-
-@PrePersist和@PostPersist事件在实体对象插入到数据库的过程中发生：
-
-@PrePersist事件在调用persist()方法后立刻发生，此时的数据还没有真正插入进数据库。
-
-@PostPersist事件在数据已经插入进数据库后发生。
-
-3）数据库更新
-
-@PreUpdate和@PostUpdate事件的触发由更新实体引起：
-
-@PreUpdate事件在实体的状态同步到数据库之前触发，此时的数据还没有真正更新到数据库。
-
-@PostUpdate事件在实体的状态同步到数据库之后触发，同步在事务提交时发生。
-
-4）数据库删除
-
-@PreRemove和@PostRemove事件的触发由删除实体引起：
-
-@PreRemove事件在实体从数据库删除之前触发，即在调用remove()方法删除时发生，此时的数据还没有真正从数据库中删除。
-
-@PostRemove事件在实体从数据库中删除后触发。
+参考：[Spring 注解](https://docs.spring.io/spring-framework/reference/)、[Jakarta Persistence](https://jakarta.ee/specifications/persistence/)、[Lombok 功能](https://projectlombok.org/features/)。

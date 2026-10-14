@@ -1,175 +1,123 @@
-## 需求
+# MySQL：生成带前缀的业务编号
 
-表中有字段名为id，是varchar类型，根据业务需要自增。
+生成带前缀的业务编号，并理解序号分配、并发与事务限制。
 
-（通常情况下，int类型才能自增）
+**学习前提与版本：** 需要 AUTO_INCREMENT、主键与事务基础。示例面向 MySQL 8.x / InnoDB；DELIMITER 是 mysql 客户端命令，不是 JDBC 要发送的 SQL。
+
+**示例使用：** 除明确列出全部文件和运行步骤的项目外，代码块是各小节的独立片段。省略号、占位名称需要补齐；标明错误的行用于说明问题。同节替代写法不要合并。
+
+[学习索引与常见词](README.md) · [官方参考](https://dev.mysql.com/doc/refman/8.4/en/innodb-auto-increment-handling.html)
+
+**内容导航**
+
+- [区分主键与业务编号](#section-1)
+- [方案一：数值主键，查询时格式化](#section-2)
+- [方案二：保存字符串编号](#section-3)
+- [触发器与事务的区别](#section-4)
 
 
+<a id="section-1"></a>
 
-## 测试数据
+## 区分主键与业务编号
 
-创建测试表：
+需求是生成 BH0001、BH0002 这样的编号。VARCHAR 不能设置 AUTO_INCREMENT。不要使用“查询最大编号，再加一”：空表没有最大值，并发请求也可能读到相同值。
+
+下面的示例基于 MySQL 8.x 和 InnoDB，在独立练习数据库执行。
+
+<a id="section-2"></a>
+
+## 方案一：数值主键，查询时格式化
+
+如果编号只用于展示，数据库只保存自增数值。
 
 ```sql
-CREATE TABLE IF NOT EXISTS `user` (
-`id` VARCHAR(10) NOT NULL COMMENT '员工ID',
-`username` VARCHAR(50) NOT NULL COMMENT '员工名',
-PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT = Dynamic;
+CREATE TABLE employee (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    username VARCHAR(50) NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO employee (username) VALUES ('Tom'), ('Mary');
+
+SELECT id,
+       CONCAT('BH', LPAD(CAST(id AS CHAR),
+           GREATEST(4, CHAR_LENGTH(CAST(id AS CHAR))), '0')) AS employee_code,
+       username
+FROM employee
+ORDER BY id;
 ```
 
-表中仅添加了两列，分别是主键 id 和 name 列，两列都为 varchar 类型。
+1 显示为 BH0001，10000 显示为 BH10000。填充长度设为“至少四位”，避免 LPAD('10000', 4, '0') 截断为 1000。
 
-备注：id内容格式为 BHXXXX，如：BH0001
+AUTO_INCREMENT 不保证连续无缺号。事务回滚、删除记录等都可能留下间隔，不能把它当作连续账单序号。
 
+<a id="section-3"></a>
 
+## 方案二：保存字符串编号
 
-## 难点
-
-因为主键 id 不是 int 类型，想实现自动自增功能，使用内置的方法肯定是行不通的。
-
-```sql
-# 无法自增
-`id` VARCHAR(10) NOT NULL AUTO_INCREMENT COMMENT '员工ID'
-```
-
-所以，需要使用复杂的查询方法及拼接方式。此方法虽然比较笨，但测试还是可以通过的。
-
-
-
-
-
-
-## 详细思路
-
-大致思路：在 MySQL 中新建表时，可以创建触发器为 id 进行自增。
-
-
-
-**基本概念**
-
-触发器是一种特殊类型的存储过程，它不同于存储过程，主要是通过事件触发而被执行的，即不是主动调用而执行的；而存储过程则需要主动调用其名字执行。
-
-触发器：trigger，是指事先为某张表绑定一段代码，当表中的某些内容发生改变（增、删、改）的时候，系统会自动触发代码并执行。可在写入数据前，强制检验或者转换数据（保证护数据安全）。
-
-
-
-**基本语法**
-
-创建触发器的语法结构是：
+业务要求把字符串编号保存成主键时，可以用独立序列表分配数值。以下触发器示例包含创建过程和边界检查。
 
 ```sql
-CREATE TRIGGER 触发器名称 
-{BEFORE|AFTER} {INSERT|UPDATE|DELETE} ON 
-表名 FOR EACH ROW 
-(BEGIN)
-触发器执行的语句块;
-(END)
-```
+CREATE TABLE business_sequence (
+    sequence_name VARCHAR(50) NOT NULL,
+    next_value BIGINT UNSIGNED NOT NULL,
+    PRIMARY KEY (sequence_name)
+) ENGINE=InnoDB;
 
-说明：
+INSERT INTO business_sequence (sequence_name, next_value)
+VALUES ('employee', 1);
 
-- 表名 ：表示触发器监控的对象表。
-- BEFORE|AFTER ：表示触发的时间。BEFORE 表示在事件之前触发；AFTER 表示在事件之后触发。
-- INSERT|UPDATE|DELETE ：表示触发的事件
-  - INSERT 表示插入记录时触发；
-  - UPDATE 表示更新记录时触发；
-  - DELETE 表示删除记录时触发。
-- 触发器执行的语句块 ：可以是单条SQL语句，也可以是由BEGIN…END结构组成的复合语句块。
+CREATE TABLE employee_with_code (
+    id VARCHAR(22) NOT NULL,
+    username VARCHAR(50) NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
-
-实例：
-
-```sql
-DELIMITER // 
-CREATE TRIGGER after_insert 
-AFTER INSERT ON test_trigger 
-FOR EACH ROW 
+DELIMITER //
+CREATE TRIGGER employee_code_before_insert
+BEFORE INSERT ON employee_with_code
+FOR EACH ROW
 BEGIN
-	INSERT INTO test_trigger_log (t_log) 
-	VALUES('after_insert'); 
-END // 
+    DECLARE allocated_value BIGINT UNSIGNED DEFAULT NULL;
+
+    SELECT next_value INTO allocated_value
+    FROM business_sequence
+    WHERE sequence_name = 'employee'
+    FOR UPDATE;
+
+    IF allocated_value IS NULL THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Sequence is missing';
+    END IF;
+
+    IF allocated_value = 18446744073709551615 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Sequence is exhausted';
+    END IF;
+
+    UPDATE business_sequence
+    SET next_value = next_value + 1
+    WHERE sequence_name = 'employee';
+
+    SET NEW.id = CONCAT('BH', LPAD(CAST(allocated_value AS CHAR),
+        GREATEST(4, CHAR_LENGTH(CAST(allocated_value AS CHAR))), '0'));
+END //
 DELIMITER ;
+
+INSERT INTO employee_with_code (username) VALUES ('Tom'), ('Mary');
+SELECT * FROM employee_with_code ORDER BY id;
 ```
 
+DELIMITER 是 mysql 客户端命令。使用 JDBC 创建触发器时，不要把 DELIMITER 一起发送给服务器。
 
+FOR UPDATE 锁住序列表的那一行，其他取号事务需要等待。触发器更新序列表和插入员工属于同一事务；两张表都必须使用 InnoDB。这个方案会串行分配同一种编号，不适合无限扩大并发取号量。
 
-## 解决过程
+触发器覆盖调用者传入的 id。删除员工不会重置序列表。四位编号增长到五位以后，按字符串排序不一定等于按数值排序；需要数值顺序时应另存数值列。
 
-   1. 使用查询语句查出表中最后一条数据的 id，语句：
+<a id="section-4"></a>
 
-      ```sql
-      SELECT id 
-      FROM `user` 
-      ORDER BY id desc limit 1
-      ```
+## 触发器与事务的区别
 
-​         得到结果 BH0001
+触发器是 INSERT、UPDATE 或 DELETE 发生时，由数据库执行的代码。它可以是单条语句，也可以由 BEGIN ... END 包含多条语句。
 
+触发器不代替业务事务。新增商品并新增库存，仍需明确哪些修改必须一起成功，以及相关表是否支持事务。
 
-
-2. 使用 substring 函数截取最后一条 BHXXXX 中数字部分：
-
-   ```sql
-   SELECT substring(id, 3, 4) 
-   FROM `user`
-   WHERE id = (SELECT id FROM `user` ORDER BY id desc limit 1)
-   ```
-
-   得到结果 0001。其中，3表示从第3位进行截取，4表示截取长度。
-
-   
-
-3. 使用 concat 语句进行字符串连接：
-
-      ```sql
-      concat('BH',
-            (SELECT substring(id, 3, 4) 
-             FROM `user` 
-             WHERE id = (SELECT id FROM `user` ORDER BY id desc limit 1) +1));
-      ```
-      
-      我刚开始认为到这一步的时候，只要给以上结果 +1 ，然后使用 concat 语句连接字符串就可以了，但是，得到的结果并不是我想象中的 BH0002，而是 BH2，所以，在进行字符串连接之前，得将数字2进行填充，使用 LPAD 函数，最终结果如下：
-      
-      ```sql
-      concat('BH',
-             lpad(((SELECT substring(id, 3, 4) 
-                    FROM `user` 
-                    WHERE id = (SELECT id FROM `user` ORDER BY id desc limit 1))+1), 4, 0));
-      ```
-      
-      其中，4表示填充长度，0表示填充内容。
-
-
-
-**触发器完整语句：**
-
-```sql
-CREATE TRIGGER `trigger` 
-BEFORE INSERT ON `user`
-FOR EACH ROW 
-BEGIN
-		SET new.id = concat('SH',
-                        lpad(((SELECT substring(id, 3, 4) 
-                               FROM `user` 
-                               WHERE id = (SELECT id 
-                                           FROM `user` 
-                                           ORDER BY id desc limit 1))+1), 4, 0));
-END;
-```
-
-其中，trigger 为触发器名称，user 为表名。
-
-
-
-
-
-> 在实际开发中，我们经常会遇到这样的情况：
->
-> 有 2 个或者多个相互关联的表，如 商品信息 和 库存信息 分别存放在 2 个不同的数据表中，我们在添加一条新商品记录的时候，为了保证数据的完整性，必须同时在库存表中添加一条库存记录。
->
-> 这样一来，我们就必须把这两个关联的操作步骤写到程序里面，而且要用 **事务** 包裹起来，确保这两个操作成为一个 原子操作 ，要么全部执行，要么全部不执行。要是遇到特殊情况，可能还需要对数据进行手动维护，这样就很 容易忘记其中的一步 ，导致数据缺失。
->
-> 这个时候，咱们可以使用触发器。你可以创建一个触发器，让商品信息数据的插入操作自动触发库存 **数据的插入操作。**这样一来，就不用担心因为忘记添加库存数据而导致的数据缺失了。
-> 
+参考：[AUTO_INCREMENT](https://dev.mysql.com/doc/refman/8.0/en/example-auto-increment.html)、[锁定读取](https://dev.mysql.com/doc/refman/8.0/en/innodb-locking-reads.html)、[字符串函数](https://dev.mysql.com/doc/refman/8.0/en/string-functions.html)。

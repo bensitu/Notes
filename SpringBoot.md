@@ -1,10 +1,31 @@
-## SpringBoot
+# Spring Boot 基础
+
+理解 starter、自动配置、配置文件、测试与 MyBatis 整合。
+
+**学习前提与版本：** 本篇保留 Spring Boot 2.5 / javax 的教学环境，用于概念学习和旧项目对照。新示例的 Jakarta 路线见 SSM.md 与 Springboot+JSF+Mybatis.md；不要只更换父 POM 就认为迁移完成。
+
+**截图说明：** 图片保留原教学环境的操作过程；若截图中的旧写法与正文不同，以修订后的正文和所选版本的官方文档为准。
+
+**示例使用：** 除明确列出全部文件和运行步骤的项目外，代码块是各小节的独立片段。省略号、占位名称需要补齐；标明错误的行用于说明问题。同节替代写法不要合并。
+
+[学习索引与常见词](README.md) · [官方参考](https://docs.spring.io/spring-boot/docs/2.5.0/reference/html/)
+
+**内容导航**
+
+- [1，SpringBoot 简介](#section-1)
+- [2，配置文件](#section-2)
+- [3，SpringBoot 整合 junit](#section-3)
+- [4，SpringBoot 整合 mybatis](#section-4)
+- [5，案例](#section-5)
+
 
 **目标：**
 
 > * 掌握基于 SpringBoot 框架的程序开发步骤
 > * 熟练使用 SpringBoot 配置信息修改服务器配置
 > * 基于 SpringBoot 的完成 SSM 整合项目开发
+
+<a id="section-1"></a>
 
 ## 1，SpringBoot 简介
 
@@ -85,15 +106,8 @@
 >
 > 1. 在创建好的工程中不需要创建配置类
 >
-> 2. 创建好的项目会自动生成其他的一些文件，而这些文件目前对我们来说没有任何作用，所以可以将这些文件删除。
->
->    可以删除的目录和文件如下：
->
->    * `.mvn`	
->    * `.gitignore`
->    * `HELP.md`
->    * `mvnw`
->    * `mvnw.cmd`
+> 2. 保留 .gitignore 和 Maven Wrapper（.mvn、mvnw、mvnw.cmd），它们分别帮助管理版本控制和统一 Maven 版本。HELP.md 可按需保留。不要为了“简化目录”删除构建与协作需要的文件。
+
 
 ##### 1.1.1.2  创建 Controller
 
@@ -146,8 +160,8 @@ public class Application {
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
-    <!--指定了一个父工程，父工程中的东西在该工程中可以继承过来使用-->
+
+    <!-- See note 1 below. -->
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -157,18 +171,18 @@ public class Application {
     <artifactId>springboot_01_quickstart</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
-    <!--JDK 的版本-->
+    <!-- See note 2 below. -->
     <properties>
         <java.version>8</java.version>
     </properties>
-    
+
     <dependencies>
-        <!--该依赖就是我们在创建 SpringBoot 工程勾选的那个 Spring Web 产生的-->
+        <!-- See note 3 below. -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-		<!--这个是单元测试的依赖，我们现在没有进行单元测试，所以这个依赖现在可以没有-->
+        <!-- See note 4 below. -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -178,7 +192,7 @@ public class Application {
 
     <build>
         <plugins>
-            <!--这个插件是在打包时需要的，而这里暂时还没有用到-->
+            <!-- See note 5 below. -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -187,6 +201,15 @@ public class Application {
     </build>
 </project>
 ```
+
+示例说明：
+
+1. 指定了一个父工程，父工程中的东西在该工程中可以继承过来使用
+2. JDK 的版本
+3. 该依赖就是我们在创建 SpringBoot 工程勾选的那个 Spring Web 产生的
+4. 这个是单元测试的依赖，我们现在没有进行单元测试，所以这个依赖现在可以没有
+5. 这个插件是在打包时需要的，而这里暂时还没有用到
+
 
 我们代码之所以能简化，就是因为指定的父工程和 `Spring Web` 依赖实现的。具体的我们后面在聊。
 
@@ -212,7 +235,7 @@ public class Application {
 
   `Spring/SpringMVC` 程序的配置类需要自己书写。而 `SpringBoot`  程序则不需要书写。
 
-> ==注意：基于Idea的 `Spring Initializr` 快速构建 `SpringBoot` 工程时需要联网。== 
+> ==注意：基于Idea的 `Spring Initializr` 快速构建 `SpringBoot` 工程时需要联网。==
 
 #### 1.1.3  官网构建工程
 
@@ -334,7 +357,7 @@ jar -jar springboot_01_quickstart-0.0.1-SNAPSHOT.jar
 
 <img src="Resources/image-20210918221042947.png" alt="image-20210918221042947" style="zoom:80%;" />
 
-上图中的 `properties` 标签中定义了各个技术软件依赖的版本，避免了我们在使用不同软件技术时考虑版本的兼容问题。在 `properties` 中我们找 `servlet`  和 `mysql` 的版本如下图
+上图中的 `properties` 标签中定义了各个技术软件依赖的版本，统一了一组依赖版本；额外加入或覆盖依赖时仍需检查兼容性。在 `properties` 中我们找 `servlet`  和 `mysql` 的版本如下图
 
 <img src="Resources/image-20210918221511249.png" alt="image-20210918221511249" style="zoom:80%;" />
 
@@ -370,13 +393,13 @@ jar -jar springboot_01_quickstart-0.0.1-SNAPSHOT.jar
 
 **parent**
 
-* 所有 `SpringBoot` 项目要继承的项目，定义了若干个坐标版本号（依赖管理，而非依赖），以达到减少依赖冲突的目的
+* Maven 项目常用的父 POM；也可以导入 spring-boot-dependencies BOM 而不继承该父项目，定义了若干个坐标版本号（依赖管理，而非依赖），以达到减少依赖冲突的目的
 
 * `spring-boot-starter-parent`（2.5.0）与 `spring-boot-starter-parent`（2.4.6）共计57处坐标版本不同
 
 **实际开发**
 
-* 使用任意坐标时，仅书写GAV中的G和A，V由SpringBoot提供
+* 使用 Spring Boot 管理的依赖时通常只写 G 和 A；未纳入其依赖管理的库仍需明确版本
 
   > G：groupid
   >
@@ -384,7 +407,7 @@ jar -jar springboot_01_quickstart-0.0.1-SNAPSHOT.jar
   >
   > V：version
 
-* 如发生坐标错误，再指定version（要小心版本冲突）
+* 无法解析依赖时，先检查坐标、仓库与版本管理范围。只有确认未被管理或确需覆盖时再写 version，并核对兼容要求。
 
 #### 1.2.2  程序启动
 
@@ -393,7 +416,7 @@ jar -jar springboot_01_quickstart-0.0.1-SNAPSHOT.jar
 ```java
 @SpringBootApplication
 public class Springboot01QuickstartApplication {
-    
+
     public static void main(String[] args) {
         SpringApplication.run(Springboot01QuickstartApplication.class, args);
     }
@@ -446,6 +469,8 @@ public class Springboot01QuickstartApplication {
 
 通过切换服务器，我们不难发现在使用 `SpringBoot` 换技术时只需要导入该技术的起步依赖即可。
 
+<a id="section-2"></a>
+
 ## 2，配置文件
 
 ### 2.1  配置文件格式
@@ -474,17 +499,17 @@ http://localhost/books/1
 
   ```yaml
   server:
-  	port: 81
+    port: 81
   ```
 
 * `application.yaml`
 
   ```yaml
   server:
-  	port: 82
+    port: 82
   ```
 
-> ==注意：`SpringBoot` 程序的配置文件名必须是 `application` ，只是后缀名不同而已。==
+> ==注意：默认配置文件名为 application.properties、application.yml 或 application.yaml。可以通过 spring.config.name 等启动参数改变名称；该参数需要在读取配置文件之前提供。==
 
 #### 2.1.1  环境准备
 
@@ -511,7 +536,7 @@ public class BookController {
 
 * **application.properties配置文件**
 
-现在需要进行配置，配合文件必须放在 `resources` 目录下，而该目录下有一个名为 `application.properties` 的配置文件，我们就可以在该配置文件中修改端口号，在该配置文件中书写 `port` ，`Idea` 就会提示，如下
+现在需要进行配置，本例的配置文件放在 `src/main/resources` 下（Spring Boot 也支持外部配置文件），而该目录下有一个名为 `application.properties` 的配置文件，我们就可以在该配置文件中修改端口号，在该配置文件中书写 `port` ，`Idea` 就会提示，如下
 
 <img src="Resources/image-20210917161422535.png" alt="image-20210917161422535" style="zoom:80%;" />
 
@@ -531,7 +556,7 @@ server.port=80
 
 ```yaml
 server:
-	port: 81
+  port: 81
 ```
 
 > ==注意： 在`:`后，数据前一定要加空格。==
@@ -552,14 +577,14 @@ server:
 
 ```yaml
 server:
-	port: 83
+  port: 83
 ```
 
 启动服务，在控制台可以看到绑定的端口号
 
 ![image-20210917163335913](Resources/image-20210917163335913.png)
 
-==注意：在配合文件中如果没有提示，可以使用一下方式解决==
+==注意：在配置文件中如果没有提示，可以使用一下方式解决==
 
 * 点击 `File` 选中 `Project Structure`
 
@@ -577,59 +602,23 @@ server:
 
 <img src="Resources/image-20210917163828518.png" alt="image-20210917163828518" style="zoom:80%;" />
 
-* 通过上述几步后，就可以看到如下界面。`properties` 类型的配合文件有一个，`ymal` 类型的配置文件有两个
+* 通过上述几步后，就可以看到如下界面。`properties` 类型的配置文件有一个，`yaml` 类型的配置文件有两个
 
 <img src="Resources/image-20210917163846243.png" alt="image-20210917163846243" style="zoom:80%;" />
 
-#### 2.1.3  三种配合文件的优先级
+#### 2.1.3 配置格式与优先级
 
-在三种配合文件中分别配置不同的端口号，启动服务查看绑定的端口号。用这种方式就可以看到哪个配置文件的优先级更高一些
+同一个位置同时存在 properties 与 YAML 文件时，Spring Boot 2.5 约定 properties 优先。不要同时维护 application.yml 和 application.yaml 的同名配置来依赖加载顺序；项目选择一种格式，便于排查覆盖。
 
-`application.properties` 文件内容如下：
+优先级还受配置位置、激活的 profile、环境变量和命令行参数影响。例如 `java -jar app.jar --server.port=8085` 可以覆盖配置文件中的端口。看到意外值时，应先检查这些来源。
 
-```properties
-server.port=80
-```
+YAML 只用空格缩进，不用 Tab；同一层级保持一致。下面进入 YAML 语法。
 
-`application.yml` 文件内容如下：
-
-```yaml
-server:
-	port: 81
-```
-
-`application.yaml` 文件内容如下：
-
-```yaml
-server:
-	port: 82
-```
-
-启动服务，在控制台可以看到使用的端口号是 `80`。说明 `application.properties` 的优先级最高
-
-注释掉 `application.properties` 配置文件内容。再次启动服务，在控制台可以看到使用的端口号是 `81`，说明 `application.yml` 配置文件为第二优先级。
-
-从上述的验证结果可以确定三种配置文件的优先级是：
-
-==`application.properties`  >  `application.yml`   >  `application.yaml`==
-
-> ==注意：==
->
-> * `SpringBoot` 核心配置文件名为 `application`
->
-> * `SpringBoot` 内置属性过多，且所有属性集中在一起修改，在使用时，通过提示键+关键字修改属性
->
->   例如要设置日志的级别时，可以在配置文件中书写 `logging`，就会提示出来。配置内容如下
->
->   ```yaml
->   logging:
->     level:
->       root: info
->   ```
+参考：[Spring Boot 2.5 外部配置](https://docs.spring.io/spring-boot/docs/2.5.0/reference/html/features.html#features.external-config)。
 
 ### 2.2  yaml 格式
 
-上面讲了三种不同类型的配置文件，而 `properties` 类型的配合文件之前我们学习过，接下来我们重点学习 `yaml` 类型的配置文件。
+上面讲了三种不同类型的配置文件，而 `properties` 类型的配置文件之前我们学习过，接下来我们重点学习 `yaml` 类型的配置文件。
 
 **YAML（YAML Ain't Markup Language），一种数据序列化格式。**这种格式的配置文件在近些年已经占有主导地位，那么这种配置文件和前期使用的配置文件是有一些优势的，我们先看之前使用的配置文件。
 
@@ -655,9 +644,9 @@ enterprise.tel=4006184000
 
 ```yaml
 enterprise:
-	name: itcast
-	age: 16
-	tel: 4006184000
+  name: itcast
+  age: 16
+  tel: 4006184000
 ```
 
 **优点：**
@@ -739,9 +728,9 @@ public class Enterprise {
     private int age;
     private String tel;
     private String[] subject;
-    
+
     //setter and getter
-    
+
     //toString
 }
 ```
@@ -768,15 +757,15 @@ enterprise:
 
 ##### 2.3.2.1  使用 @Value注解
 
-使用 `@Value("表达式")` 注解可以从配合文件中读取数据，注解中用于读取属性名引用方式是：`${一级属性名.二级属性名……}`
+使用 `@Value("表达式")` 注解可以从配置文件中读取数据，注解中用于读取属性名引用方式是：`${一级属性名.二级属性名……}`
 
-我们可以在 `BookController` 中使用 `@Value`  注解读取配合文件数据，如下
+我们可以在 `BookController` 中使用 `@Value`  注解读取配置文件数据，如下
 
 ```java
 @RestController
 @RequestMapping("/books")
 public class BookController {
-    
+
     @Value("${lesson}")
     private String lesson;
     @Value("${server.port}")
@@ -802,10 +791,10 @@ public class BookController {
 @RestController
 @RequestMapping("/books")
 public class BookController {
-    
+
     @Autowired
     private Environment env;
-    
+
     @GetMapping("/{id}")
     public String getById(@PathVariable Integer id){
         System.out.println(env.getProperty("lesson"));
@@ -895,7 +884,7 @@ public class Enterprise {
 @RestController
 @RequestMapping("/books")
 public class BookController {
-    
+
     @Autowired
     private Enterprise enterprise;
 
@@ -935,80 +924,40 @@ public class BookController {
 
 来回的修改配置会很麻烦，而 `SpringBoot` 给开发者提供了多环境的快捷配置，需要切换环境时只需要改一个配置即可。不同类型的配置文件多环境开发的配置都不相同，接下来对不同类型的配置文件进行说明
 
-#### 2.4.1  yaml 文件
+#### 2.4.1 YAML 多环境配置
 
-在 `application.yml` 中使用 `---` 来分割不同的配置，内容如下
-
-```yaml
-#开发
-spring:
-  profiles: dev #给开发环境起的名字
-server:
-  port: 80
----
-#生产
-spring:
-  profiles: pro #给生产环境起的名字
-server:
-  port: 81
----
-#测试
-spring:
-  profiles: test #给测试环境起的名字
-server:
-  port: 82
----
-```
-
-上面配置中 `spring.profiles` 是用来给不同的配置起名字的。而如何告知 `SpringBoot` 使用哪段配置呢？可以使用如下配置来启用都一段配置
+Spring Boot 2.4 起使用 spring.config.activate.on-profile 激活特定文档。--- 分隔多个 YAML 文档。默认文档选择 dev；后续文档仅在对应 profile 激活时生效。
 
 ```yaml
-#设置启用的环境
-spring:
-  profiles:
-    active: dev  #表示使用的是开发环境的配置
-```
-
-综上所述，`application.yml` 配置文件内容如下
-
-```yaml
-#设置启用的环境
 spring:
   profiles:
     active: dev
-
 ---
-#开发
-spring:
-  profiles: dev
-server:
-  port: 80
----
-#生产
-spring:
-  profiles: pro
-server:
-  port: 81
----
-#测试
-spring:
-  profiles: test
-server:
-  port: 82
----
-```
-
-==注意：==
-
-在上面配置中给不同配置起名字的 `spring.profiles` 配置项已经过时。最新用来起名字的配置项是 
-
-```yaml
-#开发
 spring:
   config:
     activate:
       on-profile: dev
+server:
+  port: 8080
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+server:
+  port: 8081
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+server:
+  port: 8082
 ```
+
+运行 java -jar app.jar --spring.profiles.active=prod 可以切换到生产配置。不要在带 on-profile 的文档中再放 spring.profiles.active。密码等敏感配置通过环境变量或外部配置提供，不要写入仓库。
+
+也可以分别使用 application-dev.yml、application-test.yml、application-prod.yml；具体项目选择一种清楚的组织方式即可。
 
 #### 2.4.2  properties 文件
 
@@ -1032,7 +981,7 @@ spring:
   server.port=82
   ```
 
-`SpringBoot` 只会默认加载名为 `application.properties` 的配置文件，所以需要在 `application.properties` 配置文件中设置启用哪个配置文件，配置如下:
+默认加载 application.properties 以及 YAML 配置；本小节使用 properties 文件，所以需要在 `application.properties` 配置文件中设置启用哪个配置文件，配置如下:
 
 ```properties
 spring.profiles.active=pro
@@ -1086,10 +1035,10 @@ java –jar springboot.jar –-spring.profiles.active=test --server.port=85 --se
 
 `SpringBoot` 中4级配置文件放置位置：
 
-* 1级：classpath：application.yml  
+* 1级：classpath：application.yml
 * 2级：classpath：config/application.yml
 * 3级：file ：application.yml
-* 4级：file ：config/application.yml 
+* 4级：file ：config/application.yml
 
 > ==说明：==级别越高优先级越高
 
@@ -1139,7 +1088,7 @@ server:
 
   <img src="Resources/image-20210917201523669.png" alt="image-20210917201523669" style="zoom:70%;" />
 
-* 在 `jar` 包所在位置创建 `config` 文件夹，在该文件夹下创建 `application.yml` 配置文件，而在该配合文件中将端口号设置为 `82` 
+* 在 `jar` 包所在位置创建 `config` 文件夹，在该文件夹下创建 `application.yml` 配置文件，而在该配置文件中将端口号设置为 `82`
 
 * 在命令行使用以下命令运行程序
 
@@ -1157,6 +1106,8 @@ server:
 >
 > SpringBoot 2.5.0版本存在一个bug，我们在使用这个版本时，需要在 `jar` 所在位置的 `config` 目录下创建一个任意名称的文件夹
 
+<a id="section-3"></a>
+
 ## 3，SpringBoot 整合 junit
 
 回顾 `Spring` 整合 `junit`
@@ -1165,10 +1116,10 @@ server:
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = SpringConfig.class)
 public class UserServiceTest {
-    
+
     @Autowired
     private BookService bookService;
-    
+
     @Test
     public void testSave(){
         bookService.save();
@@ -1226,7 +1177,7 @@ class Springboot07TestApplicationTests {
 }
 ```
 
-> 注意：这里的引导类所在包必须是测试类所在包及其子包。
+> 注意：默认从测试类所在包向父包查找 @SpringBootApplication 或 @SpringBootConfiguration，因此测试类通常位于引导类所在包或其子包。
 >
 > 例如：
 >
@@ -1234,6 +1185,8 @@ class Springboot07TestApplicationTests {
 > * 测试类所在包是 `com.itheima`
 >
 > 如果不满足这个要求的话，就需要在使用 `@SpringBootTest` 注解时，使用 `classes` 属性指定引导类的字节码对象。如 `@SpringBootTest(classes = Springboot07TestApplication.class)`
+
+<a id="section-4"></a>
 
 ## 4，SpringBoot 整合 mybatis
 
@@ -1254,7 +1207,7 @@ class Springboot07TestApplicationTests {
     @Import({JdbcConfig.class,MyBatisConfig.class})
     public class SpringConfig {
     }
-    
+
     ```
 
 *  `JdbcConfig` 配置类
@@ -1271,7 +1224,7 @@ class Springboot07TestApplicationTests {
         private String userName;
         @Value("${jdbc.password}")
         private String password;
-    
+
         @Bean
         public DataSource getDataSource(){
             DruidDataSource ds = new DruidDataSource();
@@ -1297,7 +1250,7 @@ class Springboot07TestApplicationTests {
         msc.setBasePackage("com.itheima.dao");
         return msc;
     }
-    
+
     @Bean
     public SqlSessionFactoryBean getSqlSessionFactoryBean(DataSource dataSource){
         SqlSessionFactoryBean ssfb = new SqlSessionFactoryBean();
@@ -1305,7 +1258,7 @@ class Springboot07TestApplicationTests {
         ssfb.setDataSource(dataSource);
         return ssfb;
     }
-    
+
     ```
 
 ### 4.2  SpringBoot 整合 mybatis
@@ -1330,9 +1283,9 @@ public class Book {
     private String name;
     private String type;
     private String description;
-    
+
     //setter and  getter
-    
+
     //toString
 }
 ```
@@ -1356,14 +1309,14 @@ public interface BookDao {
 @SpringBootTest
 class Springboot08MybatisApplicationTests {
 
-	@Autowired
-	private BookDao bookDao;
+    @Autowired
+    private BookDao bookDao;
 
-	@Test
-	void testGetById() {
-		Book book = bookDao.getById(1);
-		System.out.println(book);
-	}
+    @Test
+    void testGetById() {
+        Book book = bookDao.getById(1);
+        System.out.println(book);
+    }
 }
 ```
 
@@ -1432,6 +1385,8 @@ public interface BookDao {
       type: com.alibaba.druid.pool.DruidDataSource
   ```
 
+<a id="section-5"></a>
+
 ## 5，案例
 
 `SpringBoot` 到这就已经学习完毕，接下来我们将学习 `SSM` 时做的三大框架整合的案例用 `SpringBoot` 来实现一下。我们完成这个案例基本是将之前做的拷贝过来，修改成 `SpringBoot` 的即可，主要从以下几部分完成
@@ -1482,7 +1437,7 @@ public interface BookDao {
 
 需要修改的内容如下：
 
-* `Springmvc_11_page` 中 `config` 包下的是配置类，而 `SpringBoot` 工程不需要这些配置类，所以这些可以直接删除
+* 迁移时逐项检查原有配置。Spring Boot 能自动提供部分 MVC 配置，但自定义拦截器、跨域、事务、数据源等配置仍可能需要保留；不要直接删除整个 config 包。
 
 * `dao` 包下的接口上在拷贝到 `springboot_09-ssm` 工程中需要在接口中添加 `@Mapper` 注解
 
@@ -1491,16 +1446,16 @@ public interface BookDao {
   ```java
   @SpringBootTest
   public class BookServiceTest {
-  
+
       @Autowired
       private BookService bookService;
-  
+
       @Test
       public void testGetById(){
           Book book = bookService.getById(2);
           System.out.println(book);
       }
-  
+
       @Test
       public void testGetAll(){
           List<Book> all = bookService.getAll();
@@ -1537,6 +1492,3 @@ spring:
 静态资源需要放在 `resources` 下的 `static` 下，如下图所示
 
 <img src="Resources/image-20210917230702072.png" alt="image-20210917230702072" style="zoom:80%;" />
-
-
-

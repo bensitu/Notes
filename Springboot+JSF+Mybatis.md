@@ -1,568 +1,290 @@
-# 前因
+# Spring Boot、Jakarta Faces 与 MyBatis 整合
 
-新公司使用 springbean+jsf2.0 开发 demo，感觉使用起来不太顺手且不大习惯，所以自己使用 SpringBoot 整合了 JSF2.0，故此记录。
+按文件搭建 Boot、Faces 和 MyBatis 项目，理解页面 Bean 与数据库访问。
+
+**学习前提与版本：** 需要 Maven、JSF 与 SQL 基础。完整示例固定 Java 17、Boot 3.5.6、JoinFaces 5.5.6 与 Faces 4，版本组合不要拆开替换。
+
+**示例使用：** 除明确列出全部文件和运行步骤的项目外，代码块是各小节的独立片段。省略号、占位名称需要补齐；标明错误的行用于说明问题。同节替代写法不要合并。
+
+[学习索引与常见词](README.md) · [官方参考](https://docs.joinfaces.org/5.5.6/reference/)
+
+**内容导航**
+
+- [先确认版本](#section-1)
+- [1. Maven 配置](#section-2)
+- [2. 项目文件](#section-3)
+- [3. 数据库与 YAML](#section-4)
+- [4. 启动类与 Mapper](#section-5)
+- [5. 页面 Bean 与作用域](#section-6)
+- [6. Facelets 页面](#section-7)
+- [7. 加入 Spring Security 时的边界](#section-8)
 
 
+<a id="section-1"></a>
 
-# 一、配置 pom 文件
+## 先确认版本
 
-```xml
- <!-- Spring Boot dependencies -->
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-validation</artifactId>
-    </dependency>
-    <!-- 缓存支持 -->
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-cache</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.mybatis.spring.boot</groupId>
-        <artifactId>mybatis-spring-boot-starter</artifactId>
-        <version>1.3.2</version>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-security</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-mail</artifactId>
-    </dependency>
-    <!-- Database dependencies -->
-    <!-- druid数据库连接池-->
-    <dependency>
-        <groupId>com.alibaba</groupId>
-        <artifactId>druid-spring-boot-starter</artifactId>
-        <version>1.1.10</version>
-    </dependency>
-    <!--mysql驱动-->
-    <dependency>
-        <groupId>mysql</groupId>
-        <artifactId>mysql-connector-java</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.primefaces</groupId>
-        <artifactId>primefaces</artifactId>
-        <version>8.0</version>
-    </dependency>
-    <dependency>
-        <groupId>com.sun.faces</groupId>
-        <artifactId>jsf-api</artifactId>
-        <version>2.2.20</version>
-    </dependency>
-    <dependency>
-        <groupId>com.sun.faces</groupId>
-        <artifactId>jsf-impl</artifactId>
-        <version>2.2.20</version>
-    </dependency>
-    <dependency>
-        <groupId>org.apache.tomcat.embed</groupId>
-        <artifactId>tomcat-embed-jasper</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>org.ocpsoft.rewrite</groupId>
-        <artifactId>rewrite-servlet</artifactId>
-        <version>3.4.1.Final</version>
-    </dependency>
-    <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-    </dependency>
-    <!--common工具包-->
-    <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/net.sf.mpxj/mpxj -->
-    <dependency>
-        <groupId>net.sf.mpxj</groupId>
-        <artifactId>mpxj</artifactId>
-        <version>9.0.0</version>
-        <exclusions>
-            <exclusion>
-                <artifactId>jakarta.activation</artifactId>
-                <groupId>com.sun.activation</groupId>
-            </exclusion>
-        </exclusions>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/jakarta.faces/jakarta.faces-api -->
-    <dependency>
-        <groupId>jakarta.faces</groupId>
-        <artifactId>jakarta.faces-api</artifactId>
-        <version>3.0.0</version>
-        <scope>provided</scope>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
-    <dependency>
-        <groupId>commons-io</groupId>
-        <artifactId>commons-io</artifactId>
-        <version>2.4</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
-    <dependency>
-        <groupId>com.alibaba</groupId>
-        <artifactId>fastjson</artifactId>
-        <version>1.2.58</version>
-    </dependency>
+Faces（早期名称 JSF）负责服务器端页面组件，MyBatis 负责数据库查询，Spring Boot 负责应用启动与配置。它们的 API 版本必须匹配，不能把 JSF 2 的 javax API 与 Faces 3/4 的 jakarta API 混用。
 
-```
+本节采用一个明确的复现组合：Java 17、Spring Boot 3.5.6、JoinFaces 5.5.6、Faces 4、MyBatis starter 3.0.4。版本用于教学复现，不表示最新补丁。JoinFaces 提供与 Boot 匹配的初始化与作用域支持，避免手工重复注册 FacesServlet、监听器和缺少销毁回调的自定义 ViewScope。
 
-# 二、项目结构
+| 维护场景 | 对应关系 |
+| --- | --- |
+| Boot 2.7 旧项目 | JoinFaces 4.7，JSF 2，javax.faces |
+| 本节 Boot 3.5 | JoinFaces 5.5，Jakarta Faces，jakarta.faces |
+| Boot 4 项目 | JoinFaces 6.x，按其版本表选择 MyBatis starter |
 
-```
-src
-|--main
-|--	|--java
-|--	|--resources
-|--	|--webapp
-```
+基础标签与生命周期可先查阅 [JSF 基础](JSF%20基础.md) 和 [JSF 标签](JSF%20标签.md)。这两份文档保留 JSF 2 历史示例；本节使用 Faces 4 的命名空间与 Spring 管理的 Bean。
 
-在webapp下新增WEB-INF文件夹，在WEB-INF文件下新增web.xml及face-config.xml
-web.xml
+<a id="section-2"></a>
+
+## 1. Maven 配置
+
+文件：pom.xml。仅加入当前示例需要的依赖；邮件、项目管理文件解析等其他业务库与 Faces 整合无关。
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-	<servlet>
-		<servlet-name>Faces Servlet</servlet-name>
-		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>Faces Servlet</servlet-name>
-		<url-pattern>*.xhtml</url-pattern>
-	</servlet-mapping>
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-	</listener>
-	<listener>
-		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
-	</listener>
-
-	<context-param>
-		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
-		<param-value>client</param-value>
-	</context-param>
-
-	<context-param>
-		<param-name>javax.faces.PROJECT_STAGE</param-name>
-		<param-value>Development</param-value>
-	</context-param>
-
-	<!-- 配置出错提示页面 -->
-	<error-page>
-		<error-code>403</error-code>
-		<location>/WEB-INF/layout/access.xhtml</location>
-	</error-page>
-	<error-page>
-		<error-code>404</error-code>
-		<location>/WEB-INF/layout/notfound.xhtml</location>
-	</error-page>
-	<error-page>
-		<exception-type>javax.faces.application.ViewExpiredException</exception-type>
-		<location>/WEB-INF/layout/expired.xhtml</location>
-	</error-page>
-	<error-page>
-		<exception-type>java.lang.Throwable</exception-type>
-		<location>/WEB-INF/layout/error.xhtml</location>
-	</error-page>
-
-</web-app>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.6</version>
+        <relativePath/>
+    </parent>
+    <groupId>example</groupId>
+    <artifactId>faces-notes</artifactId>
+    <version>1.0.0</version>
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.joinfaces</groupId>
+                <artifactId>joinfaces-platform</artifactId>
+                <version>5.5.6</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.joinfaces</groupId>
+            <artifactId>faces-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+            <version>3.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
 ```
 
-face-config.xml
+不要再额外添加 jsf-api 2.2、jsf-impl 2.2 或另一种 Faces 实现。API 只是接口，实现才提供运行行为；重复和跨版本依赖容易造成类加载问题。
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<faces-config xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-			  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			  xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
-        http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_2.xsd"
-			  version="2.2">
-	<name>gantt365</name>
-	<application>
-		<el-resolver>org.springframework.web.jsf.el.SpringBeanFacesELResolver</el-resolver>
-		<action-listener>
-			org.primefaces.application.DialogActionListener
-		</action-listener>
-		<navigation-handler>
-			org.primefaces.application.DialogNavigationHandler
-		</navigation-handler>
-		<view-handler>
-			org.primefaces.application.DialogViewHandler
-		</view-handler>
+<a id="section-3"></a>
 
-	</application>
-</faces-config>
+## 2. 项目文件
+
+```text
+src/main/java/example/faces/
+  FacesApplication.java
+  BookMapper.java
+  BookView.java
+src/main/resources/
+  application.yml
+  META-INF/resources/index.xhtml
 ```
-可根据自身情况进行调整。
 
+Spring Boot 可执行 JAR 的页面放在 classpath 下的 META-INF/resources。不要假定 src/main/webapp 一定会进入可执行 JAR。只有确实采用 WAR 部署时，才按对应方式组织 webapp。
 
+JoinFaces 自动处理 Faces 初始化。本例不需要 web.xml，也不需要手工注册第二个 FacesServlet。需要自定义 Faces 配置时，标准名称是 faces-config.xml，不是 face-config.xml；位置和版本由所选部署方式决定，不能随意换名。
 
-添加配置文件`application.yml`，位置是在`src/main/resources/config`，内容如下：
+<a id="section-4"></a>
 
-```yml
+## 3. 数据库与 YAML
+
+在 MySQL 的 study 数据库中创建练习表：
+
+```sql
+CREATE TABLE book (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    title VARCHAR(100) NOT NULL,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO book (title) VALUES ('Java 入门'), ('SQL 入门');
+```
+
+文件：application.yml。环境变量 DB_USER、DB_PASSWORD 由运行环境提供，不把真实凭据保存进仓库。
+
+```yaml
 server:
   port: 9000
 spring:
-  mvc:
-    view:
-      prefix: /views/
-      suffix: .xhtml
-  profiles:
-    active:
-    - dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/study?characterEncoding=UTF-8
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+joinfaces:
+  faces:
+    project-stage: development
 ```
 
-  
+mybatis.mapper-locations、mybatis.type-aliases-package 等是 YAML 配置，不是 XML。这里只用注解 SQL，无需配置 Mapper XML 路径。上线时把 Faces project-stage 改为 production。
 
+<a id="section-5"></a>
 
+## 4. 启动类与 Mapper
 
-# 三、启动类配置
-
-部分配置可写入启动类：
-
-```java
- @Bean
-    public ServletRegistrationBean servletRegistrationBean() {
-        FacesServlet servlet = new FacesServlet();
-        return new ServletRegistrationBean(servlet, "*.xhtml");
-    }
-
-    @Bean
-    public FilterRegistrationBean rewriteFilter() {
-        FilterRegistrationBean rwFilter = new FilterRegistrationBean(new RewriteFilter());
-        rwFilter.setDispatcherTypes(EnumSet.of(DispatcherType.FORWARD, DispatcherType.REQUEST,
-                DispatcherType.ASYNC, DispatcherType.ERROR));
-        rwFilter.addUrlPatterns("/*");
-        return rwFilter;
-    }
-
-    @Bean
-    public ServletContextInitializer servletContextInitializer() {
-
-        return sc -> {
-            sc.addListener(com.sun.faces.config.ConfigureListener.class);
-            //初始样式，这个是公司采购的样式，可根据自身需求修改
-            sc.setInitParameter("primefaces.THEME", "diamond-" + new MyPreferences().getComponentTheme() + "-" + new MyPreferences().getMenuTheme());
-            sc.setInitParameter("primefaces.FONT_AWESOME","true");
-        };
-    }
-
-    @Bean
-    public ServletListenerRegistrationBean<ConfigureListener> jsfConfigureListener() {
-        return new ServletListenerRegistrationBean<ConfigureListener>(
-                new ConfigureListener());
-    }
-
-    @Override
-    public void setServletContext(ServletContext servletContext) {
-        servletContext.setInitParameter("com.sun.faces.forceLoadConfiguration", Boolean.TRUE.toString());
-    }
-
-```
-
-
-
-# 四、作用域配置
-
-因 JSF2.0主要有 FaceServlet 来处理交互，所以类之间的销毁由作用域来决定，可直接使用的配置有
+文件：FacesApplication.java。
 
 ```java
-//常用
-@Scope(value = "session")
-@Scope(value = "request")
-```
+package example.faces;
 
-也可以自己配置作用域，例：
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-```java
-@Component
-public class ViewScope implements Scope {
-
-	@Override
-	public Object get(String name, ObjectFactory<?> objectFactory) {
-		Map<String, Object> viewMap = FacesContext.getCurrentInstance().getViewRoot().getViewMap();
-		if(viewMap.containsKey(name)){
-			return viewMap.get(name);
-		}else{
-			Object object = objectFactory.getObject();
-			viewMap.put(name, object);
-			return object;
-		}
-	}
-
-	@Override
-	public String getConversationId() {
-		return null;
-	}
-
-	@Override
-	public void registerDestructionCallback(String arg0, Runnable arg1) {
-
-	}
-
-	@Override
-	public Object remove(String name) {
-		if (FacesContext.getCurrentInstance().getViewRoot() != null) {
-				return FacesContext.getCurrentInstance().getViewRoot().getViewMap().remove(name);
-		} else {
-			return null;
-		}
-	}
-
-	@Override
-	public Object resolveContextualObject(String arg0) {
-		return null;
-	}
-
+@SpringBootApplication
+public class FacesApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(FacesApplication.class, args);
+    }
 }
-
 ```
 
-新增域之后需要配置才能使用：
+文件：BookMapper.java。
 
-    @Configuration
-    @ComponentScan
-    public class AppConfig {
-        @Bean
-        public static CustomScopeConfigurer customScopeConfigurer() {
-            CustomScopeConfigurer customScopeConfigurer = new CustomScopeConfigurer();
-    
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put("view", new ViewScope());
-    
-            // 配置scope
-            customScopeConfigurer.setScopes(map);
-            return customScopeConfigurer;
+```java
+package example.faces;
+
+import java.util.List;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+
+@Mapper
+public interface BookMapper {
+    @Select("SELECT title FROM book ORDER BY id LIMIT 100")
+    List<String> listTitles();
+}
+```
+
+LIMIT 100 是明确的演示上限，实际列表应实现分页。@Mapper 使 MyBatis starter 注册 Mapper 代理；不需要另写实现类。
+
+<a id="section-6"></a>
+
+## 5. 页面 Bean 与作用域
+
+文件：BookView.java。
+
+```java
+package example.faces;
+
+import java.util.List;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+@Component("bookView")
+@Scope("view")
+public class BookView {
+    private final BookMapper mapper;
+    private List<String> titles;
+
+    public BookView(BookMapper mapper) {
+        this.mapper = mapper;
+    }
+
+    public List<String> getTitles() {
+        if (titles == null) {
+            titles = mapper.listTitles();
         }
+        return titles;
     }
 
-至此，可以开始使用JSF进行前后端的交互了：
-
-```java
-@Scope(value = "view")
-@Component(value = "indexView")
-//对应前端页面可以使用的调用名称
-@ELBeanName(value = "indexView")
-//链接及连接对应的xhtml
-@Join(path = "/index", to = "/index.xhtml")
-public class IndexView {
+    public void reload() {
+        titles = mapper.listTitles();
+    }
 }
 ```
 
+view 作用域由 JoinFaces 注册，适合保留同一页面交互期间的数据。getTitles 可能在一次渲染中被调用多次，因此缓存列表，不要每次 getter 调用都查询数据库。
 
+request 每次请求一个实例；session 同一会话共享实例；singleton 被所有用户共享。用户输入与页面状态不应随意放进 singleton。集群会话复制、视图序列化与销毁回调需要使用对应版本支持的方式，不能用空 registerDestructionCallback 方法代替完整作用域实现。
 
-# 五、security 配置
+<a id="section-7"></a>
 
-新建一个类实现UserDetailsService，来载入用户信息，我这里选择的是继承JdbcDaoImpl，可根据自身情况进行选择：
+## 6. Facelets 页面
+
+文件：src/main/resources/META-INF/resources/index.xhtml。
+
+```html
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:ui="jakarta.faces.facelets">
+<h:head>
+    <title>图书列表</title>
+</h:head>
+<h:body>
+    <h:form id="books">
+        <h:commandButton value="刷新" action="#{bookView.reload}"/>
+        <ul>
+            <ui:repeat value="#{bookView.titles}" var="title">
+                <li><h:outputText value="#{title}"/></li>
+            </ui:repeat>
+        </ul>
+    </h:form>
+</h:body>
+</html>
+```
+
+输出组件默认转义文本。不要为了显示用户输入而随意设置 escape=false。
+
+从项目根目录运行 mvn spring-boot:run，然后访问 http://localhost:9000/index.xhtml。预期显示两本图书，点击刷新重新读取列表。也可执行 mvn package，再用 java -jar target/faces-notes-1.0.0.jar 启动。
+
+<a id="section-8"></a>
+
+## 7. 加入 Spring Security 时的边界
+
+需要认证时，再添加与 Boot 版本匹配的 security starter。Spring Security 6 不再提供 WebSecurityConfigurerAdapter，使用 SecurityFilterChain Bean 配置。
 
 ```java
-@Component
-public class GanttUserDetailsService extends JdbcDaoImpl {
-
-	@Autowired
-	private DataSource dataSource;
-
-	@PostConstruct
-	private void initialize() {
-		setDataSource(dataSource);
-	}
-	// 定义新的用户查询SQL（根据自身情况更改）
-	public final String USERS_BY_USERNAME_QUERY = 
-			"select account,password,enabled,fullname "
-			+ "from users "
-			+ "where cellphone = ? or emailaddr = ?";
-	
-	public final String AUTHORITIES_BY_USERNAME_QUERY = "select account,authority "
-			+ "from authorities "
-			+ "where account = ?";
-	
-	public GanttUserDetailsService() {
-		this.setAuthoritiesByUsernameQuery(AUTHORITIES_BY_USERNAME_QUERY);
-	}
-
-	@Override
-	protected List<UserDetails> loadUsersByUsername(String username) {
-		// 确定查询map，用自定义用户详情
-		RowMapper<UserDetails> mapper = (rs, rowNum) -> {
-			String account = rs.getString(1);
-			String password = rs.getString(2);
-			boolean enabled = rs.getBoolean(3);
-			String fullname = rs.getString(4);
-			
-			AccountUser user = new AccountUser(username, password, enabled, true, true, true, AuthorityUtils.NO_AUTHORITIES);
-			user.setAccount(account);
-			user.setFullname(fullname);
-			return user;
-		};
-		// 查询
-		return getJdbcTemplate().query(USERS_BY_USERNAME_QUERY, mapper, username, username);
-	}
-	
-	@Override
-	protected List<GrantedAuthority> loadUserAuthorities(String username) {
-		
-		// 先查询用户，找出真实的账号
-		List<UserDetails> user = loadUsersByUsername (username);
-		if (user.size() == 0) {
-			return AuthorityUtils.NO_AUTHORITIES;
-		}
-		if (user.get(0) instanceof AccountUser) {
-			AccountUser gu = (AccountUser) user.get(0);
-			username = gu.getAccount();
-		}
-		
-		// 查询权限
-		RowMapper<GrantedAuthority> mapper = (rs, rowNum) -> {
-			String roleName = this.getRolePrefix() + rs.getString(2);
-			return new SimpleGrantedAuthority(roleName);
-		};
-		return getJdbcTemplate().query(AUTHORITIES_BY_USERNAME_QUERY, mapper, username);
-	}
-
-	@Override
-	protected UserDetails createUserDetails(String username, UserDetails userFromUserQuery,
-			List<GrantedAuthority> combinedAuthorities) {
-		
-		// 直接返回查询出的用户详情对象
-		if (userFromUserQuery instanceof AccountUser) {
-			AccountUser u = (AccountUser) userFromUserQuery;
-			u.setAuthorities(combinedAuthorities);
-			return userFromUserQuery;
-		}
-
-		// 返回缺省处理
-		return super.createUserDetails(username, userFromUserQuery, combinedAuthorities);
-	}
-
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.authorizeHttpRequests(authorize -> authorize
+            .requestMatchers("/jakarta.faces.resource/**").permitAll()
+            .anyRequest().authenticated())
+        .formLogin(Customizer.withDefaults());
+    return http.build();
 }
 ```
 
-新建一个类继承WebSecurityConfigurerAdapter，书写自己的配置：
+这是可选配置片段，放在 @Configuration 类中并导入 Spring Security 对应类型。它仍需要用户认证配置；未配置自定义用户时，Boot 的默认开发用户机制不能直接作为正式账号系统。
 
-```java
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-	@Autowired
-	private GanttUserDetailsService userDetailService;
-	//随机密码加密锁
-	private static final String SECRET = "e37f4b31-0c12-98dd-bd0b-0899200c9a66";
-	/**
-	 * 指定加密方式
-	 */
-	@Bean
-	public PasswordEncoder passwordEncoder(){
-		// 使用BCrypt加密密码
-		return new BCryptPasswordEncoder();
-	}
+认证后的 Faces 表单需要携带 Spring 的 CSRF token。可在 h:form 内添加原生隐藏字段：
 
-	/**
-	 * RememberMeAuthenticationProvider.
-	 *
-	 * @return
-	 */
-	@Bean
-	public RememberMeAuthenticationProvider rememberMeAuthenticationProvider() {
-		return new RememberMeAuthenticationProvider(SECRET);
-	}
-
-	/**
-	 * TokenBasedRememberMeServices.
-	 *
-	 * @return
-	 */
-	@Bean("tokenBaseRememberMeServices")
-	public TokenBasedRememberMeServices tokenBasedRememberMeServices() {
-		TokenBasedRememberMeServices rememberMeServices =
-				new TokenBasedRememberMeServices(SECRET, userDetailService);
-		rememberMeServices.setAlwaysRemember(false);
-		//记住我配置
-		rememberMeServices.setCookieName("remember-me");
-		rememberMeServices.setTokenValiditySeconds(AbstractRememberMeServices.TWO_WEEKS_S);
-		return rememberMeServices;
-	}
-
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http.headers()
-				.addHeaderWriter(new DelegatingRequestMatcherHeaderWriter(
-						//javafx必须配置，前端渲染之后的静态文件都在此目录下
-						new AntPathRequestMatcher("/javax.faces.resource/**"),
-						new HeaderWriter() {
-
-							@Override
-							public void writeHeaders(HttpServletRequest request,
-													 HttpServletResponse response) {
-								response.addHeader("Cache-Control", "private, max-age=86400");
-							}
-						}))
-				.defaultsDisabled()
-				.and()
-				.authorizeRequests()
-				// 允许post请求/add-user，而无需认证
-				.antMatchers("/javax.faces.resource/**","/resources/**").permitAll()
-				.antMatchers("/login","/public/register","/public/register-success","/index","/").permitAll()
-				// 所有请求都需要验证
-				.anyRequest().authenticated()
-				.and()
-				// 使用默认的登录页面
-				.formLogin().loginPage("/login")
-				.loginProcessingUrl("/login")
-				.failureUrl("/login?error")
-				//登录成功页面
-				//登入handler
-				//.successHandler(new LoginSuccessHandler())
-				.and()
-				.logout()
-				//登出handler
-				//.logoutSuccessHandler(new LogoutSuccessHandler())
-				.and().authenticationProvider(authenticationProvider())
-				// post请求要关闭csrf验证,不然访问报错；实际开发中开启，需要前端配合传递其他参数
-				.csrf().disable();
-		//记住我
-		http.rememberMe().rememberMeParameter("remember-me")
-				.rememberMeServices(tokenBasedRememberMeServices())
-				.and()
-				.authenticationProvider(rememberMeAuthenticationProvider());
-				//配置一个用户同时只能登录一次
-		http.sessionManagement().maximumSessions(1).expiredUrl("/login");
-	}
-
-	@Bean
-	public DaoAuthenticationProvider authenticationProvider() {
-		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-		provider.setHideUserNotFoundExceptions(false);
-		provider.setUserDetailsService(userDetailService);
-		provider.setPasswordEncoder(passwordEncoder());
-		return provider;
-	}
-
-}
-
+```html
+<input type="hidden"
+       name="#{requestScope['_csrf'].parameterName}"
+       value="#{requestScope['_csrf'].token}"/>
 ```
 
-至此SpringSecurity整合完成。
+只在已启用 Security 的页面使用这个片段。Faces 的 ViewState 与 Spring 的 CSRF token 是两个不同机制。遇到 403 时先检查令牌是否提交，不要因为“POST 报错”就关闭整个 CSRF 保护。Ajax、上传和自定义登录需要分别验证令牌传递与过期会话行为。
 
-
-
-# 六、Mybatis配置
-
-```xml
-mybatis:
-    mapper-locations: classpath*:mapper/*Mapper.xml
-    type-aliases-package: com.xxx.xxx
-    configuration:
-      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
-```
-
-至此mybatis整合完成。
+参考：[JoinFaces 5.5.6](https://docs.joinfaces.org/5.5.6/reference/)、[版本对应](https://github.com/joinfaces/joinfaces#version-compatibility)、[MyBatis starter](https://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/)、[Spring Security CSRF](https://docs.spring.io/spring-security/reference/servlet/exploits/csrf.html)。

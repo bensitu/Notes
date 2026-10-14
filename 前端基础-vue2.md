@@ -1,5 +1,24 @@
 # 三. Vue 2
 
+在 Vue 2 项目中练习组件、请求、动态路由、Vuex 和管理界面。
+
+**学习前提与版本：** 采用 Vue 2、Vue Router 3、Vuex 3、Element UI 2 的历史路线。先看项目锁文件和 Node 版本；Vue 2 已结束官方维护。示例后台接口需另行启动，不能把 mock 数据视为真实服务。
+
+**截图说明：** 图片保留原教学环境的操作过程；若截图中的旧写法与正文不同，以修订后的正文和所选版本的官方文档为准。
+
+**示例使用：** 除明确列出全部文件和运行步骤的项目外，代码块是各小节的独立片段。省略号、占位名称需要补齐；标明错误的行用于说明问题。同节替代写法不要合并。
+
+[学习索引与常见词](README.md) · [官方参考](https://v2.vuejs.org/v2/guide/)
+
+**内容导航**
+
+- [1. Vue 基础](#section-1)
+- [2. Vue 进阶](#section-2)
+- [3. Vue 实战](#section-3)
+
+
+<a id="section-1"></a>
+
 ## 1. Vue 基础
 
 ### 1) 环境准备
@@ -20,25 +39,25 @@ vue ui
 
 使用图形向导来创建 vue 项目，如下图，输入项目名
 
-![image-20220815141136895](imgs\image-20220815141136895.png)
+![image-20220815141136895](Resources/image-20220815141136895.png)
 
 选择手动配置项目
 
-![image-20220815141312244](imgs\image-20220815141312244.png)
+![image-20220815141312244](Resources/image-20220815141312244.png)
 
 添加 vue router 和 vuex
 
-![image-20220815141412380](imgs\image-20220815141412380.png)
+![image-20220815141412380](Resources/image-20220815141412380.png)
 
 选择版本，创建项目
 
-![image-20220815141459878](imgs\image-20220815141459878.png)
+![image-20220815141459878](Resources/image-20220815141459878.png)
 
 #### 安装 devtools
 
 * devtools 插件网址：https://devtools.vuejs.org/guide/installation.html
 
-![image-20220815141648040](imgs\image-20220815141648040.png)
+![image-20220815141648040](Resources/image-20220815141648040.png)
 
 #### 运行项目
 
@@ -59,13 +78,13 @@ npm run serve
   ```js
   const { defineConfig } = require('@vue/cli-service')
   module.exports = defineConfig({
-    
+
     // ...
-      
+
     devServer: {
       port: 7070
     }
-    
+
   })
   ```
 
@@ -80,9 +99,9 @@ npm run serve
   ```js
   const { defineConfig } = require('@vue/cli-service')
   module.exports = defineConfig({
-      
+
     // ...
-      
+
     devServer: {
       port: 7070,
       proxy: {
@@ -92,11 +111,10 @@ npm run serve
         }
       }
     }
-      
+
   })
   ```
 
-  
 
 #### Vue 项目结构
 
@@ -122,7 +140,6 @@ PS 代码\第3章\client> tree src
 * plugins - 插件
 
 
-
 ### 2) Vue 组件
 
 Vue 的组件文件以 .vue 结尾，每个组件由三部分组成
@@ -138,7 +155,6 @@ Vue 的组件文件以 .vue 结尾，每个组件由三部分组成
 * template 模板部分，由它生成 html 代码
 * script 代码部分，控制模板的数据来源和行为
 * style 样式部分，一般不咋关心
-
 
 
 入口组件是 App.vue
@@ -168,7 +184,6 @@ export default {
 * `{{}}` 在 Vue 里称之为插值表达式，用来**绑定** data 方法返回的**对象**属性，**绑定**的含义是数据发生变化时，页面显示会同步变化
 
 
-
 #### 文本插值
 
 ```vue
@@ -188,10 +203,9 @@ export default options;
 </script>
 ```
 
-* `{{}}` 里只能绑定一个属性，绑定多个属性需要用多个 `{{}}` 分别绑定
+* 每个插值里写一个 JavaScript 表达式；表达式可同时使用多个属性，例如 {{ firstName + ' ' + lastName }}。不能在插值中写 if 等语句。
 * template 内只能有一个根元素
 * 插值内可以进行简单的表达式计算
-
 
 
 #### 属性绑定
@@ -217,11 +231,10 @@ export default options;
 * 简写方式：可以省略 v-bind 只保留冒号
 
 
-
 #### 事件绑定
 
 ```vue
-<!-- 事件绑定 -->
+<!-- See note 1 below. -->
 <template>
     <div>
         <div><input type="button" value="点我执行m1" v-on:click="m1"></div>
@@ -249,9 +262,13 @@ export default options;
 </script>
 ```
 
-* 简写方式：可以把 v-on: 替换为 @
-* 在 methods 方法中的 this 代表的是 data 函数返回的数据对象
+示例说明：
 
+1. 事件绑定
+
+
+* 简写方式：可以把 v-on: 替换为 @
+* 普通 methods 方法中的 this 是组件实例。Vue 将 data 属性代理到实例上，所以可以写 this.name；箭头函数不会获得这样的 this 绑定。
 
 
 #### 双向绑定
@@ -292,18 +309,17 @@ export default options;
 </script>
 ```
 
-* 用 v-model 实现双向绑定，即 
+* 用 v-model 实现双向绑定，即
   * javascript 数据可以同步到表单标签
   * 反过来用户在表单标签输入的新值也会同步到 javascript 这边
 * 双向绑定只适用于表单这种带【输入】功能的标签，其它标签的数据绑定，单向就足够了
 * 复选框这种标签，双向绑定的 javascript 数据类型一般用数组
 
 
-
 #### 计算属性
 
 ```vue
-<!-- 计算属性 -->
+<!-- See note 1 below. -->
 <template>
     <div>
         <h2>{{fullName}}</h2>
@@ -316,12 +332,7 @@ const options = {
     data: function () {
         return { firstName: '三', lastName: '张' };
     },
-    /* methods: {
-        fullName() {
-            console.log('进入了 fullName')
-            return this.lastName + this.firstName;
-        }
-    },*/
+    /* See note 2 below. */
     computed: {
         fullName() {
             console.log('进入了 fullName')
@@ -332,10 +343,15 @@ const options = {
 export default options;
 ```
 
+示例说明：
+
+1. 计算属性
+2. methods: {；        fullName() {；            console.log('进入了 fullName')；            return this.lastName + this.firstName;；        }；    },
+
+
 * 普通方法调用必须加 ()，没有缓存功能
 * 计算属性使用时就把它当属性来用，不加 ()，有缓存功能：
   * 一次计算后，会将结果缓存，下次再计算时，只要数据没有变化，不会重新计算，直接返回缓存结果
-
 
 
 #### axios
@@ -354,7 +370,7 @@ npm install axios -S
 import axios from 'axios'
 ```
 
-* axios 默认导出一个对象，这里的 import 导入的就是它默认导出的对象
+* axios 的默认导出是可调用的 Axios 实例，也带有 get、post 等方法。
 
 方法
 
@@ -374,7 +390,6 @@ import axios from 'axios'
 * options、delete 请求可以通过 config 中的 data 携带请求体
 
 
-
 例子
 
 ```vue
@@ -388,22 +403,22 @@ import axios from 'axios'
 const options = {
     methods: {
         async sendReq() {
-            // 1. 演示 get, post
+            // See note 1 below.
             // const resp = await axios.post('/api/a2');
 
-            // 2. 发送请求头
+            // See note 2 below.
             // const resp = await axios.post('/api/a3',{},{
             //     headers:{
             //         Authorization:'abc'
             //     }
             // });
 
-            // 3. 发送请求时携带查询参数 ?name=xxx&age=xxx
+            // See note 3 below.
             // const name = encodeURIComponent('&&&');
             // const age = 18;
             // const resp = await axios.post(`/api/a4?name=${name}&age=${age}`);
 
-            // 不想自己拼串、处理特殊字符、就用下面的办法
+            // See note 4 below.
             // const resp = await axios.post('/api/a4', {}, {
             //     params: {
             //         name:'&&&&',
@@ -411,20 +426,20 @@ const options = {
             //     }
             // });
 
-            // 4. 用请求体发数据，格式为 urlencoded
+            // See note 5 below.
             // const params = new URLSearchParams();
-            // params.append("name", "张三");
+            // See note 6 below.
             // params.append("age", 24)
 
             // const resp = await axios.post('/api/a4', params);
 
-            // 5. 用请求体发数据，格式为 multipart
+            // See note 7 below.
             // const params = new FormData();
-            // params.append("name", "李四");
+            // See note 8 below.
             // params.append("age", 30);
             // const resp = await axios.post('/api/a5', params);
 
-            // 6. 用请求体发数据，格式为 json
+            // See note 9 below.
             const resp = await axios.post('/api/a5json', {
                 name: '王五',
                 age: 50
@@ -438,6 +453,17 @@ export default options;
 </script>
 ```
 
+示例说明：
+
+1. 1. 演示 get, post
+2. 2. 发送请求头
+3. 3. 发送请求时携带查询参数 ?name=xxx&age=xxx
+4. 不想自己拼串、处理特殊字符、就用下面的办法
+5. 4. 用请求体发数据，格式为 urlencoded
+6. params.append("name", "张三");
+7. 5. 用请求体发数据，格式为 multipart
+8. params.append("name", "李四");
+9. 6. 用请求体发数据，格式为 json
 
 
 创建实例
@@ -448,7 +474,6 @@ const _axios = axios.create(config);
 
 * axios 对象可以直接使用，但使用的是默认的设置
 * 用 axios.create 创建的对象，可以覆盖默认设置，config 见下面说明
-
 
 
 常见的 config 项有
@@ -477,7 +502,6 @@ await _axios.post('/api/a6get')
 * 希望跨域请求携带 cookie，需要配置 withCredentials: true，服务器也要配置 allowCredentials = true，否则浏览器获取跨域返回的 cookie 时会报错
 
 
-
 响应格式
 
 | 名称    | 含义              |
@@ -495,13 +519,12 @@ await _axios.post('/api/a6get')
 * 500 服务器内部错误
 
 
-
 请求拦截器
 
 ```js
 _axios.interceptors.request.use(
   function(config) {
-    // 比如在这里添加统一的 headers
+    // See note 1 below.
     return config;
   },
   function(error) {
@@ -510,21 +533,30 @@ _axios.interceptors.request.use(
 );
 ```
 
+示例说明：
+
+1. 比如在这里添加统一的 headers
+
+
 响应拦截器
 
 ```js
 _axios.interceptors.response.use(
   function(response) {
-    // 2xx 范围内走这里
+    // See note 1 below.
     return response;
   },
   function(error) {
-    // 超出 2xx, 比如 4xx, 5xx 走这里
+    // See note 2 below.
     return Promise.reject(error);
   }
 );
 ```
 
+示例说明：
+
+1. 2xx 范围内走这里
+2. 超出 2xx, 比如 4xx, 5xx 走这里
 
 
 #### 条件渲染
@@ -600,13 +632,12 @@ export default options;
 ```
 
 
-
 #### 列表渲染
 
 ```vue
 <template>
     <div>
-        <!-- <input type="button" value="获取远程数据" @click="sendReq()"> -->
+        <!-- See note 1 below. -->
         <div class="title">学生列表</div>
         <div class="thead">
             <div class="row bold">
@@ -683,10 +714,14 @@ export default options;
 </style>
 ```
 
-* v-if 和 v-for 不能用于同一个标签
+示例说明：
+
+1. &lt;input type="button" value="获取远程数据" @click="sendReq()"&gt;
+
+
+* 不推荐在同一标签上使用 v-if 和 v-for。Vue 2 中 v-for 优先，Vue 3 中 v-if 优先；用外层 template 或计算属性先过滤列表更清楚。
 * v-for 需要配合特殊的标签属性 key 一起使用，并且 key 属性要绑定到一个能起到唯一标识作用的数据上，本例绑定到了学生编号上
 * options 的 mounted 属性对应一个函数，此函数会在组件挂载后（准备就绪）被调用，可以在它内部发起请求，去获取学生数据
-
 
 
 #### 重用组件
@@ -732,6 +767,7 @@ export default options;
 ```
 
 
+<a id="section-2"></a>
 
 ## 2. Vue 进阶
 
@@ -744,7 +780,6 @@ npm install element-ui -S
 ```
 
 
-
 引入组件
 
 ```js
@@ -755,13 +790,11 @@ Vue.use(Element)
 ```
 
 
-
 测试，在自己的组件中使用 ElementUI 的组件
 
 ```vue
 <el-button>按钮</el-button>
 ```
-
 
 
 #### 表格组件
@@ -795,7 +828,6 @@ export default options;
 ```
 
 
-
 #### 分页组件
 
 ```vue
@@ -807,7 +839,7 @@ export default options;
             <el-table-column label="性别" prop="sex"></el-table-column>
             <el-table-column label="年龄" prop="age"></el-table-column>
         </el-table>
-        <el-pagination 
+        <el-pagination
             :total="total"
             :page-size="queryDto.size"
             :current-page="queryDto.page"
@@ -863,7 +895,6 @@ export default options;
 * 查询传参应该根据后台需求，灵活采用不同方式
   * 本例中因为是 get 请求，无法采用请求体，只能用 params 方式传参
 * 返回响应的格式也许会很复杂，需要掌握【根据返回的响应结构，获取数据】的能力
-
 
 
 #### 分页搜索
@@ -928,7 +959,7 @@ const options = {
             queryDto: {
                 name: '',
                 sex: '',
-                age: '',  
+                age: '',
                 page: 1,
                 size: 5
             }
@@ -942,7 +973,6 @@ export default options;
 * sex 与  age 均用 `''` 表示用户没有选择的情况
 * age 取值 `0,20` 会被 spring 转换为 `new int[]{0, 20}`
 * age 取值 `''` 会被 spring 转换为 `new int[0]`
-
 
 
 #### 级联选择
@@ -984,14 +1014,14 @@ const options = {
         console.log(resp.data.data)
         const array = resp.data.data;
 
-        const map = new Map(); 
+        const map = new Map();
 
-        // 1. 将所有数据存入 map 集合(为了接下来查找效率)
+        // See note 1 below.
         for(const {id,name,pid} of array) {
             map.set(id, {value:id, label:name, pid:pid})
         }
-        // 2. 建立父子关系
-        // 3. 找到顶层对象
+        // See note 2 below.
+        // See note 3 below.
         const top = [];
         for(const obj of map.values()) {
             const parent = map.get(obj.pid);
@@ -1014,12 +1044,16 @@ export default options;
 </script>
 ```
 
+示例说明：
+
+1. 1. 将所有数据存入 map 集合(为了接下来查找效率)
+2. 2. 建立父子关系
+3. 3. 找到顶层对象
 
 
 ### 2) Vue-Router
 
 vue 属于单页面应用，所谓的路由，就是根据浏览器路径不同，用不同的**视图组件**替换这个页面内容展示
-
 
 
 #### 配置路由
@@ -1065,7 +1099,7 @@ export default router
 ```js
 import Vue from 'vue'
 import e14 from './views/Example14View.vue'
-import router from './router/example14'  // 修改这里
+import router from './router/example14'  // See note 1 below.
 import store from './store'
 import Element from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
@@ -1080,6 +1114,11 @@ new Vue({
 }).$mount('#app')
 ```
 
+示例说明：
+
+1. 修改这里
+
+
 根组件是 Example14View.vue，内容为：
 
 ```vue
@@ -1092,7 +1131,6 @@ new Vue({
 
 * 样式略
 * 其中 `<router-view>` 起到占位作用，改变路径后，这个路径对应的视图组件就会占据 `<router-view>` 的位置，替换掉它之前的内容
-
 
 
 #### 动态导入
@@ -1129,7 +1167,6 @@ export default router
 * 动态导入是将组件的 js 代码放入独立的文件，用到时才加载
 
 
-
 #### 嵌套路由
 
 组件内再要切换内容，就需要用到嵌套路由（子路由），下面的例子是在【ContainerView 组件】内定义了 3 个子路由
@@ -1141,15 +1178,15 @@ const routes = [
     component: () => import('@/views/example14/ContainerView.vue'),
     redirect: '/c/p1',
     children: [
-      { 
+      {
         path:'c/p1',
         component: () => import('@/views/example14/container/P1View.vue')
       },
-      { 
+      {
         path:'c/p2',
         component: () => import('@/views/example14/container/P2View.vue')
       },
-      { 
+      {
         path:'c/p3',
         component: () => import('@/views/example14/container/P3View.vue')
       }
@@ -1172,7 +1209,7 @@ const routes = [
 
 子路由变化，切换的是【ContainerView 组件】中 `<router-view></router-view>` 部分的内容
 
-```java
+```vue
 <template>
     <div class="container">
         <router-view></router-view>
@@ -1182,7 +1219,6 @@ const routes = [
 
 * redirect 可以用来重定向（跳转）到一个新的地址
 * path 的取值为 * 表示匹配不到其它 path 时，就会匹配它
-
 
 
 #### ElementUI 布局
@@ -1206,7 +1242,6 @@ const routes = [
 ```
 
 
-
 #### 路由跳转
 
 ##### 标签式
@@ -1220,16 +1255,15 @@ const routes = [
 ```
 
 
-
 ##### 编程式
 
 ```vue
 <el-header>
-    <el-button type="primary" icon="el-icon-edit" 
+    <el-button type="primary" icon="el-icon-edit"
                circle size="mini" @click="jump('/c1/p1')"></el-button>
-    <el-button type="success" icon="el-icon-check" 
+    <el-button type="success" icon="el-icon-check"
                circle size="mini" @click="jump('/c1/p2')"></el-button>
-    <el-button type="warning" icon="el-icon-star-off" 
+    <el-button type="warning" icon="el-icon-star-off"
                circle size="mini" @click="jump('/c1/p3')"></el-button>
 </el-header>
 ```
@@ -1251,7 +1285,6 @@ export default options;
 
 * 其中 this.$router 是拿到路由对象
 * push 方法根据 url 进行跳转
-
 
 
 ##### 导航菜单
@@ -1284,7 +1317,6 @@ export default options;
 
 * 图标和菜单项文字建议用 `<span slot='title'></span>` 包裹起来
 * `el-menu` 标签上加上 `router` 属性，表示结合导航菜单与路由对象，此时，就可以利用菜单项的 `index` 属性来路由跳转
-
 
 
 #### 动态路由与菜单
@@ -1383,25 +1415,36 @@ insert into menu(id, name, pid, path, component, icon) values
 ##### 动态路由
 
 ```js
+const pageLoaders = {
+  'M4View.vue': () => import('@/views/example15/container/M4View.vue'),
+  'C1View.vue': () => import('@/views/example15/container/C1View.vue'),
+  'C2View.vue': () => import('@/views/example15/container/C2View.vue'),
+  'C3View.vue': () => import('@/views/example15/container/C3View.vue'),
+  'C4View.vue': () => import('@/views/example15/container/C4View.vue'),
+  'C5View.vue': () => import('@/views/example15/container/C5View.vue'),
+  'C6View.vue': () => import('@/views/example15/container/C6View.vue'),
+  'C7View.vue': () => import('@/views/example15/container/C7View.vue')
+};
+
 export function addServerRoutes(array) {
   for (const { id, path, component } of array) {
-    if (component !== null) {
-      // 动态添加路由
-      // 参数1：父路由名称
-      // 参数2：路由信息对象
-      router.addRoute('c', {
-        path: path,
-        name: id,
-        component: () => import(`@/views/example15/container/${component}`)
-      });
-    }
+    if (component === null) continue;
+    const loader = Object.prototype.hasOwnProperty.call(pageLoaders, component)
+      ? pageLoaders[component]
+      : undefined;
+    if (!loader) throw new Error('Unknown route component');
+    router.addRoute('c', {
+      path,
+      name: String(id),
+      component: loader
+    });
   }
 }
 ```
 
 * js 这边只保留几个固定路由，如主页、404 和 login
 * 以上方法执行时，将服务器返回的路由信息加入到名为 c 的父路由中去
-* 这里要注意组件路径，前面 @/views 是必须在 js 这边完成拼接的，否则 import 函数会失效
+* 动态 import 的可解析范围由构建工具决定，不是所有字符串都能在运行时导入。应使用程序预先登记的组件映射，后端只传允许的组件键名。
 
 ##### 重置路由
 
@@ -1428,14 +1471,14 @@ const options = {
         }
     },
     methods: {
-        async login() {       
-            resetRouter(); // 重置路由     
+        async login() {
+            resetRouter(); // See note 1 below.
             const resp = await axios.get(`/api/menu/${this.username}`)
             const array = resp.data.data;
-            // localStorage     即使浏览器关闭，存储的数据仍在
-            // sessionStorage   以标签页为单位，关闭标签页时，数据被清除
+            // See note 2 below.
+            // See note 3 below.
             sessionStorage.setItem('serverRoutes', JSON.stringify(array))
-            addServerRoutes(array); // 动态添加路由
+            addServerRoutes(array); // See note 4 below.
             this.$router.push('/');
         }
     }
@@ -1444,6 +1487,14 @@ export default options;
 </script>
 ```
 
+示例说明：
+
+1. 重置路由
+2. localStorage     即使浏览器关闭，存储的数据仍在
+3. sessionStorage   以标签页为单位，关闭标签页时，数据被清除
+4. 动态添加路由
+
+
 页面刷新，重新创建路由对象时，从 sessionStorage 里恢复路由数据
 
 ```js
@@ -1451,13 +1502,19 @@ const router = new VueRouter({
   routes
 })
 
-// 从 sessionStorage 中恢复路由数据
+// See note 1 below.
 const serverRoutes = sessionStorage.getItem('serverRoutes');
 if(serverRoutes) {
   const array = JSON.parse(serverRoutes);
-  addServerRoutes(array) // 动态添加路由
+  addServerRoutes(array) // See note 2 below.
 }
 ```
+
+示例说明：
+
+1. 从 sessionStorage 中恢复路由数据
+2. 动态添加路由
+
 
 ##### 动态菜单
 
@@ -1522,7 +1579,6 @@ export default options;
 * 没有考虑递归菜单问题，认为菜单只有两级
 
 
-
 ### 3) Vuex
 
 #### 入门
@@ -1541,10 +1597,7 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-/*
-  读取数据，走 state, getters
-  修改数据，走 mutations, actions
-*/
+/* See note 1 below. */
 export default new Vuex.Store({
   state: {
     name: '',
@@ -1564,12 +1617,17 @@ export default new Vuex.Store({
 })
 ```
 
+示例说明：
+
+1. 读取数据，走 state, getters；  修改数据，走 mutations, actions
+
+
 修改共享数据
 
 ```vue
 <template>
     <div class="p">
-        <el-input placeholder="请修改用户姓名" 
+        <el-input placeholder="请修改用户姓名"
             size="mini" v-model="name"></el-input>
         <el-button type="primary" size="mini" @click="update()">修改</el-button>
     </div>
@@ -1602,7 +1660,7 @@ export default options;
             <el-header>
                 <div class="t">
                     欢迎您：{{ $store.state.name }}, {{ $store.state.age }}
-    			</div>
+                </div>
             </el-header>
             <el-container>
                 <el-aside width="200px">
@@ -1615,7 +1673,6 @@ export default options;
     </div>
 </template>
 ```
-
 
 
 #### mapState
@@ -1654,13 +1711,12 @@ export default options;
 * 此对象配合 `...` 展开运算符，填充入 computed 即可使用
 
 
-
 #### mapMutations
 
 ```vue
 <template>
     <div class="p">
-        <el-input placeholder="请修改用户姓名" 
+        <el-input placeholder="请修改用户姓名"
             size="mini" v-model="name"></el-input>
         <el-button type="primary" size="mini" @click="updateName(name)">修改</el-button>
     </div>
@@ -1686,7 +1742,6 @@ export default options;
 * 注意参数传递略有不同
 
 
-
 #### actions
 
 mutations 方法内不能包括修改不能立刻生效的代码，否则会造成 Vuex 调试工具工作不准确，必须把这些代码写在 actions 方法中
@@ -1697,10 +1752,7 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-/*
-  读取数据，走 state, getters
-  修改数据，走 mutations, actions
-*/
+/* See note 1 below. */
 import axios from '@/util/myaxios'
 export default new Vuex.Store({
   state: {
@@ -1713,7 +1765,7 @@ export default new Vuex.Store({
     updateName(state, name) {
       state.name = name;
     },
-    // 错误的用法，如果在mutations方法中包含了异步操作，会造成开发工具不准确
+    // See note 2 below.
     /* async updateServerName(state) {
       const resp = await axios.get('/api/user');
       const {name, age} = resp.data.data;
@@ -1736,6 +1788,12 @@ export default new Vuex.Store({
   }
 })
 ```
+
+示例说明：
+
+1. 读取数据，走 state, getters；  修改数据，走 mutations, actions
+2. 错误的用法，如果在mutations方法中包含了异步操作，会造成开发工具不准确
+
 
 * 首先应当调用 actions 的 updateServerName 获取数据
 * 然后再由它间接调用 mutations 的 updateServerName 更新共享数据
@@ -1762,15 +1820,14 @@ export default options;
 
 * mapActions 会生成调用 actions 中方法的代码
 
-* 调用 actions 的代码内部等价于，它返回的是 Promise 对象，可以用同步或异步方式接收结果
+* 调用 actions 的代码内部等价于，它返回的是 Promise 对象，可以用 await 或 then 接收异步结果
 
   ```js
   this.$store.dispatch('action名称', 参数)
   ```
 
-  
 
-
+<a id="section-3"></a>
 
 ## 3. Vue 实战
 
@@ -1783,7 +1840,6 @@ export default options;
 * vue-router 3
 * vuex 3
 * axios
-
 
 
 ### 安装
@@ -1805,9 +1861,8 @@ npm run dev
 ```
 
 * 需要切换分支到 i18n，否则不支持国际化（中文）功能
-* npm install 要多试几次，因为中间会连接 gitbub 下载一些依赖，网络不稳定会导致失败
+* 安装失败时先阅读报错，区分网络、Node 版本和依赖冲突；不要反复安装而不检查原因。已有有效锁文件时优先 npm ci，使用项目声明的 Node 版本。
 * npm run dev 运行后回自动打开浏览器，使用的端口是 9527
-
 
 
 ### 后端路径
@@ -1868,7 +1923,7 @@ const service = axios.create({
 token 的请求头修改一下，在 src/utils/request.js 中
 
 ```js
-...
+// Other interceptor setup goes here.
 service.interceptors.request.use(
   config => {
     // do something before request is sent
@@ -1887,9 +1942,8 @@ service.interceptors.request.use(
     return Promise.reject(error)
   }
 )
-...
+// Other interceptor setup goes here.
 ```
-
 
 
 ### 登录流程
@@ -1904,7 +1958,7 @@ import SocialSign from './components/SocialSignin'
 
 export default {
   // ...
-  methods: {    
+  methods: {
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
@@ -1934,7 +1988,6 @@ export default {
 * 因为是异步调用，因此只能用 actions
 * 登录成功会优先跳转至 this.redirect 路径、否则跳转至 /
 * / 查看 `src/router/index.js` 的路由表可知，会重定向至 /dashboard
-
 
 
 #### 2. `src/store/modules/user.js`
@@ -1968,7 +2021,6 @@ const actions = {
   * 作者使用了 Promise API，其实可以改变为 await 方式，提高可读性
 
 
-
 #### 3. `src/api/user.js`
 
 ```js
@@ -1988,7 +2040,6 @@ export function login(data) {
 * 其中 request 相当于我们之前封装的 myaxios
 
 
-
 #### 4. `src/utils/request.js`
 
 ```js
@@ -2004,7 +2055,7 @@ const service = axios.create({
   timeout: 5000 // request timeout
 })
 
-// ... 
+// ...
 
 service.interceptors.response.use(
   // ...
@@ -2027,13 +2078,12 @@ export default service
 * 其中响应拦截器发现响应正确，返回 resp.data 这样，其它处代码解构时少了一层 data
 
 
-
 #### 5. `src/permission.js`
 
 登录成功后，只是获得了 token，还未获取用户信息，获取用户信息是在路由跳转的 beforeEach 里做的
 
 ```mermaid
-sequenceDiagram 
+sequenceDiagram
 
 participant c as 登录页
 participant r as Router
@@ -2045,7 +2095,7 @@ c ->> +s: login(username,password)
 s ->> +t: login(username,password)
 t -->> -s: token
 s ->> s: 存储 token
-s -->> -c: 
+s -->> -c:
 end
 
 rect rgba(0,255,0,0.2)
@@ -2054,9 +2104,9 @@ r ->> +s: beforeEach getInfo(token)
 s ->> +t: getInfo(token)
 t -->> -s: name,avatar,roles等
 s ->> s: 存储用户信息
-s -->> -r: 
+s -->> -r:
 r ->> r: 根据roles动态生成路由
-r -->> -c: 
+r -->> -c:
 end
 
 ```
@@ -2091,11 +2141,9 @@ router.beforeEach(async(to, from, next) => {
   * 二是根据用户角色，动态生成路由，见 7
 
 
-
-
 #### 6. `src/store/modules/user.js`
 
-这里用其中 getInfo 方法获取用户信息，其中角色返回给 beforeEach 
+这里用其中 getInfo 方法获取用户信息，其中角色返回给 beforeEach
 
 ```js
 import { login, logout, getInfo } from '@/api/user'
@@ -2128,9 +2176,6 @@ const actions = {
   }
 }
 ```
-
-
-
 
 
 #### 7. `src/router/index.js`
@@ -2223,18 +2268,17 @@ export const asyncRoutes = [
     ]
   }
   // ...
-}
+];
 ```
 
 * 动态路由中关联了角色信息，根据用户的角色决定那些路由可用，但这样做的缺点是把角色和路由绑定死了
-
 
 
 #### 8. `src/layout/index.vue`
 
 它对应的是我们之前介绍的 Container.vue 完成主页布局的，路由路径是 /
 
-![image-20220827194047788](imgs\image-20220827194047788.png)
+![image-20220827194047788](Resources/image-20220827194047788.png)
 
 其中又由多部分组成，其中固定不变的是
 
@@ -2249,7 +2293,6 @@ export const asyncRoutes = [
 * 进入首页后，会有一个 `/api/transaction/list` 的后台请求报 404，作为练习，把它补充完整
 
 
-
 ### 第三方登录
 
 ```mermaid
@@ -2258,7 +2301,7 @@ participant a7 as 前端(9527)
 participant a8 as 后端(8080)
 participant g as gitee
 
-rect rgba(0,255,0,0.2) 
+rect rgba(0,255,0,0.2)
 a7 ->> +g: 打开新窗口, 请求 /oauth/authorize
 g ->> g: 认证通过
 end
@@ -2271,9 +2314,9 @@ g ->> -a8: 返回 access_token(gitee)
 end
 rect rgba(0,255,0,0.2)
 a8 ->> +g: 请求 /api/v5/user
-g -->> -a8: 
+g -->> -a8:
 end
-a8 ->> 8: 生成 token(8080)
+a8 ->> a8: 生成 token(8080)
 rect rgba(0,0,255,0.2)
 a8 ->> +a7: 新窗口将 token(8080) 发送给老窗口(9527)
 end
@@ -2287,7 +2330,7 @@ end
 
    * 这时走的是 https 协议，并且不经过浏览器，能够保证数据传输的安全性
 
-   * 重定向到 8080 时，如果被有心人拿到了 code，也没事，因为接下来会把 client_secret 发给 gitee 验证（client_secret 应当只存在 8080），只要 client_secret 不泄露，就可以保证安全
+   * 重定向到 8080 时，如果被有心人拿到了 code，也没事，因为接下来会把 client_secret 发给 gitee 验证（client_secret 应当只存在 8080），client_secret 保密并不足以保证整个登录流程安全；还需验证回调 state、绑定当前会话、限制 redirect_uri，并按平台支持启用 PKCE
 
    * 如果改成前端拿 code 换 access_token，那就意味着 access_token 得保存在前端，所有保存在前端的都有风险
 
@@ -2295,10 +2338,9 @@ end
 
 5. 8080 可以通过 window.opener.postMessage 把 token 给 9527 的老窗口
 
-   * 这里又会涉及到跨域，不过 9527 与 8080 直接存在信任关系，设置一下就好
+   * 发送端必须指定精确 targetOrigin，例如 http://localhost:9527；不能用 * 发送令牌。接收端同时检查 event.origin 是否为 http://localhost:8080、event.source 是否为刚打开的窗口，并检查消息结构。这里的端口仅用于本机演示，部署后换为实际 HTTPS 来源。见 [MDN postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage)。
 
 6. 9527 再走之前的逻辑就可以了，在 router 的 beforeEach 方法里，用 8080 token 换用户信息
-
 
 
 ### 增删改查
@@ -2430,7 +2472,7 @@ const options = {
     handleUpdate(row) { // {id, name, sex, age}
       this.updateDialogVisible = true
       this.updateForm = { ...row }
-      // this.updateForm = row // 错误写法，不能让他俩指向同一个对象
+      // See note 1 below.
     },
     async handleDelete(row) {
       try {
@@ -2460,5 +2502,10 @@ export default options
 }
 </style>
 ```
+
+示例说明：
+
+1. this.updateForm = row // 错误写法，不能让他俩指向同一个对象
+
 
 * 其中 handleUpdate 和 handleDelete 接收的参数，都是代表了当前行的学生对象

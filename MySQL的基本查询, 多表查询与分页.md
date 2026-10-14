@@ -1,5 +1,26 @@
 # MySQL 基础查询
 
+查 SELECT、去重、排序、连接、子查询和分页写法。
+
+**学习前提与版本：** 面向 MySQL 8.x；employees、departments、locations 属于练习数据集。Oracle 写法只作明确标记的对照，不在 MySQL 执行。
+
+**示例使用：** 除明确列出全部文件和运行步骤的项目外，代码块是各小节的独立片段。省略号、占位名称需要补齐；标明错误的行用于说明问题。同节替代写法不要合并。
+
+[学习索引与常见词](README.md) · [官方参考](https://dev.mysql.com/doc/refman/8.4/en/select.html)
+
+**内容导航**
+
+- [基本的 SELECT 语句](#section-1)
+- [排序数据](#section-2)
+- [排序规则](#section-3)
+- [分页](#section-4)
+- [分页原理](#section-5)
+- [拓展](#section-6)
+- [MySQL 多表查询](#section-7)
+
+
+<a id="section-1"></a>
+
 ## 基本的 SELECT 语句
 
 **SELECT … FROM ...**
@@ -29,7 +50,6 @@ FROM departments;
 MySQL 中的 SQL 语句是不区分大小写的，因此 SELECT 和 select 的作用是相同的。
 
 
-
 ### 列的别名
 
 **... AS name**
@@ -57,7 +77,6 @@ FROM employees;
 ```
 
 
-
 ### 去除重复行
 
 默认情况下，查询会返回全部行，包括重复行。在SELECT语句中使用关键字DISTINCT去除重复行。
@@ -77,13 +96,12 @@ FROM employees;
 > 这里有两点需要注意：
 >
 > 1. DISTINCT 需要放到所有列名的前面，如果写成 SELECT salary, DISTINCT department_id FROM employees 会报错。
-> 2. DISTINCT 其实是对后面所有列名的组合进行去重，你能看到最后的结果是 74 条，因为这 74 个部门id不同，都有 salary 这个属性值。如果你想要看都有哪些不同的部门（department_id），只需要写 DISTINCT department_id 即可，后面不需要再加其他的列名了。
-
+> 2. DISTINCT 对所选列的整个组合去重。例如 (department_id, salary) 相同的两行才会合并。结果行数取决于当前数据，不能解释为部门数量；只想统计不同部门时，仅选择 DISTINCT department_id。
 
 
 ### 空值参与运算
 
-所有运算符或列值遇到null值，运算的结果都为null
+NULL 表示缺少或未知的值。普通算术运算和比较通常会得到 NULL；IS NULL、NULL 安全相等运算符 <=>、COALESCE，以及部分逻辑运算有自己的规则，不能概括为所有运算都返回 NULL。
 
 ```sql
 SELECT employee_id, salary, commission_pct,
@@ -91,8 +109,7 @@ SELECT employee_id, salary, commission_pct,
 FROM employees;
 ```
 
-在 MySQL 里面， 空值不等于空字符串。一个空字符串的长度是 0，而一个空值的长度是空。而且，在 MySQL 里面，空值是占用空间的。null不等同于0、’ ’ 以及’null’.
-
+在 MySQL 里面， 空值不等于空字符串。一个空字符串的长度是 0，而LENGTH(NULL) 的结果是 NULL。而且，在 MySQL 里面，空值是占用空间的。null不等同于0、’ ’ 以及’null’.
 
 
 ### 着重号
@@ -115,7 +132,6 @@ SELECT * FROM `ORDER`;
 要保证表中的字段、表名等没有和保留字、数据库系统或常用方法冲突。如果真的相同，请在SQL语句中使用一对``（着重号）引起来。
 
 
-
 ### 查询常数
 
 SELECT 查询还可以对常数进行查询。对的，就是在 SELECT 查询结果中增加一列固定的常数列。这列的取值是我们指定的，而不是从数据表中动态取出的。
@@ -126,7 +142,6 @@ SQL 中的 SELECT 语法的确提供了这个功能，一般来说我们只从�
 SELECT 'Atguigu' as corporation, last_name
 FROM employees;
 ```
-
 
 
 ### 显示表结构
@@ -146,7 +161,6 @@ Null：表示该列是否可以存储NULL值。
 Key：表示该列是否已编制索引。PRI表示该列是表主键的一部分；UNI表示该列是UNIQUE索引的一部分；MUL表示在列中某个给定值允许出现多次。
 Default：表示该列是否有默认值，如果有，那么值是多少。
 Extra：表示可以获取的与给定列有关的附加信息，例如AUTO_INCREMENT等。
-
 
 
 ### 查询过滤
@@ -172,8 +186,11 @@ SELECT employee_id, last_name, job_id, department_id FROM employees WHERE depart
 ```
 
 
+<a id="section-2"></a>
 
 # 排序数据
+
+<a id="section-3"></a>
 
 ## 排序规则
 
@@ -190,10 +207,9 @@ DESC（descend）:降序
 ORDER BY 子句在SELECT语句的结尾。
 
 ```sql
-SELECT last_name, job_id, department_id, hire_date 
+SELECT last_name, job_id, department_id, hire_date
 FROM employees ORDER BY hire_date ;
 ```
-
 
 
 ### 多次排序
@@ -202,13 +218,16 @@ FROM employees ORDER BY hire_date ;
 - 在对多列进行排序的时候，首先排序的第一列必须有相同的列值，才会对第二列进行排序。如果第一列数据中所有值都是唯一的，将不再对第二列进行排序。
 
 ```sql
-SELECT last_name, department_id, salary 
+SELECT last_name, department_id, salary
 FROM employees ORDER BY department_id, salary DESC;
 ```
 
 
+<a id="section-4"></a>
 
 # 分页
+
+<a id="section-5"></a>
 
 ## 分页原理
 
@@ -233,17 +252,17 @@ SELECT * FROM 目标表名 LIMIT 20,10; (返回第21个到第30个)
 ```
 
 
-
-分页显式公式：（当前页数-1）*每页条数，每页条数:
+分页偏移量 =（当前页数 - 1）× 每页条数。先在程序中计算偏移量，再把偏移量和条数绑定到 SQL；普通 LIMIT 不能直接放入该算术表达式。下面表示每页 10 条的第 3 页。
 
 ```sql
-SELECT * FROM 目标表名 LIMIT(PageNo - 1)*PageSize,PageSize;
+SELECT * FROM employees ORDER BY employee_id LIMIT 20, 10;
 ```
 
 - 注意：LIMIT 子句必须放在整个SELECT语句的最后！
 - 使用 LIMIT 的好处: 约束返回结果的数量可以 减少数据表的网络传输量 ，也可以 提升查询效率 。如果我们知道返回结果只有1 条，就可以使用 LIMIT 1 ，告诉 SELECT 语句只需要返回一条记录即可。这样的好处就是 SELECT 不需要扫描完整的表，只需要检索到一条符合条件的记录即可返回。
 
 
+<a id="section-6"></a>
 
 ## 拓展
 
@@ -255,7 +274,6 @@ SELECT * FROM 目标表名 LIMIT(PageNo - 1)*PageSize,PageSize;
   SELECT TOP 5 name, hp_max FROM heros ORDER BY hp_max DESC
   ```
 
-  
 
 - 如果是 DB2，使用 FETCH FIRST 5 ROWS ONLY 这样的关键字：
 
@@ -264,22 +282,20 @@ SELECT * FROM 目标表名 LIMIT(PageNo - 1)*PageSize,PageSize;
   ```
 
 
-
-- 如果是 Oracle，你需要基于 ROWNUM 来统计行数：
+- Oracle 12c 起可使用 FETCH FIRST。旧版 ROWNUM 需要先在子查询中排序，再在外层限制条数，否则得到的不是排序后的前几名：
 
   ```sql
-  SELECT rownum, last_name, salary FROM employees WHERE rownum < 5 ORDER BY salary DESC;
+  SELECT last_name, salary FROM employees ORDER BY salary DESC FETCH FIRST 5 ROWS ONLY;
   ```
 
-  
 
-
+<a id="section-7"></a>
 
 # MySQL 多表查询
 
 ### 等值连接
 
-使用多个表中相同名字的列进行关联
+使用等号比较两张表中有关联的列。两侧列名可以不同，例如 employee.department_id = department.id。
 
 ```sql
 SELECT xxx FROM 表1, 表2
@@ -289,7 +305,7 @@ WHERE 表1.某字段=表2.某字段
 或者
 
 ```sql
-SELECT 表1.xxx, 表3.xxx FROM 表1, 表2, 表3 
+SELECT 表1.xxx, 表3.xxx FROM 表1, 表2, 表3
 WHERE 表1.某字段=表2.某字段 AND 表2.某字段=表3.某字段
 ```
 
@@ -302,9 +318,8 @@ WHERE employees.department_id = departments.department_id;
 ```
 
 - 使用别名可以简化查询。
-- 列名前使用表名前缀可以提高查询效率。
+- 表名前缀或表别名用于消除列名歧义、提高可读性，不能据此保证查询更快。性能还取决于索引、数据量和执行计划。
 - 连接 n个表,至少需要n-1个连接条件。比如，连接三个表，至少需要两个连接条件。
-
 
 
 ### 自连接
@@ -324,28 +339,32 @@ WHERE worker.manager_id = manager.employee_id ;
 - 如果是左外连接，则连接条件中左边的表也称为 主表 ，右边的表称为 从表 。 如果是右外连接，则连接条件中右边的表也称为 主表 ，左边的表称为 从表 。
 
 
+### Oracle 旧式外连接语法（了解即可）
 
-### SQL92: 使用(+)创建连接
-
-- 在 SQL92 中采用（+）代表从表所在的位置。即左或右外连接中，(+) 表示哪个是从表。
-- Oracle 对 SQL92 支持较好，而 MySQL 则不支持 SQL92 的外连接。
+- (+) 是 Oracle 的旧式外连接运算符，不是 SQL92 标准语法。它标记可能缺少匹配行的一侧。
+- MySQL 不支持 Oracle 的 (+) 写法。MySQL 使用 LEFT JOIN / RIGHT JOIN；下面的 Oracle 示例不能在 MySQL 中直接执行。
 
 ```sql
-#左外连接
+# See note 1 below.
 SELECT last_name,department_name
 FROM employees ,departments
 WHERE employees.department_id = departments.department_id(+);
-#右外连接
+# See note 2 below.
 SELECT last_name,department_name
 FROM employees ,departments
 WHERE employees.department_id(+) = departments.department_id;
 ```
 
-- 而且在 SQL92 中，只有左外连接和右外连接，没有满（或全）外连接。
+示例说明：
+
+1. 左外连接
+2. 右外连接
 
 
+- 标准 SQL 定义了 FULL OUTER JOIN，但 MySQL 没有原生 FULL OUTER JOIN。可用两个外连接组合，注意保留重复行的语义。
 
-### SQL99: 语法实现多表查询
+
+### 标准 JOIN 语法
 
 #### 基本语法 (JOIN ON)
 
@@ -363,8 +382,7 @@ JOIN table3 ON table2 和 table3 的连接条件
 - 可以使用 ON 子句指定额外的连接条件。
 - 这个连接条件是与其它条件分开的。
 - ON 子句使语句具有更高的易读性。
-- 关键字 JOIN、INNER JOIN、CROSS JOIN 的含义是一样的，都表示内连接
-
+- JOIN 通常表示 INNER JOIN。CROSS JOIN 表达笛卡尔积的意图；MySQL 在部分语法上允许与 INNER JOIN 互换，但跨数据库代码不要把二者当成相同概念。
 
 
 #### 内连接 (INNER JOIN)
@@ -387,7 +405,6 @@ WHERE 等其他子句;
 ```
 
 
-
 #### 左外连接 (LEFT OUTER JOIN)
 
 查询左表的全部信息，以及交集的部分。
@@ -395,13 +412,16 @@ WHERE 等其他子句;
 语法：
 
 ```sql
-#实现查询结果是A
+# See note 1 below.
 SELECT 字段列表
 FROM A表 LEFT [outer] JOIN B表
 ON 关联条件
 WHERE 等其他子句;
 ```
 
+示例说明：
+
+1. 实现查询结果是A
 
 
 #### 右外连接 (RIGHT OUTER JOIN)
@@ -417,7 +437,6 @@ WHERE 等其他子句;
 ```
 
 
-
 #### 满外连接 (FULL OUTER JOIN)
 
 - 满外连接的结果 = 左右表匹配的数据 + 左表没有匹配到的数据 + 右表没有匹配到的数据。
@@ -427,7 +446,6 @@ WHERE 等其他子句;
 ```sql
 SELECT last_name,department_name FROM employees e FULL OUTER JOIN departments d ON e.department_id = d.department_id;
 ```
-
 
 
 ### UNION 的使用
@@ -453,74 +471,77 @@ UNION ALL 操作符返回两个查询的结果集的并集。对于两个结果�
 > 注意：执行 UNION ALL 语句时所需要的资源比 UNION 语句少。如果明确知道合并数据后的结果数据不存在重复数据，或者不需要去除重复的数据，则尽量使用 UNION ALL 语句，以提高数据查询的效率
 
 ```sql
-#UNION 方式1
+# See note 1 below.
 SELECT * FROM employees WHERE email LIKE '%a%' OR department_id>90;
 
-#UNION 方式2
+# See note 2 below.
 SELECT * FROM employees WHERE email LIKE '%a%'
 UNION
 SELECT * FROM employees WHERE department_id>90;
 
 
-#UNIONALL 方式
+# See note 3 below.
 SELECT id,cname FROM t_chinamale WHERE csex='男'
 UNION ALL
 SELECT id,tname FROM t_usmale WHERE tGender='male';
 ```
 
+示例说明：
 
-
+1. UNION 方式1
+2. UNION 方式2
+3. UNIONALL 方式
 
 
 ### 7种 SQL JOINS 的实现
 
 ```sql
-#中图：内连接 A∩B
+# See note 1 below.
 SELECT employee_id,last_name,department_name
 FROM employees e JOIN departments d
 ON e.department_id = d.department_id;
 
 
-#左上图：左外连接
+# See note 2 below.
 SELECT employee_id,last_name,department_name
 FROM employees e LEFT JOIN departments d
 ON e.department_id = d.department_id;
 
 
-#右上图：右外连接
+# See note 3 below.
 SELECT employee_id,last_name,department_name
 FROM employees e RIGHT JOIN departments d
 ON e.department_id = d.department_id;
 
 
-#左中图：A - A∩B
+# See note 4 below.
 SELECT employee_id,last_name,department_name
 FROM employees e LEFT JOIN departments d
 ON e.department_id = d.department_id
 WHERE d.department_id IS NULL
 
 
-#右中图：B-A∩B
+# See note 5 below.
 SELECT employee_id,last_name,department_name
 FROM employees e RIGHT JOIN departments d
 ON e.department_id = d.department_id
 WHERE e.department_id IS NULL
 
 
-#左下图：满外连接
-#*左中图 + 右上图 A∪B*
+# See note 6 below.
+# See note 7 below.
 SELECT employee_id,last_name,department_name
 FROM employees e LEFT JOIN departments d
 ON e.department_id = d.department_id
 WHERE d.department_id IS NULL
-UNION ALL	#没有去重操作，效率高
+UNION ALL	# See note 8 below.
 SELECT employee_id,last_name,department_name
 FROM employees e RIGHT JOIN departments d
 ON e.department_id = d.department_id;
 
 
-#右下图
-#左中图 + 右中图	A ∪B- A∩B 或者 (A -	A∩B) ∪ （B - A∩B）
+# See note 9 below.
+# See note 10 below.
 SELECT employee_id,last_name,department_name
 FROM employees e LEFT JOIN departments d
 ON e.department_id = d.department_id
@@ -532,6 +553,18 @@ ON e.department_id = d.department_id
 WHERE e.department_id IS NULL;
 ```
 
+示例说明：
+
+1. 中图：内连接 A∩B
+2. 左上图：左外连接
+3. 右上图：右外连接
+4. 左中图：A - A∩B
+5. 右中图：B-A∩B
+6. 左下图：满外连接
+7. 左中图 + 右上图 A∪B*
+8. 没有去重操作，效率高
+9. 右下图
+10. 左中图 + 右中图	A ∪B- A∩B 或者 (A -	A∩B) ∪ （B - A∩B）
 
 
 ### 子查询
@@ -544,11 +577,10 @@ WHERE e.department_id IS NULL;
 SELECT 字段列表 FROM 表1 WHERE 字段名 = (子查询);
 
 例如：
-SELECT * 
-FROM employee 
+SELECT *
+FROM employee
 WHERE employee.salary < (SELECT AVG(salary) FROM employee);
 ```
-
 
 
 子查询的结果是**多行单列**时，可以用 in 等关键字进行判断。
@@ -557,12 +589,11 @@ WHERE employee.salary < (SELECT AVG(salary) FROM employee);
 SELECT 字段列表 FROM 表1 WHERE 字段名 IN (子查询);
 
 例如：
-SELECT * 
-FROM employee 
-WHERE dept_id 
-IN (SELECT id FROM employee WHERE NAME = '财务部' OR NAME = '市场部');
+SELECT *
+FROM employee
+WHERE dept_id
+IN (SELECT id FROM department WHERE name IN ('财务部', '市场部'));
 ```
-
 
 
 子查询的结果是**多行多列**时，可以作为一张虚拟表参与查询。
@@ -571,16 +602,8 @@ IN (SELECT id FROM employee WHERE NAME = '财务部' OR NAME = '市场部');
 SELECT 字段列表 FROM (子查询) WHERE 条件;
 
 例如：
-SELECT *
-FROM employees t1, (SELECT * FROM deptments WHERE deptments.join_date > 2022-10-01) t2
-WHERE t1.id = t2.dept_id;
+SELECT e.*
+FROM employees AS e
+JOIN (SELECT department_id FROM departments WHERE location_id = 1700) AS d
+  ON e.department_id = d.department_id;
 ```
-
-
-
-
-
-
-
-
-

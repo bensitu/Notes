@@ -1,19 +1,58 @@
+# TypeScript 基础
+
+学习类型如何发现错误，并按接口、联合类型、泛型等主题查写法。
+
+**学习前提与版本：** 先掌握 JavaScript，建议 TypeScript 5.x 且开启 strict。类型检查不是运行时校验；错误演示与替代写法要分开使用。
+
+**示例使用：** 除明确列出全部文件和运行步骤的项目外，代码块是各小节的独立片段。省略号、占位名称需要补齐；标明错误的行用于说明问题。同节替代写法不要合并。
+
+[学习索引与常见词](README.md) · [官方参考](https://www.typescriptlang.org/docs/handbook/)
+
+**内容导航**
+
+- [建议的检查方式](#section-1)
+- [基础部分](#section-2)
+
+
+<a id="section-1"></a>
+
+## 建议的检查方式
+
+先安装项目所需的 TypeScript 5.x 版本，并保留 package-lock.json。下面是普通浏览器示例的 tsconfig.json，不是 Vue 项目的完整配置：
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "strict": true,
+    "noEmit": true,
+    "lib": ["ES2020", "DOM"]
+  },
+  "include": ["src/**/*.ts"]
+}
+```
+
+运行 `npx tsc` 做类型检查。本文同一代码块有时并列展示两种替代写法，阅读时分开使用，避免重复声明。标有 Error、错误或展示不匹配赋值的行是错误演示，检查器应当报告错误。类型断言只影响检查器，不转换或验证运行时数据；不确定的外部输入优先用 unknown 并逐项检查。
+
+<a id="section-2"></a>
+
 ## 基础部分
 ### 01、基础类型
-**布尔类型**： 略                 
+**布尔类型 boolean**：只表示 true 或 false。例如：`const enabled: boolean = true;`。
 
-**数字类型**： 略
+**数字类型 number**：表示 JavaScript 的普通数字，不区分 int 与 double。例如：`const price: number = 12.5;`。大整数 bigint 是另一种类型。
 
-**字符串类型**： 略
+**字符串类型 string**：表示文字。例如：`const username: string = "Alice";`。
 
-**数组**：                 
-申明方式：           
+**数组**：
+申明方式：
 ```typescript
 let list: number[] = [1, 2, 3];
 let list: Array<number> = [1, 2, 3];
 ```
 
-**元组 Tuple**: 元组类型允许表示一个已知元素数量和类型的数组，各元素的类型不必相同。                            
+**元组 Tuple**: 元组类型允许表示一个已知元素数量和类型的数组，各元素的类型不必相同。
 ```typescript
 // Declare a tuple type
 let x: [string, number];
@@ -23,17 +62,21 @@ x = ['hello', 10]; // OK
 x = [10, 'hello']; // Error
 ```
 
-**枚举**:                         
+**枚举**:
 ```typescript
 enum Color {Red, Green, Blue}
 let c: Color = Color.Green;
 
-enum Color {Red = 1, Green, Blue}   // 1开始编号
+enum Color {Red = 1, Green, Blue}   // See note 1 below.
 let c: Color = Color.Green;
 ```
 
+示例说明：
 
-**Any**:                
+1. 1开始编号
+
+
+**Any**:
 ```typescript
 let notSure: any = 4;
 notSure = "maybe a string instead";
@@ -43,56 +86,63 @@ let list: any[] = [1, true, "free"];
 list[1] = 100;
 ```
 
-**void**: 它表示没有任何类型。 当一个函数没有返回值时，你通常会见到其返回值类型是 void             
+**void**：用于表示调用方不使用函数返回值，常见于只执行操作、不返回业务结果的函数。它不是“没有任何类型”，也不等同于 never。
 ```typescript
 function warnUser(): void {
     alert("This is my warning message");
 }
 ```
-声明一个void类型的变量没有什么大用，因为你只能为它赋予undefined和null
+void 主要表达函数返回值不需要使用。strictNullChecks=true 时，不能把 null 赋给 void 变量；通常只会写返回 void 的函数，不定义这种变量。
 
 
-**Null 和 Undefined**: 默认情况下null和undefined是所有类型的子类型。
+**Null 和 Undefined**: 关闭 strictNullChecks 时，null 和 undefined 的赋值检查较宽松。建议开启 strict（包含 strictNullChecks）；此时 string 不接受 null，需要明确写成 string | null 等联合类型。
 
-**Never**: 表示的是那些永不存在的值的类型。                         
-never类型是那些总是会抛出异常或根本就不会有返回值的函数表达式或箭头函数表达式的返回值类型；               
+**Never**: 表示的是那些永不存在的值的类型。
+never类型是那些总是会抛出异常或根本就不会有返回值的函数表达式或箭头函数表达式的返回值类型；
 never类型是任何类型的子类型，也可以赋值给任何类型
 ```typescript
-// 返回never的函数必须存在无法达到的终点
+// See note 1 below.
 function error(message: string): never {
     throw new Error(message);
 }
 
-// 推断的返回值类型为never
+// See note 2 below.
 function fail() {
     return error("Something failed");
 }
 
-// 返回never的函数必须存在无法达到的终点
+// See note 3 below.
 function infiniteLoop(): never {
     while (true) {
     }
 }
 ```
 
-**类型断言**:               
-类型断言有两种形式。 其一是“尖括号”语法               
+示例说明：
+
+1. 返回never的函数必须存在无法达到的终点
+2. 推断的返回值类型为never
+3. 返回never的函数必须存在无法达到的终点
+
+
+**类型断言**:
+类型断言有两种形式。 其一是“尖括号”语法
 ```typescript
 let someValue: any = "this is a string";
 let strLength: number = (<string>someValue).length;
 ```
-另一个为as语法：               
+另一个为as语法：
 ```typescript
 let someValue: any = "this is a string";
 let strLength: number = (someValue as string).length;
 ```
 
-### <div class="class01-02">
-</div>
-这一节主要讲的是变量申明，var、let、const、解构赋值 等，可以直接参考es6就可以了。
+### 02、变量声明
+
+优先用 const 声明不重新赋值的变量，需要重新赋值时用 let。const 不会冻结对象内部属性；var 的作用域与提升规则不同，新代码通常避免使用。解构赋值用来从对象或数组中取值，不会自动验证取到的数据。
 
 
-### <div class="class01-03">03、接口</div>
+### 03、接口
 #### 接口初探
 举例子：
 ```typescript
@@ -102,7 +152,7 @@ function printLabel(labelledObj: { label: string }) {
 let myObj = { size: 10, label: "Size 10 Object" };
 printLabel(myObj);
 
-// 重写上面的例子
+// See note 1 below.
 interface LabelledValue {
   label: string;
 }
@@ -112,9 +162,14 @@ function printLabel(labelledObj: LabelledValue) {
 let myObj = {size: 10, label: "Size 10 Object"};
 printLabel(myObj);
 ```
-需要注意的是，我们在这里并不能像在其它语言里一样，说传给 printLabel的对象实现了这个接口。我们只会去关注值的外形。 只要传入的对象满足上面提到的必要条件，那么它就是被允许的。               
 
-#### 可选属性               
+示例说明：
+
+1. 重写上面的例子
+
+需要注意的是，我们在这里并不能像在其它语言里一样，说传给 printLabel的对象实现了这个接口。我们只会去关注值的外形。 只要传入的对象满足上面提到的必要条件，那么它就是被允许的。
+
+#### 可选属性
 接口里的属性不全都是必需的。 有些是只在某些条件下存在，或者根本不存在。 可选属性在应用“option bags”模式时很常用，即给函数传入的参数对象中只有部分属性赋值了。
 ```typescript
 interface SquareConfig {
@@ -134,8 +189,8 @@ function createSquare(config: SquareConfig): {color: string; area: number} {
 let mySquare = createSquare({color: "black"});
 ```
 
-#### 只读属性                   
-一些对象属性只能在对象刚刚创建的时候修改其值。 你可以在属性名前用 readonly来指定只读属性:                  
+#### 只读属性
+readonly 限制通过当前类型修改该属性；初始化后不能通过该类型重新赋值。它只在类型检查阶段起作用，不会冻结运行时对象。 你可以在属性名前用 readonly来指定只读属性:
 ```typescript
 interface Point {
     readonly x: number,
@@ -145,7 +200,7 @@ let p1: Point = {x:5, y:10};
 p1.x = 10;
 ```
 
-TypeScript具有ReadonlyArray<T>类型, 可以确保数组创建后再也不能被修改：                   
+ReadonlyArray<T> 阻止通过当前只读引用调用修改方法，不会冻结运行时数组；另一个可写引用仍可能修改它：
 ```typescript
 let a: number[] = [1, 2, 3, 4];
 let ro: ReadonlyArray<number> = a;
@@ -160,10 +215,10 @@ a = ro; // error!
 a = ro as number[];
 ```
 
-readonly vs const               
-最简单判断该用readonly还是const的方法是看要把它做为变量使用还是做为一个属性。 做为变量使用的话用 const，若做为属性则使用readonly。                 
+readonly vs const
+最简单判断该用readonly还是const的方法是看要把它做为变量使用还是做为一个属性。 做为变量使用的话用 const，若做为属性则使用readonly。
 
-#### 额外的属性检查                    
+#### 额外的属性检查
 ```typescript
 interface SquareConfig {
     color?: string;
@@ -186,10 +241,10 @@ let mySquare = createSquare({colorr: "black"});
 
 还有最后一种跳过这些检查的方式，这可能会让你感到惊讶，它就是将这个对象赋值给一个另一个变量： 因为 squareOptions不会经过额外属性检查，所以编译器不会报错。
 
-总结一下就是最好别用这种绕开检测的手段，可能会影响程序的正常进行。                       
+总结一下就是最好别用这种绕开检测的手段，可能会影响程序的正常进行。
 
 
-#### 函数类型                   
+#### 函数类型
 为了使用接口表示函数类型，我们需要给接口定义一个调用签名。 它就像是一个只有参数列表和返回值类型的函数定义。参数列表里的每个参数都需要名字和类型。
 
 ```typescript
@@ -197,21 +252,21 @@ interface SearchFunc {
   (source: string, subString: string): boolean;
 }
 
-// 最经典的写法
+// See note 1 below.
 let mySearch: SearchFunc;
 mySearch = function(source: string, subString: string) {
   let result = source.search(subString);
   return result > -1;
 };
 
-//对于函数类型的类型检查来说，函数的参数名不需要与接口里定义的名字相匹配。 比如，我们使用下面的代码重写上面的例子：
+// See note 2 below.
 let mySearch: SearchFunc;
 mySearch = function(src: string, sub: string): boolean {
   let result = src.search(sub);
   return result > -1;
 };
 
-// 这样写也是可以的
+// See note 3 below.
 let mySearch: SearchFunc;
 mySearch = function(src, sub) {
     let result = src.search(sub);
@@ -219,8 +274,15 @@ mySearch = function(src, sub) {
 }
 ```
 
-#### 可索引的类型                     
-可索引类型具有一个 索引签名，它描述了对象索引的类型，还有相应的索引返回值类型。 
+示例说明：
+
+1. 最经典的写法
+2. 对于函数类型的类型检查来说，函数的参数名不需要与接口里定义的名字相匹配。 比如，我们使用下面的代码重写上面的例子：
+3. 这样写也是可以的
+
+
+#### 可索引的类型
+可索引类型具有一个 索引签名，它描述了对象索引的类型，还有相应的索引返回值类型。
 ```typescript
 interface StringArray {
   [index: number]: string;
@@ -233,7 +295,7 @@ let myStr: string = myArray[0];
 ```
 这个索引签名表示了当用 number去索引StringArray时会得到string类型的返回值。
 
-共有支持两种索引签名：字符串和数字。 可以同时使用两种类型的索引，但是数字索引的返回值必须是字符串索引返回值类型的子类型。
+现代 TypeScript 支持字符串、数字、symbol 等索引签名，也支持部分模板字面量索引。下面先介绍最常见的字符串和数字索引。 可以同时使用两种类型的索引，但是数字索引的返回值必须是字符串索引返回值类型的子类型。
 ```typescript
 class Animal {
     name: string;
@@ -241,21 +303,32 @@ class Animal {
 class Dog extends Animal {
     breed: string;
 }
-// 错误：使用数值型的字符串索引，有时会得到完全不同的Animal!
+// See note 1 below.
 interface NotOkay {
     [x: number]: Animal;
     [x: string]: Dog;
 }
 ```
 
+示例说明：
+
+1. 错误：使用数值型的字符串索引，有时会得到完全不同的Animal!
+
+
 下面的例子里， name的类型与字符串索引类型不匹配，所以类型检查器给出一个错误提示：
 ```typescript
 interface NumberDictionary {
   [index: string]: number;
-  length: number;    // 可以，length是number类型
-  name: string       // 错误，`name`的类型与索引类型返回值的类型不匹配
+  length: number;    // See note 1 below.
+  name: string       // See note 2 below.
 }
 ```
+
+示例说明：
+
+1. 可以，length是number类型
+2. 错误，'name'的类型与索引类型返回值的类型不匹配
+
 
 最后，你可以将索引签名设置为只读，这样就防止了给索引赋值：
 ```typescript
@@ -267,7 +340,7 @@ myArray[2] = "Mallory"; // error!
 ```
 
 #### 类类型
-**实现接口**                    
+**实现接口**
 ```typescript
 interface ClockInterface {
     currentTime: Date;
@@ -285,7 +358,7 @@ class Clock implements ClockInterface {
 
 看下面的例子，我们定义了两个接口， ClockConstructor为构造函数所用和ClockInterface为实例方法所用。 为了方便我们定义一个构造函数 createClock，它用传入的类型创建实例。
 
-#### 继承接口                   
+#### 继承接口
 ```typescript
 interface Shape {
     color: string;
@@ -299,12 +372,17 @@ let square = <Square>{};
 square.color = "blue";
 square.sideLength = 10;
 
-// 这样也可以
+// See note 1 below.
 let square = <{color: string, sideLength: number}>{};
 square.color = "blue";
 square.sideLength = 10;
 console.log(square);
 ```
+
+示例说明：
+
+1. 这样也可以
+
 
 一个接口可以继承多个接口，创建出多个接口的合成接口。
 ```typescript
@@ -327,7 +405,7 @@ square.penWidth = 5.0;
 ```
 
 
-#### 混合类型               
+#### 混合类型
 ```typescript
 interface Counter {
     (start: number): string;
@@ -348,7 +426,7 @@ c.reset();
 c.interval = 5.0;
 ```
 
-#### 接口继承类              
+#### 接口继承类
 ```typescript
 class Control {
     private state: any;
@@ -366,7 +444,7 @@ class TextBox extends Control {
     select() { }
 }
 
-// 错误：“Image”类型缺少“state”属性。
+// See note 1 below.
 class Image implements SelectableControl {
     select() { }
 }
@@ -375,22 +453,33 @@ class Location {
 }
 ```
 
+示例说明：
 
-### <div id="class01-04">04、类</dvi>
+1. 错误：“Image”类型缺少“state”属性。
+
+
+### 04、类
 #### 介绍
 ```typescript
 class Greeter {
-    greeting: string;       // 属性
-    constructor(message: string) {      // 构造函数
+    greeting: string;       // See note 1 below.
+    constructor(message: string) {      // See note 2 below.
         this.greeting = message;
     }
-    greet() {       // 方法
+    greet() {       // See note 3 below.
         return "Hello, " + this.greeting;
     }
 }
 
 let greeter = new Greeter("world");
 ```
+
+示例说明：
+
+1. 属性
+2. 构造函数
+3. 方法
+
 
 #### 继承
 ```typescript
@@ -448,7 +537,7 @@ sam.move();
 tom.move(34);
 ```
 
-#### 公共，私有与受保护的修饰符                  
+#### 公共，私有与受保护的修饰符
 **默认为 public**
 
 你也可以明确的将一个成员标记成 public。 我们可以用下面的方式来重写上面的 Animal类：
@@ -472,8 +561,13 @@ class Animal {
     private name: string;
     constructor(theName: string) { this.name = theName; }
 }
-new Animal("Cat").name; // 错误: 'name' 是私有的.
+new Animal("Cat").name; // See note 1 below.
 ```
+
+示例说明：
+
+1. 错误: 'name' 是私有的.
+
 
 如果其中一个类型里包含一个 private成员，那么只有当另外一个类型中也存在这样一个 private成员， 并且它们都是来自同一处声明时，我们才认为这两个类型是兼容的。 对于 protected成员也使用这个规则。
 ```typescript
@@ -496,10 +590,15 @@ let rhino = new Rhino();
 let employee = new Employee("Bob");
 
 animal = rhino;
-animal = employee; // 错误: Animal 与 Employee 不兼容.
+animal = employee; // See note 1 below.
 ```
 
-**理解protected**:                    
+示例说明：
+
+1. 错误: Animal 与 Employee 不兼容.
+
+
+**理解protected**:
 
 protected修饰符与 private修饰符的行为很相似，但有一点不同， protected成员在派生类中仍然可以访问。
 ```typescript
@@ -523,8 +622,13 @@ class Employee extends Person {
 
 let howard = new Employee("Howard", "Sales");
 console.log(howard.getElevatorPitch());
-console.log(howard.name); // 错误
+console.log(howard.name); // See note 1 below.
 ```
+
+示例说明：
+
+1. 错误
+
 我们不能在 Person类外使用 name，但是我们仍然可以通过 Employee类的实例方法访问，因为 Employee是由 Person派生而来的。
 
 构造函数也可以被标记成 protected。 这意味着这个类不能在包含它的类外被实例化，但是能被继承。
@@ -534,7 +638,7 @@ class Person {
     protected constructor(theName: string) { this.name = theName; }
 }
 
-// Employee 能够继承 Person
+// See note 1 below.
 class Employee extends Person {
     private department: string;
 
@@ -549,11 +653,17 @@ class Employee extends Person {
 }
 
 let howard = new Employee("Howard", "Sales");
-let john = new Person("John"); // 错误: 'Person' 的构造函数是被保护的.
+let john = new Person("John"); // See note 2 below.
 ```
 
-#### readonly修饰符             
-你可以使用 readonly关键字将属性设置为只读的。 只读属性必须在声明时或构造函数里被初始化。
+示例说明：
+
+1. Employee 能够继承 Person
+2. 错误: 'Person' 的构造函数是被保护的.
+
+
+#### readonly修饰符
+你可以使用 readonly 关键字在类型检查阶段将属性设置为只读的。 只读属性必须在声明时或构造函数里被初始化。
 ```typescript
 class Octopus {
     readonly name: string;
@@ -563,8 +673,12 @@ class Octopus {
     }
 }
 let dad = new Octopus("Man with the 8 strong legs");
-dad.name = "Man with the 3-piece suit"; // 错误! name 是只读的.
+dad.name = "Man with the 3-piece suit"; // See note 1 below.
 ```
+
+示例说明：
+
+1. 错误! name 是只读的.
 
 
 **参数属性**
@@ -613,7 +727,7 @@ let employee: Employee = new Employee();
 employee.fullName = '123';
 console.log(employee.fullName);
 ```
-这样就可以控制输入输出的字段了。                    
+这样就可以控制输入输出的字段了。
 
 
 #### 静态属性
@@ -636,7 +750,7 @@ console.log(grid1.calculateDistanceFromOrigin({x: 10, y: 10}));
 console.log(grid2.calculateDistanceFromOrigin({x: 10, y: 10}));
 ```
 
-#### 抽象类                
+#### 抽象类
 抽象类做为其它派生类的基类使用。 它们一般不会直接被实例化。 不同于接口，抽象类可以包含成员的实现细节。 abstract关键字是用于定义抽象类和在抽象类内部定义抽象方法。
 ```typescript
 abstract class Animal {
@@ -655,12 +769,12 @@ abstract class Department {
     printName(): void {
         console.log('Department name: ' + this.name);
     }
-    abstract printMeeting(): void; // 必须在派生类中实现
+    abstract printMeeting(): void; // See note 1 below.
 }
 
 class AccountingDepartment extends Department {
     constructor() {
-        super('Accounting and Auditing'); // 在派生类的构造函数中必须调用 super()
+        super('Accounting and Auditing'); // See note 2 below.
     }
     printMeeting(): void {
         console.log('The Accounting Department meets each Monday at 10am.');
@@ -670,13 +784,23 @@ class AccountingDepartment extends Department {
     }
 }
 
-let department: Department; // 允许创建一个对抽象类型的引用
-department = new Department(); // 错误: 不能创建一个抽象类的实例
-department = new AccountingDepartment(); // 允许对一个抽象子类进行实例化和赋值
+let department: Department; // See note 3 below.
+department = new Department(); // See note 4 below.
+department = new AccountingDepartment(); // See note 5 below.
 department.printName();
 department.printMeeting();
-department.generateReports(); // 错误: 方法在声明的抽象类中不存在
+department.generateReports(); // See note 6 below.
 ```
+
+示例说明：
+
+1. 必须在派生类中实现
+2. 在派生类的构造函数中必须调用 super()
+3. 允许创建一个对抽象类型的引用
+4. 错误: 不能创建一个抽象类的实例
+5. 允许对一个抽象子类进行实例化和赋值
+6. 错误: 方法在声明的抽象类中不存在
+
 
 #### 可以把类当做接口使用
 ```typescript
@@ -691,8 +815,7 @@ let point3d: Point3d = {x: 1, y: 2, z: 3};
 ```
 
 
-
-### <div id="class01-05">05、函数</dvi>
+### 05、函数
 #### 函数类型
 **为函数定义类型**
 ```typescript
@@ -705,7 +828,7 @@ TypeScript能够根据返回语句自动推断出返回值类型，因此我们�
 
 
 #### 可选参数和默认参数
-TypeScript里的每个函数参数都是必须的。简短地说，传递给一个函数的参数个数必须与函数期望的参数个数一致。
+没有 ?、默认值或剩余参数的普通函数参数通常是必传的。简短地说，传递给一个函数的参数个数必须与函数期望的参数个数一致。
 ```typescript
 function buildName(firstName: string, lastName: string) {
     return firstName + " " + lastName;
@@ -716,7 +839,7 @@ let result2 = buildName("Bob", "Adams", "Sr.");  // error, too many parameters
 let result3 = buildName("Bob", "Adams");         // ah, just right
 ```
 
-TypeScript里我们可以在参数名旁使用 ?实现可选参数的功能。 比如，我们想让last name是可选的：
+TTypeScript 里我们可以在参数名旁使用 ?实现可选参数的功能。 比如，我们想让last name是可选的：
 ```typescript
 function buildName(firstName: string, lastName?: string) {
     if (lastName)
@@ -729,7 +852,7 @@ let result2 = buildName("Bob", "Adams", "Sr.");  // error, too many parameters
 let result3 = buildName("Bob", "Adams");  // ah, just right
 ```
 
-在TypeScript里，我们也可以为参数提供一个默认值当用户没有传递这个参数或传递的值是undefined时。 它们叫做有默认初始化值的参数。 让我们修改上例，把last name的默认值设置为"Smith"。
+在TTypeScript 里，我们也可以为参数提供一个默认值当用户没有传递这个参数或传递的值是undefined时。 它们叫做有默认初始化值的参数。 让我们修改上例，把last name的默认值设置为"Smith"。
 ```typescript
 function buildName(firstName: string, lastName = "Smith") {
     return firstName + " " + lastName;
@@ -753,8 +876,7 @@ let employeeName = buildName("Joseph", "Samuel", "Lucas", "MacKinzie");
 TypeScript能通知你错误地使用了 this的地方。
 
 
-
-### <div id="class01-06">06、泛型</dvi>
+### 06、泛型
 
 #### 介绍
 不用泛型的话，这个函数可能是下面这样：
@@ -920,7 +1042,7 @@ createInstance(Bee).keeper.hasMask;   // typechecks!
 ```
 
 
-### <div id="class01-07">07、枚举</dvi>
+### 07、枚举
 
 #### 数字枚举
 
@@ -977,10 +1099,10 @@ enum Direction {
 ```
 
 #### 计算的和常量成员
-- 一个枚举表达式字面量（主要是字符串字面量或数字字面量）               
-- 一个对之前定义的常量枚举成员的引用（可以是在不同的枚举类型中定义的）                
-- 带括号的常量枚举表达式               
-- 一元运算符 +, -, ~其中之一应用在了常量枚举表达式              
+- 一个枚举表达式字面量（主要是字符串字面量或数字字面量）
+- 一个对之前定义的常量枚举成员的引用（可以是在不同的枚举类型中定义的）
+- 带括号的常量枚举表达式
+- 一元运算符 +, -, ~其中之一应用在了常量枚举表达式
 - 常量枚举表达式做为二元运算符 +, -, *, /, %, <<, >>, >>>, &, |, ^的操作对象。 若常数枚举表达式求值后为 NaN或 Infinity，则会在编译阶段报错。
 
 所有其它情况的枚举成员被当作是需要计算得出的值。
@@ -1038,9 +1160,9 @@ const enum Enum {
 }
 ```
 
-### <div id="class01-08">08、类型推论</dvi>
+### 08、类型推论
 #### 基础
-ypeScript里，在有些没有明确指出类型的地方，类型推论会帮助提供类型。如下面的例子
+TypeScript 里，在有些没有明确指出类型的地方，类型推论会帮助提供类型。如下面的例子
 ```typescript
 let x = 3;
 ```
@@ -1084,7 +1206,7 @@ function createZoo(): Animal[] {
 ```
 
 
-### <div id="class01-09">09、类的兼容性</dvi>
+### 09、类的兼容性
 TypeScript的结构性子类型是根据JavaScript代码的典型写法来设计的。 因为JavaScript里广泛地使用匿名对象，例如函数表达式和对象字面量，所以使用结构类型系统来描述这些类型比使用名义类型系统更好。
 ```typescript
 interface Named {
@@ -1141,14 +1263,14 @@ let y = function(b: number, c: string): number{
 y=x;
 x=y;
 ```
-要查看x是否能赋值给y，首先看它们的参数列表。 x的每个参数必须能在y里找到对应类型的参数。                  
+要查看x是否能赋值给y，首先看它们的参数列表。 x的每个参数必须能在y里找到对应类型的参数。
 第二个赋值错误，因为y有个必需的第二个参数，但是x并没有，所以不允许赋值。
 
 #### 函数参数双向协变
 略。。。。。。。
 
 #### 可选参数及剩余参数
-比较函数兼容性的时候，可选参数与必须参数是可互换的。 源类型上有额外的可选参数不是错误，目标类型的可选参数在源类型里没有对应的参数也不是错误。             
+比较函数兼容性的时候，可选参数与必须参数是可互换的。 源类型上有额外的可选参数不是错误，目标类型的可选参数在源类型里没有对应的参数也不是错误。
 这对于类型系统来说是不稳定的，但从运行时的角度来看，可选参数一般来说是不强制的，因为对于大多数函数来说相当于传递了一些undefinded。
 
 ```typescript
@@ -1166,7 +1288,7 @@ invokeLater([1, 2], (x?, y?) => console.log(x + ', ' + y));
 
 #### 枚举
 
-枚举类型与数字类型兼容，并且数字类型与枚举类型兼容。**不同枚举类型之间是不兼容的。**
+数值枚举与 number 的兼容行为取决于 TypeScript 版本和具体值；现代版本会拒绝明显不属于枚举的数字字面量。优先使用明确的枚举成员，不要假定任意数字都能赋值。**不同枚举类型之间是不兼容的。**
 ```typescript
 enum Status { Ready, Waiting };
 enum Color { Red, Blue, Green };
@@ -1201,7 +1323,7 @@ a=d;    // OK
 d=a;    // OK
 ```
 
-#### 泛型             
+#### 泛型
 因为TypeScript是结构性的类型系统，类型参数只影响使用其做为类型一部分的结果类型。
 ```typescript
 interface Empty<T> {
@@ -1225,38 +1347,23 @@ x = y;  // error, x and y are not compatible
 对于没指定泛型类型的泛型参数时，会把所有泛型参数当成any比较。
 
 
-### <div id="class01-10">10、高级类型</div>
+### 10、高级类型
 #### 交叉类型（Intersection Types） 关键字 &
 交叉类型是将多个类型合并为一个类型
 ```typescript
-function extend<T, U>(first: T, second: U): T & U {
-    let result = <T & U>{};
-    for (let id in first) {
-        (<any>result)[id] = (<any>first)[id];
-    }
-    for (let id in second) {
-        if (!result.hasOwnProperty(id)) {
-            (<any>result)[id] = (<any>second)[id];
-        }
-    }
-    return result;
+function combine<T extends object, U extends object>(first: T, second: U): T & U {
+    return Object.assign({}, first, second);
 }
 
-class Person {
-    constructor(public name: string) { }
-}
-interface Loggable {
-    log(): void;
-}
-class ConsoleLogger implements Loggable {
-    log() {
-        // ...
-    }
-}
-var jim = extend(new Person("Jim"), new ConsoleLogger());
-var n = jim.name;
-jim.log();
+const person = { name: "Jim" };
+const logger = { log() { console.log("logged"); } };
+const combined = combine(person, logger);
+combined.log();
 ```
+
+这会复制对象自身的可枚举属性，属于浅拷贝。它不会自动复制类原型上的方法，所以不能拿两个类实例做普通属性复制后，就声称获得了全部实例方法。
+
+交叉类型只描述类型关系，不会替你生成运行时对象。属性同名且类型冲突时，交叉类型可能无法使用；实际赋值也需要明确覆盖顺序。
 
 #### 联合类型（Union Types） 关键字 |
 出现在比如某一个字段，我们只想给string 和 number 类型情况的其中一种， 例如：
@@ -1272,8 +1379,13 @@ function padLeft(value: string, padding: any) {
 }
 
 padLeft("Hello world", 4); // returns "    Hello world"
-let indentedString = padLeft("Hello world", true); // 编译阶段通过，运行时报错
+let indentedString = padLeft("Hello world", true); // See note 1 below.
 ```
+
+示例说明：
+
+1. 编译阶段通过，运行时报错
+
 利用联合类型实例如下：
 ```typescript
 function padLeft(value: string, padding: string | number) {
@@ -1299,7 +1411,7 @@ function padLeft(value: string, padding: string | number) {
     throw new Error(`Expected string or number, got '${padding}'.`);
 }
 ```
-这些* typeof类型保护*只有两种形式能被识别： typeof v === "typename"和 typeof v !== "typename"， "typename"必须是 "number"， "string"， "boolean"或 "symbol"。
+这些* typeof类型保护*只有两种形式能被识别： typeof v === "typename"和 typeof v !== "typename"， typename 可以是 typeof 返回的类型名称，包括 undefined、number、string、boolean、bigint、symbol、object、function。注意 typeof null 为 object，不能用它单独判断非空对象。
 
 
 **instanceof类型保护**
@@ -1336,16 +1448,22 @@ class StringPadder implements Padder {
 function getRandomPadder(): StringPadder|SpaceRepeatingPadder {
     return Math.random()<0.5 ? new SpaceRepeatingPadder(4) : new StringPadder('   ');
 }
-// 类型为SpaceRepeatingPadder | StringPadder
+// See note 1 below.
 let padder: Padder = getRandomPadder();
 
 if (padder instanceof SpaceRepeatingPadder) {
-    padder; // 类型细化为'SpaceRepeatingPadder'
+    padder; // See note 2 below.
 }
 if (padder instanceof StringPadder) {
-    padder; // 类型细化为'StringPadder'
+    padder; // See note 3 below.
 }
 ```
+
+示例说明：
+
+1. 类型为SpaceRepeatingPadder | StringPadder
+2. 类型细化为'SpaceRepeatingPadder'
+3. 类型细化为'StringPadder'
 
 
 #### 字符串字面量类型
@@ -1368,9 +1486,9 @@ function rollDie(): 1 | 2 | 3 | 4 | 5 | 6 {
 #### 可辨识联合（Discriminated Unions）
 你可以合并单例类型，联合类型，类型保护和类型别名来创建一个叫做 可辨识联合的高级模式，它也称做 标签联合或 代数数据类型。 可辨识联合在函数式编程很有用处。 一些语言会自动地为你辨识联合；而TypeScript则基于已有的JavaScript模式。 它具有3个要素：
 
-1、具有普通的单例类型属性— 可辨识的特征。              
-2、一个类型别名包含了那些类型的联合— 联合。                     
-3、此属性上的类型保护。                
+1、具有普通的单例类型属性— 可辨识的特征。
+2、一个类型别名包含了那些类型的联合— 联合。
+3、此属性上的类型保护。
 ```typescript
 interface Square {
     kind: "square";

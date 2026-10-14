@@ -1,5 +1,24 @@
 # 四. Vue 3
 
+学习 Vue 3 响应式、组件通信、请求封装和工程中的类型检查。
+
+**学习前提与版本：** 采用 Vue 3；历史截图和 Ant Design Vue / Vite 片段对应当时的库版本。UI 组件的 value、visible 等属性需核对已安装版本，不应套用 Vue 2 的 Element UI 配置。
+
+**截图说明：** 图片保留原教学环境的操作过程；若截图中的旧写法与正文不同，以修订后的正文和所选版本的官方文档为准。
+
+**示例使用：** 除明确列出全部文件和运行步骤的项目外，代码块是各小节的独立片段。省略号、占位名称需要补齐；标明错误的行用于说明问题。同节替代写法不要合并。
+
+[学习索引与常见词](README.md) · [官方参考](https://cn.vuejs.org/guide/introduction.html)
+
+**内容导航**
+
+- [1. TypeScript](#section-1)
+- [2. Vue3 基础](#section-2)
+- [3. Vue 进阶](#section-3)
+
+
+<a id="section-1"></a>
+
 ## 1. TypeScript
 
 ### 1) 动态类型的问题
@@ -7,7 +26,7 @@
 前面我们讲过 js 属于动态类型语言，例如
 
 ```js
-function test(obj) {    
+function test(obj) {
 }
 ```
 
@@ -26,7 +45,6 @@ test(()=>console.log('hello, world'))
 obj 类型不确定，就给后期使用者带来了麻烦，一旦参数传不对，代码就崩溃了
 
 
-
 动态类型意味着
 
 * 运行代码时才知道发生什么 (running the code to see what happens)
@@ -34,7 +52,6 @@ obj 类型不确定，就给后期使用者带来了麻烦，一旦参数传不�
 静态类型意味着
 
 * 在代码运行前，就对它的行为做出预测 (make predications about what code is expected before it runs)
-
 
 
 下面的 typescript 代码，就在代码运行前对参数加入了约束限制
@@ -53,7 +70,6 @@ function test(msg : Function) {
 ```
 
 * 限制了参数只能做函数那些事
-
 
 
 ### 2) 入门
@@ -90,7 +106,6 @@ hello('hello,world');
 ```
 
 
-
 再来一个例子，用 interface 定义用户类型
 
 ```ts
@@ -118,9 +133,7 @@ test({ name: 'zhangs', age: 18 });
 ```
 
 
-
 可见，typescript 属于编译时实施类型检查（静态类型）的技术
-
 
 
 ### 3) 类型
@@ -139,7 +152,6 @@ test({ name: 'zhangs', age: 18 });
 | 泛型        | `<T>`，`<T extends 父类型>`           |                              |
 
 
-
 #### 标注位置
 
 ##### 标注变量
@@ -155,12 +167,11 @@ let message = 'hello,world'
 ```
 
 
-
 ##### 标注参数
 
 ```typescript
 function greet(name: string) {
-    
+
 }
 ```
 
@@ -174,7 +185,6 @@ const lowercaseNames = names.map((e: string) => e.toLowerCase())
 * 可以用类型推断，推断出 e 是 string 类型
 
 
-
 ##### 标注返回值
 
 ```typescript
@@ -184,7 +194,6 @@ function add(a: number, b: number) : number {
 ```
 
 * 一般也可以省略，因为可以根据返回值做类型推断
-
 
 
 #### 复杂类型
@@ -198,10 +207,14 @@ type Cat = {
 }
 
 const c1: Cat = { name: '小白', age: 1 }
-const c2: Cat = { name: '小花' }					  // 错误: 缺少 age 属性
-const c3: Cat = { name: '小黑', age: 1, sex: '公' } // 错误: 多出 sex 属性
+const c2: Cat = { name: '小花' }					  // See note 1 below.
+const c3: Cat = { name: '小黑', age: 1, sex: '公' } // See note 2 below.
 ```
 
+示例说明：
+
+1. 错误: 缺少 age 属性
+2. 错误: 多出 sex 属性
 
 
 ##### interface
@@ -213,10 +226,14 @@ interface Cat {
 }
 
 const c1: Cat = { name: '小白', age: 1 }
-const c2: Cat = { name: '小花' }					  // 错误: 缺少 age 属性
-const c3: Cat = { name: '小黑', age: 1, sex: '公' } // 错误: 多出 sex 属性
+const c2: Cat = { name: '小花' }					  // See note 1 below.
+const c3: Cat = { name: '小黑', age: 1, sex: '公' } // See note 2 below.
 ```
 
+示例说明：
+
+1. 错误: 缺少 age 属性
+2. 错误: 多出 sex 属性
 
 
 ##### 可选属性
@@ -230,11 +247,15 @@ interface Cat {
 }
 
 const c1: Cat = { name: '小白', age: 1 }
-const c2: Cat = { name: '小花' }					  // 正确: age 属性可选
+const c2: Cat = { name: '小花' }					  // See note 1 below.
 ```
 
-* 可选属性要注意处理 undefined 值
+示例说明：
 
+1. 正确: age 属性可选
+
+
+* 可选属性要注意处理 undefined 值
 
 
 ##### 鸭子类型
@@ -248,12 +269,11 @@ function test(cat: Cat) {
   console.log(cat.name)
 }
 
-const c1 = { name: '小白', age: 1 } 
+const c1 = { name: '小白', age: 1 }
 test(c1)
 ```
 
 * const c1 并没有声明类型为 Cat，但它与 Cat 类型有一样的属性，也可以被当作是 Cat 类型
-
 
 
 #### 方法类型
@@ -276,7 +296,6 @@ test({
 ```
 
 
-
 #### 字面量类型
 
 ```typescript
@@ -285,9 +304,12 @@ function printText(s: string, alignment: "left" | "right" | "center") {
 }
 
 printText('hello', 'left')
-printText('hello', 'aaa') // 错误: 取值只能是 left | right | center
+printText('hello', 'aaa') // See note 1 below.
 ```
 
+示例说明：
+
+1. 错误: 取值只能是 left | right | center
 
 
 #### nullish 类型
@@ -303,7 +325,6 @@ test()
 ```
 
 * x?: string | null 表示可能是 undefined 或者是 string 或者是 null
-
 
 
 #### 泛型
@@ -343,7 +364,6 @@ const r3: Ref<boolean> = { value: true }
 * 泛型的要点就是 `<类型参数>`，把【类型】也当作一个变化的要素，像参数一样传递过来，这样就可以派生出结构相似的新类型
 
 
-
 函数定义也支持泛型
 
 ```typescript
@@ -357,7 +377,6 @@ const v2 = ref(123.3333);	// Ref<number>
 v1.value.toLocaleLowerCase()
 v2.value.toFixed(2)
 ```
-
 
 
 ### 4) 意义
@@ -382,7 +401,6 @@ map.forEach((value,key,m)=>{
 * 注意编译需要 `tsc --target es6 .\xxx.ts`
 
 
-
 #### 更好的提示
 
 例如，从服务器返回的一段 json，如果不用 typescript，则编辑器也不能给出准确的提示
@@ -397,7 +415,6 @@ const user: User = JSON.parse(`{ "name":"张三", "age":18 }`)
 ```
 
 
-
 ### 5) 类
 
 > 关于 TypeScript 与 JavaScript 中的类语法不是重点，class 相关语法只是起到辅助作用，更重要的是前面讲的 interface
@@ -407,7 +424,7 @@ const user: User = JSON.parse(`{ "name":"张三", "age":18 }`)
 ```typescript
 class User {
     name: string;
-    
+
     constructor(name: string) {
         this.name = name
     }
@@ -416,7 +433,7 @@ class User {
 const u = new User('张三')
 ```
 
-其实会被编译成这个样子（默认 --target=es3）
+下面展示较旧目标下的编译形式，仅用于理解原型。实际输出取决于 tsconfig.json 的 target；现代项目不要再使用已禁用的 es3 目标。
 
 ```js
 var User = /** @class */ (function () {
@@ -431,24 +448,27 @@ var u = new User('张三');
 所以 js 中的 class，并不等价于 java 中的 class，它还是基于原型实现的，原理参考第二章（036、037）
 
 
-
 #### 只读属性
 
 ```typescript
 class User {
   readonly name: string;
-  
+
   constructor(name: string) {
       this.name = name
   }
 }
 
 const u = new User('张三')
-u.name = '李四'				// 编译错误
+u.name = '李四'				// See note 1 below.
 ```
 
-* readonly 是 typescript 特有的，表示该属性只读
+示例说明：
 
+1. 编译错误
+
+
+* readonly 是 typescript 特有的，表示该属性只读
 
 
 #### 方法
@@ -456,7 +476,7 @@ u.name = '李四'				// 编译错误
 ```typescript
 class User {
   readonly name: string;
-  
+
   constructor(name: string) {
       this.name = name
   }
@@ -469,7 +489,6 @@ class User {
 const u = new User('张三')
 u.study()
 ```
-
 
 
 #### get，set
@@ -501,7 +520,6 @@ console.log(u.name)
 * es6 等价于 es2015，再此之上还有 es2016 ... es2022
 
 
-
 #### 类与接口
 
 ```typescript
@@ -523,9 +541,12 @@ class UserImpl implements User {
 
 const user: User = new UserImpl('张三')
 user.study('Typescript')
-user.foo() // 错误，必须是接口中定义的方法
+user.foo() // See note 1 below.
 ```
 
+示例说明：
+
+1. 错误，必须是接口中定义的方法
 
 
 #### 继承与接口
@@ -555,7 +576,6 @@ b.fly()
 * Flyable & Animal 表示变量是 flyable 类型，同时也是 Animal 类型
 
 
-
 #### 方法重写
 
 ```typescript
@@ -565,7 +585,7 @@ class Father {
   }
 }
 
-class Son extends Father {  
+class Son extends Father {
   study(): void {
     super.study()
     console.log(`son study`)
@@ -577,12 +597,13 @@ f.study()
 ```
 
 
+<a id="section-2"></a>
 
 ## 2. Vue3 基础
 
 技术选型
 
-* Vue 
+* Vue
   * **选项式 API** 还是 **组合式 API**✔️
   * **HTML** 还是 **单文件组件**✔️
 * 语法
@@ -595,7 +616,6 @@ f.study()
   * **vuex** 还是 **pinia**✔️
 * 视图组件
   * **ElementUI** 还是 **Antdv**✔️
-
 
 
 ### 1) 环境准备
@@ -617,25 +637,22 @@ npm run dev
 ```
 
 
-
 #### 编码 IDE
 
 推荐采用微软的 VSCode 作为开发工具，到它的官网 [Visual Studio Code - Code Editing. Redefined](https://code.visualstudio.com/) 下载安装即可
 
-![image-20220911090418621](imgs/image-20220911090418621.png)
+![image-20220911090418621](Resources/image-20220911090418621.png)
 
 要对 *.vue 做语法支持，还要安装一个 Volar 插件
 
-![image-20220911090756694](imgs/image-20220911090756694.png)
-
+![image-20220911090756694](Resources/image-20220911090756694.png)
 
 
 #### 安装 devtools
 
 * devtools 插件网址：https://devtools.vuejs.org/guide/installation.html
 
-![image-20220815141648040](imgs/image-20220815141648040.png)
-
+![image-20220815141648040](Resources/image-20220815141648040.png)
 
 
 #### 修改端口
@@ -656,7 +673,6 @@ export default defineConfig({
 ```
 
 * 文档地址：[配置 Vite {#configuring-vite} | Vite中文网 (vitejs.cn)](https://vitejs.cn/config/#server-port)
-
 
 
 #### 配置代理
@@ -683,7 +699,6 @@ export default defineConfig({
 ```
 
 * 文档地址：[配置 Vite {#configuring-vite} | Vite中文网 (vitejs.cn)](https://vitejs.cn/config/#server-proxy)
-
 
 
 #### 项目结构
@@ -715,7 +730,6 @@ vite.config.ts
 * src/views 视图组件
 
 
-
 ### 2) Vue 组件
 
 Vue 的组件文件以 .vue 结尾，每个组件由三部分组成
@@ -733,13 +747,12 @@ Vue 的组件文件以 .vue 结尾，每个组件由三部分组成
 * style 样式部分，一般不咋关心
 
 
-
 根组件是 src/App.vue，先来个 Hello,world 例子
 
 ```vue
 <script setup lang="ts">
 import { ref } from "vue";
-let msg = ref("hello"); // 把数据变成响应式的
+let msg = ref("hello"); // See note 1 below.
 
 function change() {
   msg.value = "world";
@@ -752,10 +765,14 @@ function change() {
 </template>
 ```
 
-* {{msg}} 用来把一个变量绑定到页面上某个位置
-* 绑定的变量必须用 ref 函数来封装
-  * ref 返回的是【响应式】数据，即数据一旦变化，页面展示也跟着变化
+示例说明：
 
+1. 把数据变成响应式的
+
+
+* {{msg}} 用来把一个变量绑定到页面上某个位置
+* 普通变量也可以显示在模板中；需要变量变化后自动更新页面时，使用 ref、reactive 或 computed 等响应式 API。
+  * ref 返回的是【响应式】数据，即数据一旦变化，页面展示也跟着变化
 
 
 #### main.ts
@@ -771,7 +788,6 @@ createApp(App)
 
 * createApp 是创建一个 Vue 应用程序，它接收的参数 App 即之前我们看到的根组件
 * mount 就是把根组件生成的 html 代码片段【挂载】到 index.html 中 id 为 app 的 html 元素上
-
 
 
 可以修改自己的组件文件，挂载到主页面
@@ -802,13 +818,11 @@ createApp(E0).mount('#app')
 * 以后我们用这样的方式演示课堂案例
 
 
-
 打开浏览器控制台，进入 Vue 的开发工具，尝试做如下修改
 
-![image-20220906141650435](imgs/image-20220906141650435.png)
+![image-20220906141650435](Resources/image-20220906141650435.png)
 
 当把 msg 的值由 "Hello, World" 改为 "你好" 时，会发现页面展示同步发生了变化
-
 
 
 #### ref 与 reactive
@@ -832,7 +846,6 @@ const user = reactive({ name: '张三' })
 * reactive 只能将对象类型变为【响应式】，对基本类型无效（例如 string，number，boolean）
 
 
-
 还有一点不同
 
 ```vue
@@ -848,7 +861,7 @@ function test() {
 
 test()
 </script>
-  
+
 <template>
   <h2>{{u1.name}}</h2>
   <h2>{{u2.name}}</h2>
@@ -858,7 +871,6 @@ test()
 * 在 template 模板中使用 ref 包装的数据，直接写【变量名】就可以了
 * 但在代码中要使用 ref 包装的数据，必须用【变量名.value】才能访问到
 * reactive 包装的数据，在模板中和代码中都是一致的
-
 
 
 #### 属性绑定
@@ -876,7 +888,6 @@ const path = ref('/src/assets/vue.svg')
 ```
 
 * 【:属性名】用来将标签属性与【响应式】变量绑定
-
 
 
 #### 事件绑定
@@ -901,7 +912,6 @@ function inc() {
 ```
 
 * 【@事件名】用来将标签属性与函数绑定，事件发生后执行函数内代码
-
 
 
 #### 表单绑定
@@ -933,13 +943,13 @@ function saveUser() {
     </div>
     <div>
       <label for="">请选择性别</label>
-      男 <input type="radio" value="男" v-model="user.sex"/> 
+      男 <input type="radio" value="男" v-model="user.sex"/>
       女 <input type="radio" value="女" v-model="user.sex"/>
     </div>
     <div>
       <label for="">请选择爱好</label>
-      游泳 <input type="checkbox" value="游泳" v-model="user.fav"/> 
-      打球 <input type="checkbox" value="打球" v-model="user.fav"/> 
+      游泳 <input type="checkbox" value="游泳" v-model="user.fav"/>
+      打球 <input type="checkbox" value="打球" v-model="user.fav"/>
       健身 <input type="checkbox" value="健身" v-model="user.fav"/>
     </div>
     <div>
@@ -967,12 +977,11 @@ function saveUser() {
 </style>
 ```
 
-* 用 v-model 实现双向绑定，即 
+* 用 v-model 实现双向绑定，即
   * javascript 数据可以同步到表单标签
   * 反过来用户在表单标签输入的新值也会同步到 javascript 这边
 * 双向绑定只适用于表单这种带【输入】功能的标签，其它标签的数据绑定，单向就足够了
 * 复选框这种标签，双向绑定的 javascript 数据类型一般用数组
-
 
 
 #### 计算属性
@@ -1027,14 +1036,13 @@ function fullName() {
   return lastName.value + firstName.value
 }
 </script>
-  
+
 <template>
   <h2>{{fullName()}}</h2>
   <h3>{{fullName()}}</h3>
   <h4>{{fullName()}}</h4>
 </template>
 ```
-
 
 
 #### xhr
@@ -1054,32 +1062,37 @@ xhr.send()
 但这套 api 虽然功能强大，但比较老，不直接支持 Promise，因此有必要对其进行改造
 
 ```typescript
-function get(url: string) {
-  return new Promise((resolve, reject)=>{
-    const xhr = new XMLHttpRequest()
-    xhr.onload = function() {
-      if(xhr.status === 200){
-        resolve(xhr.response)
-      } else if(xhr.status === 404) {
-        reject(xhr.response)
-      } // 其它情况也需考虑，这里简化处理
-    }
-    xhr.open('GET', url)
-    xhr.responseType = 'json'
-    xhr.send()
-  })
+function get<T>(url: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", url);
+    xhr.responseType = "json";
+    xhr.timeout = 5000;
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(xhr.response as T);
+      } else {
+        reject(new Error("HTTP " + xhr.status));
+      }
+    };
+    xhr.onerror = () => reject(new Error("Network error"));
+    xhr.ontimeout = () => reject(new Error("Request timed out"));
+    xhr.onabort = () => reject(new Error("Request was cancelled"));
+    xhr.send();
+  });
 }
 ```
 
+这个封装处理成功、HTTP 错误、网络错误、超时和取消。T 只提供编译时类型说明，不会在运行时验证服务器 JSON 的结构；需要严格验证时应另外检查响应内容。
+
 * Promise 对象适合用来封装异步操作，并可以配合 await 一齐使用
-* Promise 在构造时，需要一个箭头函数，箭头函数有两个参数 resolve 和 reject
+* Promise 构造器接收一个执行器函数，普通函数或箭头函数均可；参数 resolve、reject 用于决定结果。
   * resolve 是异步操作成功时被调用，把成功的结果传递给它，最后会作为 await 的结果返回
   * reject 在异步操作失败时被调用，把失败的结果传递给它，最后在 catch 块被捉住
 * await 会一直等到 Promise 内调用了 resolve 或 reject 才会继续向下运行
 
 
-
-调用示例1：同步接收结果，不走代理
+调用示例1：await 接收结果，不走代理
 
 ```js
 try {
@@ -1095,14 +1108,13 @@ try {
 ```js
 try {
   const resp = await get('/api/students')
-  console.log(resp)  
+  console.log(resp)
 } catch(e) {
   console.log(e)
 }
 ```
 
-* 走代理明显慢不少
-
+* 代理增加了一次转发，实际耗时取决于网络和代理实现，不能仅凭一个示例认定代理总是明显更慢。
 
 
 #### axios
@@ -1148,7 +1160,6 @@ onMounted(() => {
 * onMounted 指 vue 组件生成的 html 代码片段，挂载完毕后被执行
 
 
-
 再来看一个 post 例子
 
 ```vue
@@ -1176,7 +1187,7 @@ async function addStudent() {
     </div>
     <div>
       <label for="">请选择性别</label>
-      男 <input type="radio" value="男" v-model="student.sex"/> 
+      男 <input type="radio" value="男" v-model="student.sex"/>
       女 <input type="radio" value="女" v-model="student.sex"/>
     </div>
     <div>
@@ -1195,7 +1206,6 @@ div {
 ```
 
 
-
 ##### 环境变量
 
 * 开发环境下，联调的后端服务器地址是 `http://localhost:8080`，
@@ -1204,8 +1214,7 @@ div {
 这就要求我们区分开发环境和生产环境，这件事交给构建工具 vite 来做
 
 
-
-默认情况下，vite 支持上面两种环境，分别对应根目录下两个配置文件 
+默认情况下，vite 支持上面两种环境，分别对应根目录下两个配置文件
 
 * .env.development - 开发环境
 * .env.production - 生产环境
@@ -1229,7 +1238,6 @@ import.meta.env.VITE_BACKEND_API_BASE_URL
 ```
 
 
-
 默认情况下，不能智能提示自定义的环境变量，做如下配置：新增文件 `src/env.d.ts` 并添加如下内容
 
 ```typescript
@@ -1237,7 +1245,7 @@ import.meta.env.VITE_BACKEND_API_BASE_URL
 
 interface ImportMetaEnv {
   readonly VITE_BACKEND_API_BASE_URL: string
-  // 更多环境变量...
+  // See note 1 below.
 }
 
 interface ImportMeta {
@@ -1245,8 +1253,12 @@ interface ImportMeta {
 }
 ```
 
-* 参考文档地址 [环境变量和模式 | Vite 官方中文文档 (vitejs.dev)](https://cn.vitejs.dev/guide/env-and-mode.html)
+示例说明：
 
+1. 更多环境变量...
+
+
+* 参考文档地址 [环境变量和模式 | Vite 官方中文文档 (vitejs.dev)](https://cn.vitejs.dev/guide/env-and-mode.html)
 
 
 ##### baseURL
@@ -1254,7 +1266,7 @@ interface ImportMeta {
 可以自己创建一个 axios 对象，方便添加默认设置，新建文件 /src/api/request.ts
 
 ```typescript
-// 创建新的 axios 对象
+// See note 1 below.
 import axios from 'axios'
 const _axios = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_API_BASE_URL
@@ -1262,6 +1274,11 @@ const _axios = axios.create({
 
 export default _axios
 ```
+
+示例说明：
+
+1. 创建新的 axios 对象
+
 
 然后在其它组件中引用这个 ts 文件，例如 /src/views/E8.vue，就不用自己拼接路径前缀了
 
@@ -1269,73 +1286,43 @@ export default _axios
 <script setup lang="ts">
 import axios from '../api/request'
 // ...
-await axios.post('/api/students', ...)    
+await axios.post('/api/students', { name: 'Alice', age: 18 })
 </script>
 ```
-
 
 
 ##### 拦截器
 
 ```typescript
-// 创建新的 axios 对象
-import axios from 'axios'
+import axios from "axios";
+
 const _axios = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_API_BASE_URL
-})
+  baseURL: import.meta.env.VITE_BACKEND_API_BASE_URL,
+  timeout: 5000
+});
 
-// 请求拦截器
-_axios.interceptors.request.use(
-  (config)=>{ // 统一添加请求头
-    config.headers = {
-      Authorization: 'aaa.bbb.ccc'
-    }
-    return config
-  },
-  (error)=>{ // 请求出错时的处理
-    return Promise.reject(error)
-  }
-)
-
-// 响应拦截器
 _axios.interceptors.response.use(
-  (response)=>{ // 状态码  2xx
-    // 这里的code是自定义的错误码
-    if(response.data.code === 200) {
-      return response
-    }     
-    else if(response.data.code === 401) {       
-      // 情况1
-      return Promise.resolve({})
+  response => {
+    const code = response.data?.code;
+    if (code !== undefined && code !== 200) {
+      return Promise.reject(new Error(response.data.message ?? "Request failed"));
     }
-    // ... 
+    return response;
   },
-  (error)=>{ // 状态码 > 2xx, 400,401,403,404,500
-    console.error(error) // 处理了异常
-    if(error.response.status === 400) {
-      // 情况1
-    } else if(error.response.status === 401) {
-      // 情况2
-    } 
-    // ...
-    return Promise.resolve({})
+  error => {
+    if (axios.isAxiosError(error)) {
+      console.error(error.response?.status ?? error.code);
+    }
+    return Promise.reject(error);
   }
-)
+);
 
-export default _axios
+export default _axios;
 ```
 
-处理响应时，又分成两种情况
+这里约定业务 code=200 表示成功；如后端没有这个字段，使用 HTTP 状态判断。业务错误保持为拒绝状态，调用者用 try/catch 或 catch 处理；不要随意恢复成空对象。
 
-1. 后端返回的是标准响应状态码，这时会走响应拦截器第二个箭头函数，用 error.response.status 做分支判断
-2. 后端返回的响应状态码总是200，用自定义错误码表示出错，这时会走响应拦截器第一个箭头函数，用 response.data.code 做分支判断
-
-另外
-
-* Promise.reject(error) 类似于将异常继续向上抛出，异常由调用者（Vue组件）来配合 try ... catch 来处理
-* Promise.resolve({}) 表示错误已解决，返回一个空对象，调用者中接到这个空对象时，需要配合 ?. 来避免访问不存在的属性
-
-
+需要添加认证头时，在现有 config.headers 上设置 Authorization，保留其他请求头。令牌应来自登录模块，不要把示例中的固定字符串当成有效令牌。
 
 #### 条件与列表
 
@@ -1349,7 +1336,7 @@ export interface Student {
   age: number;
 }
 
-// 如果 spring 错误，返回的对象格式
+// See note 1 below.
 export interface SpringError {
   timestamp: string,
   status: number,
@@ -1358,21 +1345,21 @@ export interface SpringError {
   path: string
 }
 
-// 如果 spring 成功，返回 list 情况
+// See note 2 below.
 export interface SpringList<T> {
   data: T[],
   message?: string,
   code: number
 }
 
-// 如果 spring 成功，返回 page 情况
+// See note 3 below.
 export interface SpringPage<T> {
   data: { list: T[], total: number },
   message?: string,
   code: number
 }
 
-// 如果 spring 成功，返回 string 情况
+// See note 4 below.
 export interface SpringString {
   data: string,
   message?: string,
@@ -1386,7 +1373,15 @@ export interface AxiosRespPage<T> extends AxiosResponse<SpringPage<T>> { }
 export interface AxiosRespString extends AxiosResponse<SpringString> { }
 ```
 
-其中 
+示例说明：
+
+1. 如果 spring 错误，返回的对象格式
+2. 如果 spring 成功，返回 list 情况
+3. 如果 spring 成功，返回 page 情况
+4. 如果 spring 成功，返回 string 情况
+
+
+其中
 
 * AxiosRespPage 代表分页时的响应类型
 * AxiosRespList 代表返回集合时的响应类型
@@ -1399,12 +1394,12 @@ import { ref, onMounted } from "vue";
 import axios from "../api/request";
 import { Student, SpringList } from "../model/Model8080";
 
-// 说明 students 数组类型为 Student[]
+// See note 1 below.
 const students = ref<Student[]>([]);
 
 async function getStudents() {
-  // 说明 resp.data 类型是 SpringList<Student>
-  const resp = await axios.get<SpringList<Student>>("/api/students");  
+  // See note 2 below.
+  const resp = await axios.get<SpringList<Student>>("/api/students");
   console.log(resp.data.data);
   students.value = resp.data.data;
 }
@@ -1469,11 +1464,16 @@ onMounted(() => getStudents());
 </style>
 ```
 
+示例说明：
+
+1. 说明 students 数组类型为 Student[]
+2. 说明 resp.data 类型是 SpringList&lt;Student&gt;
+
+
 * 加入泛型是为了更好的提示
 * v-if 与 v-else 不能和 v-for 处于同一标签
 * template 标签还有一个用途，就是用它少生成一层真正 html 代码
 * 可以看到将结果封装为响应式数据还是比较繁琐的，后面会使用 useRequest 改进
-
 
 
 #### 监听器
@@ -1505,7 +1505,6 @@ const name = useStorage("name");
 * 名称为 useXXXX 的函数，作用是返回带扩展功能的【响应式】数据
 * localStorage   即使浏览器关闭，数据还在
 * sessionStorage  数据工作在浏览器活动期间
-
 
 
 #### vueuse
@@ -1541,7 +1540,6 @@ const name = useStorage("name", "")
 ```
 
 
-
 #### useRequest
 
 响应式的 axios 封装，官网地址 [一个 Vue 请求库 | VueRequest (attojs.org)](https://next.cn.attojs.org/)
@@ -1571,7 +1569,7 @@ import { useRequest } from 'vue-request'
 import { computed } from 'vue'
 import { AxiosRespList, Student } from '../model/Model8080'
 
-// data 代表就是 axios 的响应对象
+// See note 1 below.
 const { data } = useRequest<AxiosRespList<Student>>(() => axios.get('/api/students'))
 
 const students = computed(()=>{
@@ -1600,9 +1598,13 @@ li span:nth-child(3) {
 </style>
 ```
 
+示例说明：
+
+1. data 代表就是 axios 的响应对象
+
+
 * data.value 的取值一开始是 undefined，随着响应返回变成 axios 的响应对象
 * 用 computed 进行适配
-
 
 
 #### usePagination
@@ -1656,19 +1658,19 @@ import { AxiosRespPage, Student, StudentQueryDto } from '../model/Model8080'
 
 const dto = ref<StudentQueryDto>({name:'', sex:'', age:'', page:1, size:5})
 
-// data 代表就是 axios 的响应对象
-// 泛型参数1: 响应类型
-// 泛型参数2: 请求类型
+// See note 1 below.
+// See note 2 below.
+// See note 3 below.
 const { data, total, totalPage, run } = usePagination<AxiosRespPage<Student>, StudentQueryDto[]>(
-  (d) => axios.get('/api/students/q', {params: d}), // 箭头函数
+  (d) => axios.get('/api/students/q', {params: d}), // See note 4 below.
   {
-    defaultParams: [ dto.value ], // 默认参数, 会作为参数传递给上面的箭头函数
+    defaultParams: [ dto.value ], // See note 5 below.
     pagination: {
-      currentKey: 'page', // 指明当前页属性
-      pageSizeKey: 'size', // 指明页大小属性
-      totalKey: 'data.data.total' // 指明总记录数属性
-    } 
-  } // 选项
+      currentKey: 'page', // See note 6 below.
+      pageSizeKey: 'size', // See note 7 below.
+      totalKey: 'data.data.total' // See note 8 below.
+    }
+  } // See note 9 below.
 )
 
 const students = computed(()=>{
@@ -1676,7 +1678,7 @@ const students = computed(()=>{
 })
 
 function search() {
-  run(dto.value) // 会作为参数传递给usePagination的箭头函数
+  run(dto.value) // See note 10 below.
 }
 </script>
 <style scoped>
@@ -1704,8 +1706,21 @@ input,select {
 </style>
 ```
 
-* usePagination 只需要定义一次，后续还想用它内部的 axios 发请求，只需调用 run 函数
+示例说明：
 
+1. data 代表就是 axios 的响应对象
+2. 泛型参数1: 响应类型
+3. 泛型参数2: 请求类型
+4. 箭头函数
+5. 默认参数, 会作为参数传递给上面的箭头函数
+6. 指明当前页属性
+7. 指明页大小属性
+8. 指明总记录数属性
+9. 选项
+10. 会作为参数传递给usePagination的箭头函数
+
+
+* usePagination 只需要定义一次，后续还想用它内部的 axios 发请求，只需调用 run 函数
 
 
 #### 子组件
@@ -1727,7 +1742,7 @@ input,select {
   </div>
 </template>
 <script setup lang="ts">
-// 定义属性,  编译宏
+// See note 1 below.
 defineProps<{name:string,country:string,avatar?:string}>()
 </script>
 <style scoped>
@@ -1769,6 +1784,11 @@ defineProps<{name:string,country:string,avatar?:string}>()
 </style>
 ```
 
+示例说明：
+
+1. 定义属性,  编译宏
+
+
 父组件引用
 
 ```vue
@@ -1781,7 +1801,6 @@ defineProps<{name:string,country:string,avatar?:string}>()
 import Child1 from '../components/Child1.vue';
 </script>
 ```
-
 
 
 ##### 例2
@@ -1821,11 +1840,11 @@ export interface Result {
 子组件不变，父组件使用子组件
 
 ```vue
-<!-- 父组件 -->
+<!-- See note 1 below. -->
 <template>
-  <Child1 v-for="u of users" 
-    :name="u.name.first" 
-    :country="u.location.country" 
+  <Child1 v-for="u of users"
+    :name="u.name.first"
+    :country="u.location.country"
     :avatar="u.picture.medium"
     :key="u.login.username"></Child1>
 </template>
@@ -1846,14 +1865,19 @@ const users = computed(()=>{
 </script>
 ```
 
+示例说明：
+
+1. 父组件
+
+
 如果觉得 Result 数据结构嵌套太复杂，还可以做一个类型映射
 
 ```vue
-<!-- 父组件 -->
+<!-- See note 1 below. -->
 <template>
-  <Child1 v-for="u of users" 
-    :name="u.name" 
-    :country="u.country" 
+  <Child1 v-for="u of users"
+    :name="u.name"
+    :country="u.country"
     :avatar="u.avatar"
     :key="u.username"></Child1>
 </template>
@@ -1889,9 +1913,15 @@ function resultToUser(r:Result):User {
 </script>
 ```
 
+示例说明：
+
+1. 父组件
+
+
 * resultToUser 将 Result 类型映射为 User 类型
 
 
+<a id="section-3"></a>
 
 ## 3. Vue 进阶
 
@@ -1916,7 +1946,6 @@ import 'ant-design-vue/dist/antd.css'
 
 createApp(App).use(antd).mount('#app')
 ```
-
 
 
 #### 表格
@@ -1966,7 +1995,6 @@ const columns = ref([
 ```
 
 
-
 #### 分页
 
 ```vue
@@ -1996,8 +2024,8 @@ const {data, total, run} = usePagination<AxiosRespPage<Student>, StudentQueryDto
   }
 )
 
-// 在页号或页大小改变时调用
-function tableChange(pagination: PaginationProps) { 
+// See note 1 below.
+function tableChange(pagination: PaginationProps) {
   console.log(pagination)
   dto.value.page = pagination.current ?? 1
   dto.value.size = pagination.pageSize ?? 5
@@ -2006,11 +2034,11 @@ function tableChange(pagination: PaginationProps) {
 
 const pagination = computed<PaginationProps>(()=>{
   return {
-    current: dto.value.page, // 当前页
-    pageSize: dto.value.size, // 页大小
-    total: total.value,       // 总记录数
-    showSizeChanger: true,    // 显示页大小的下拉列表
-    pageSizeOptions: ["1","2","3","4","5"] // 自定义下拉列表内容
+    current: dto.value.page, // See note 2 below.
+    pageSize: dto.value.size, // See note 3 below.
+    total: total.value,       // See note 4 below.
+    showSizeChanger: true,    // See note 5 below.
+    pageSizeOptions: ["1","2","3","4","5"] // See note 6 below.
   }
 })
 
@@ -2039,6 +2067,14 @@ const columns = ref([
 </script>
 ```
 
+示例说明：
+
+1. 在页号或页大小改变时调用
+2. 当前页
+3. 页大小
+4. 总记录数
+5. 显示页大小的下拉列表
+6. 自定义下拉列表内容
 
 
 #### 搜索、删除
@@ -2093,12 +2129,12 @@ const columns = ref([
       <a-divider type="vertical"></a-divider>
       <a-popconfirm title="确认要删除该学生吗?"
         ok-text="确定" cancel-text="取消" @confirm="onDelete(record.id)">
-        <a>删除</a>   
-      </a-popconfirm>         
+        <a>删除</a>
+      </a-popconfirm>
       </template>
     </template>
   </a-table>
-  
+
 </template>
 <script setup lang="ts">
 import axios from "../api/request";
@@ -2107,7 +2143,7 @@ import { usePagination, useRequest } from "vue-request";
 import { AxiosRespPage, AxiosRespString, Student, StudentQueryDto } from "../model/Model8080";
 import { PaginationProps } from "ant-design-vue";
 
-// >>>>>>>>>>>>>> 搜索功能开始
+// See note 1 below.
 const dto = ref({page: 1, size: 5, name: '', sex: null, age: null})
 
 const {data, total, run: search} = usePagination<AxiosRespPage<Student>, StudentQueryDto[]>(
@@ -2122,7 +2158,7 @@ const {data, total, run: search} = usePagination<AxiosRespPage<Student>, Student
   }
 )
 
-function tableChange(pagination: PaginationProps) { 
+function tableChange(pagination: PaginationProps) {
   // console.log(pagination)
   dto.value.page = pagination.current ?? 1
   dto.value.size = pagination.pageSize ?? 5
@@ -2131,25 +2167,25 @@ function tableChange(pagination: PaginationProps) {
 
 const pagination = computed<PaginationProps>(()=>{
   return {
-    current: dto.value.page, // 当前页
-    pageSize: dto.value.size, // 页大小
-    total: total.value,       // 总记录数
-    showSizeChanger: true,    // 显示页大小的下拉列表
-    pageSizeOptions: ["1","2","3","4","5"] // 自定义下拉列表内容
+    current: dto.value.page, // See note 2 below.
+    pageSize: dto.value.size, // See note 3 below.
+    total: total.value,       // See note 4 below.
+    showSizeChanger: true,    // See note 5 below.
+    pageSizeOptions: ["1","2","3","4","5"] // See note 6 below.
   }
 })
 
 const students = computed(()=>{
   return data.value?.data.data.list || []
 })
-// <<<<<<<<<<<<<< 搜索功能结束
+// See note 7 below.
 
 
-// >>>>>>>>>>>>>> 删除功能开始
+// See note 8 below.
 async function onDelete(id:number) {
-  // console.log("学生id是:"+id)
-  await deleteById(id)      // 删除请求 删除响应
-  search(dto.value)        //                   查询请求 查询响应
+  // See note 9 below.
+  await deleteById(id)      // See note 10 below.
+  search(dto.value)        // See note 11 below.
 }
 
 const { runAsync: deleteById } = useRequest<AxiosRespString, number[]>(
@@ -2158,9 +2194,9 @@ const { runAsync: deleteById } = useRequest<AxiosRespString, number[]>(
     manual: true
   }
 )
-// <<<<<<<<<<<<<< 删除功能结束
+// See note 12 below.
 
-// >>>>>>>>>>>>>> 删除选中开始
+// See note 13 below.
 const ids = ref<number[]>([])
 
 function onSelectChange(keys:number[]) {
@@ -2184,13 +2220,13 @@ const { runAsync: deleteByIds } = useRequest<AxiosRespString, number[][]>(
 const visible = ref(false)
 
 function onVisibleChange(v:boolean) {
-  if(!v) { // 希望隐藏
+  if(!v) { // See note 14 below.
     visible.value = false
-  } else { // 希望显示
+  } else { // See note 15 below.
     visible.value = ids.value.length > 0
   }
 }
-// <<<<<<<<<<<<<< 删除选中结束
+// See note 16 below.
 
 const columns = ref([
   {
@@ -2222,6 +2258,24 @@ const columns = ref([
 </style>
 ```
 
+示例说明：
+
+1. &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 搜索功能开始
+2. 当前页
+3. 页大小
+4. 总记录数
+5. 显示页大小的下拉列表
+6. 自定义下拉列表内容
+7. &lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; 搜索功能结束
+8. &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 删除功能开始
+9. console.log("学生id是:"+id)
+10. 删除请求 删除响应
+11. 查询请求 查询响应
+12. &lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; 删除功能结束
+13. &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 删除选中开始
+14. 希望隐藏
+15. 希望显示
+16. &lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; 删除选中结束
 
 
 #### 新增、修改
@@ -2230,11 +2284,11 @@ const columns = ref([
 
 ```vue
 <template>
-  <a-modal :visible="visible" :title="title" 
+  <a-modal :visible="visible" :title="title"
     @ok="onOk" @cancel="onCancel">
     <a-form>
       <a-form-item label="编号" v-if="id">
-        <a-input readonly v-model:value="id"></a-input>
+        <a-input readonly :value="id"></a-input>
       </a-form-item>
       <a-form-item label="姓名">
         <a-input v-model:value="dto.name"></a-input>
@@ -2258,12 +2312,12 @@ import { useRequest } from "vue-request";
 import { StudentSaveDto, AxiosRespString } from "../model/Model8080";
 import { Form } from 'ant-design-vue'
 
-// 定义属性
+// See note 1 below.
 const props = defineProps<{id:number, dto:StudentSaveDto, visible:boolean}>()
 
 const title = computed(()=> props.id===0?'新增学生':'修改学生')
 
-// 定义事件
+// See note 2 below.
 const emit = defineEmits(['update:visible', 'saved'])
 
 async function onOk() {
@@ -2273,12 +2327,12 @@ async function onOk() {
     await update(props.dto)
   }
   emit('saved')
-  // 发送事件给父组件, 希望把 visible 改为 false
-  emit('update:visible', false) 
+  // See note 3 below.
+  emit('update:visible', false)
 }
 
 function onCancel() {
-  // 发送事件给父组件, 希望把 visible 改为 false
+  // See note 4 below.
   emit('update:visible', false)
 }
 
@@ -2298,14 +2352,22 @@ const {runAsync:update} = useRequest<AxiosRespString,StudentSaveDto[]>(
 </script>
 ```
 
+示例说明：
+
+1. 定义属性
+2. 定义事件
+3. 发送事件给父组件, 希望把 visible 改为 false
+4. 发送事件给父组件, 希望把 visible 改为 false
+
+
 父组件使用子组件
 
 ```vue
-<A4Save :id="id" :dto="saveDto" v-model:visible="saveVisible"></A4Save>
+<A4Save :id="id" :dto="saveDto" v-model:visible="saveVisible" @saved="onSaved"></A4Save>
 
 <script setup lang="ts">
 // ...
-// >>>>>>>>>>>>>> 新增、修改开始
+// See note 1 below.
 const saveVisible = ref(false)
 const id = ref(0)
 const saveDto = reactive({name:'', sex:'男', age:18})
@@ -2324,10 +2386,16 @@ function onUpdate(record: Student) {
 
 function onSaved() {
   search(dto.value)
-}    
-// <<<<<<<<<<<<<< 新增、修改结束
+}
+// See note 2 below.
 </script>
 ```
+
+示例说明：
+
+1. &gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt; 新增、修改开始
+2. &lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt; 新增、修改结束
+
 
 * saveDto 使用 reactive 包装，是为了解决后续表单校验失效问题
 
@@ -2340,7 +2408,6 @@ function onSaved() {
   ```
 
 
-
 #### 全局消息
 
 在 request.ts 中对响应消息统一处理
@@ -2349,31 +2416,36 @@ function onSaved() {
 import { message } from 'ant-design-vue'
 
 // ...
-// 响应拦截器
+// See note 1 below.
 _axios.interceptors.response.use(
-  (response)=>{ // 状态码  2xx
+  (response)=>{ // See note 2 below.
     if(response.data.message) {
       message.success(response.data.message, 3)
-    }    
-    // ... 
+    }
+    // ...
   },
-  (error)=>{ // 状态码 > 2xx, 400,401,403,404,500
+  (error)=>{ // See note 3 below.
     // ...
   }
 )
 ```
 
+示例说明：
+
+1. 响应拦截器
+2. 状态码  2xx
+3. 状态码 &gt; 2xx, 400,401,403,404,500
 
 
 #### 表单校验
 
 ```vue
 <template>
-  <a-modal :visible="visible" :title="title" 
+  <a-modal :visible="visible" :title="title"
     @ok="onOk" @cancel="onCancel">
     <a-form>
       <a-form-item label="编号" v-if="id">
-        <a-input readonly v-model:value="id"></a-input>
+        <a-input readonly :value="id"></a-input>
       </a-form-item>
       <a-form-item label="姓名" v-bind="validateInfos.name">
         <a-input v-model:value="dto.name"></a-input>
@@ -2397,17 +2469,17 @@ import { useRequest } from "vue-request";
 import { StudentSaveDto, AxiosRespString } from "../model/Model8080";
 import { Form } from 'ant-design-vue'
 
-// 定义属性
+// See note 1 below.
 const props = defineProps<{id:number, dto:StudentSaveDto, visible:boolean}>()
 
 const title = computed(()=> props.id===0?'新增学生':'修改学生')
 
-// 定义事件
+// See note 2 below.
 const emit = defineEmits(['update:visible', 'saved'])
 
 async function onOk() {
   try {
-    // 提交前校验
+    // See note 3 below.
     await validate()
     if(props.id === 0) {
       await insert(props.dto)
@@ -2415,15 +2487,15 @@ async function onOk() {
       await update(props.dto)
     }
     emit('saved')
-    // 发送事件给父组件, 希望把 visible 改为 false
-    emit('update:visible', false) 
+    // See note 4 below.
+    emit('update:visible', false)
   } catch (e) {
     console.error(e)
   }
 }
 
 function onCancel() {
-  // 发送事件给父组件, 希望把 visible 改为 false
+  // See note 5 below.
   emit('update:visible', false)
 }
 
@@ -2456,17 +2528,26 @@ const rules = ref({
   ]
 })
 
-// 参数1: 待校验的数据
-// 参数2: 校验规则
+// See note 6 below.
+// See note 7 below.
 const { validateInfos, validate } = Form.useForm(props.dto, rules)
 </script>
 ```
 
+示例说明：
+
+1. 定义属性
+2. 定义事件
+3. 提交前校验
+4. 发送事件给父组件, 希望把 visible 改为 false
+5. 发送事件给父组件, 希望把 visible 改为 false
+6. 参数1: 待校验的数据
+7. 参数2: 校验规则
 
 
 ### 4) jsx 组件
 
-首先，安装  
+首先，安装
 
 ```cmd
 @vitejs/plugin-vue-jsx
@@ -2506,7 +2587,6 @@ import Hello from './views/Hello'
   <Hello></Hello>
 </template>
 ```
-
 
 
 jsx 能做到 template 不容易做到的功能

@@ -1,26 +1,40 @@
 # JSF HTML 标签
 
+按输入、输出、转换、验证、表格与事件查标签的用法。
+
+**学习前提与版本：** 先读 JSF 基础。本篇按 JSF 2.x 标签整理；每个示例中的 user、student 等 Bean 需按该节定义，不能默认是同一个全局对象。Faces 4 的命名空间和 Bean 管理方式需按对应版本迁移。
+
+**示例使用：** 除明确列出全部文件和运行步骤的项目外，代码块是各小节的独立片段。省略号、占位名称需要补齐；标明错误的行用于说明问题。同节替代写法不要合并。
+
+[学习索引与常见词](README.md) · [官方参考](https://javaee.github.io/javaserverfaces/docs/2.3/vdldocs/facelets/)
+
+**内容导航**
+
+- [JSF 转换器标签](#section-1)
+- [JSF 验证器标签](#section-2)
+- [JSF 表格标签](#section-3)
+- [事件处理](#section-4)
+- [Facelets 技术](#section-5)
 
 
-### <h:inputText> 			 				 			
+### `<h:inputText>`
 
 JSF `<h:inputText>`标签用于呈现网页上的输入字段。它在`<h:form>`标签中用于声明允许用户输入数据的输入字段。
 
 ```html
-<h:inputText id="username" value="#{user.name}" label="username" maxlength="10" size="15" alt="username" autocomplete="off" readonly="false" required="true" requiredMessage="Username is required" style="color:red" accesskey="q">  
+<h:inputText id="username" value="#{user.name}" label="username" maxlength="10" size="15" alt="username" autocomplete="off" readonly="false" required="true" requiredMessage="Username is required" style="color:red" accesskey="q">
 </h:inputText>
 ```
 
 `value`属性指的是名为`User`的委托`Bean`的`name`属性。该属性保存名称组件的数据。 用户提交表单后，`User`中的`name`属性的值将被设置为与该标签对应的字段中输入的文本。
 
 
-
-### <h:inputtextarea>
+### `<h:inputTextarea>`
 
 允许用户输入多行字符串。
 
 ```html
-<h:inputTextarea id="text-area-id" value="#{user.address}" required="true"   
+<h:inputTextarea id="text-area-id" value="#{user.address}" required="true"
 requiredMessage="Address is required" cols="50" rows="10"></h:inputTextarea>
 
 ```
@@ -28,18 +42,17 @@ requiredMessage="Address is required" cols="50" rows="10"></h:inputTextarea>
 JSF 渲染`<h:inputTextarea>`标签后，如下所示：
 
 ```html
-<textarea id="user-form:text-area-id"  
+<textarea id="user-form:text-area-id"
 name="user-form:text-area-id" cols="50" rows="10">
 ```
 
 
+### `<h:inputSecret>`
 
-### <h:inputSecret>
-
-一个标准的密码字段，它接受一行没有空格的文本，并在输入时将其显示为一组星号。
+密码输入组件，可以输入空格。浏览器会遮盖显示内容；遮盖并不代表网络传输加密，提交密码需要使用 HTTPS。
 
 ```html
-<h:inputSecret value="#{user.password}" maxlength="10" size="15"   
+<h:inputSecret value="#{user.password}" maxlength="10" size="15"
 required="true" requiredMessage="Password is required"></h:inputSecret>
 ```
 
@@ -50,8 +63,7 @@ JSF渲染`<h:inputSecret>`标签后，如下所示：
 ```
 
 
-
-### <h:inputHidden>
+### `<h:inputHidden>`
 
 h:inputHidden标签渲染类型为“hidden"的HTML输入元素。
 
@@ -64,24 +76,22 @@ h:inputHidden标签渲染类型为“hidden"的HTML输入元素。
 渲染到以下HTML标记。
 
 ```html
-<input id="jsfForm:hiddenField" type="hidden" name="jsfForm:hiddenField" 
+<input id="jsfForm:hiddenField" type="hidden" name="jsfForm:hiddenField"
    value="Hello World" />
 ```
 
 
-
-### <h:inputFile>
+### `<h:inputFile>`
 
 JSF 将其呈现为文件类型的 HTML 元素，它用于获取文件作为输入。 在 HTML 表单中，它允许用户上传文件。
 
 ```html
-<h:inputFile id="file-id" value="#{user.fileName}" required="true"   
+<h:inputFile id="file-id" value="#{user.fileName}" required="true"
 requiredMessage="Please upload a file" alt="upload file"></h:inputFile>
 ```
 
 
-
-### <h:outputText>					 				 				 				 			
+### `<h:outputText>`
 
 它用于渲染纯文本。 如果存在“`styleClass`”，“`style`”，“`dir`”或“`lang`”属性，则渲染“`span`”元素。 如果存在“`styleClass`”属性，则将其值作为“`class`”属性的值。
 
@@ -100,8 +110,7 @@ hello
 ```
 
 
-
-### <h:outputFormat>
+### `<h:outputFormat>`
 
 呈现HTML文本，但可以接受参数化输入。
 
@@ -149,9 +158,9 @@ public class UserBean{
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core">
     <h:body>
@@ -188,8 +197,7 @@ public class UserBean{
 ```
 
 
-
-### <h:outputStylesheet>
+### `<h:outputStylesheet>`
 
 用类型“`text/css`”呈现类型为“`link`”的HTML元素。此标签将外部样式表文件添加到JSF页面。
 
@@ -227,9 +235,9 @@ public class UserBean{
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:ui="http://java.sun.com/jsf/facelets">
@@ -285,8 +293,7 @@ public class UserBean{
 ```
 
 
-
-### <h:outputLink>
+### `<h:outputLink>`
 
 h:outputLink标签渲染一个HTML“anchor"元素。
 
@@ -303,81 +310,76 @@ h:outputLink标签渲染一个HTML“anchor"元素。
 ```
 
 
-
-### <h:form>	 			
+### `<h:form>`
 
 `<h:form>`标签表示输入表单。 它包括可以包含向用户呈现或以表单提交的数据的子组件。
 
 ```html
-<h:form id="user-form">  
-<h:outputLabel for="username">User Name</h:outputLabel>  
-<h:inputText id="username" value="#{user.name}" required="true" requiredMessage="Username is required"/><br/>  
-<h:commandButton id="submit-button" value="Submit" action="response.xhtml"/>  
+<h:form id="user-form">
+<h:outputLabel for="username">User Name</h:outputLabel>
+<h:inputText id="username" value="#{user.name}" required="true" requiredMessage="Username is required"/><br/>
+<h:commandButton id="submit-button" value="Submit" action="response.xhtml"/>
 </h:form>
 ```
 
 
+### `<h:commandButton>`
 
-### <h:commandButton>
-
-它创建一个提交按钮 (submit)，用于提交申请表。 
+它创建一个提交按钮 (submit)，用于提交申请表。
 
 ```html
-<h:form id="user-form">  
-<h:outputLabel for="username">User Name</h:outputLabel>  
-<h:inputText id="username" value="#{user.name}" required="true" requiredMessage="Username is required"/><br/>  
-<h:commandButton id="submit-button" value="Submit" action="response.xhtml"/>  
+<h:form id="user-form">
+<h:outputLabel for="username">User Name</h:outputLabel>
+<h:inputText id="username" value="#{user.name}" required="true" requiredMessage="Username is required"/><br/>
+<h:commandButton id="submit-button" value="Submit" action="response.xhtml"/>
 </h:form>
 ```
 
 JSF 渲染标签到浏览器后：
 
 ```html
-<input id="user-form:submit-button"  
+<input id="user-form:submit-button"
 name="user-form:submit-button" value="Submit" type="submit">
 ```
 
 
+### `<h:commandLink>`
 
-### <h:commandLink>
-
-JSF 将`<h:commandLink>`标签作为一个 HTML “`a`”锚点元素，当单击时，它就像一个表单提交按钮。 因此，您可以使用此标签创建锚标签。 `<h:commandLink>`标签必须包含一个嵌套的`<h:outputText>`标记，表示用户单击文本以生成事件。 它还需要放在`<h:form>`标签中。
+JSF 将`<h:commandLink>`标签作为一个 HTML “`a`”锚点元素，当单击时，它就像一个表单提交按钮。 因此，您可以使用此标签创建锚标签。 显示文字可通过 value 属性或嵌套 h:outputText 设置，不要求必须嵌套输出组件。 它还需要放在`<h:form>`标签中。
 
 ```html
-<h:commandLink id="image-link-id" action="response.xhtml">  
-<h:outputText value="Click here"></h:outputText>  
+<h:commandLink id="image-link-id" action="response.xhtml">
+<h:outputText value="Click here"></h:outputText>
 </h:commandLink>
 ```
 
 JSF渲染`<h:commandLink>`标签后，如下所示：
 
 ```html
-<a id="user-form:image-link-id" href="#"  
+<a id="user-form:image-link-id" href="#"
 onclick="mojarra.jsfcljs(document.getElementById('user-form'),{'user-form:image-link-id':'user-form:image-link-id'},'');return false">Click here</a>
 ```
 
 
-
-### <h:graphicImage>
+### `<h:graphicImage>`
 
 呈现一个 HTML 元素“img”标签。 该标签用于在网页上呈现图像。
 
 ```html
-<h:graphicImage id="image-id" name="user-image" url="#{user.fileLocation()}"   
+<h:graphicImage id="image-id" name="user-image" url="#{user.fileLocation()}"
 height="50px" width="50px" alt="Image not found"></h:graphicImage>
 ```
 
 它在网页上显示图像。在上面的例子中，url 属性指定图像的路径。 示例代码的URL以斜杠(`/`)开头，它将Web应用程序的相对上下文路径添加到图像路径的开头。
 
 
-
-### <h:message>
+### `<h:message>`
 
 用于显示特定组件的单个消息。您可以通过将该组件的`id`传递给`for`属性来显示您的自定义消息。
 
 ```html
 <h:inputText id="username" size="20" label="UserName" required="true">
-   <f:validateLength for="username" minimum="5" maximum="20" />      
+   <f:validateLength for="username" minimum="5" maximum="20" />
 </h:inputText>
 <h:message for="username" style="color:red" />
 ```
@@ -385,14 +387,14 @@ height="50px" width="50px" alt="Image not found"></h:graphicImage>
 如果输入超过20个字符时提示:
 
 ```html
-<span style="color:red">UserName: Validation Error: 
+<span style="color:red">UserName: Validation Error:
 Length is greater than allowable maximum of '20'</span>
 ```
 
 如果输入小于`5`个字符时提示:
 
 ```html
-<span style="color:red">UserName: Validation Error: 
+<span style="color:red">UserName: Validation Error:
 Length is less than allowable minimum of '5'</span>
 ```
 
@@ -403,8 +405,7 @@ Length is less than allowable minimum of '5'</span>
 ```
 
 
-
-### <h:messages>
+### `<h:messages>`
 
 h:messages标记在与UI元素对应的一个地方显示所有消息。
 
@@ -418,23 +419,22 @@ h:messages标记在与UI元素对应的一个地方显示所有消息。
 
 ```html
 <ul style="color:red;margin:8px;">
-   <li>  UserName: Validation Error: 
+   <li>  UserName: Validation Error:
    Length is greater than allowable maximum of "20" </li>
-   <li>  Password: Validation Error: 
+   <li>  Password: Validation Error:
    Length is less than allowable minimum of "5" </li>
 </ul>
 ```
 
 
-
-### <h:selectOneRadio>
+### `<h:selectOneRadio>`
 
 呈现一组类型为“`radio`”的HTML输入元素，并使用HTML表格和标签标签进行格式化。
 
 ```html
 <h:selectOneRadio value="#{userData.data}">
    <f:selectItem itemValue="1" itemLabel="Item 1" />
-   <f:selectItem itemValue="2" itemLabel="Item 2" />           
+   <f:selectItem itemValue="2" itemLabel="Item 2" />
 </h:selectOneRadio>
 ```
 
@@ -443,10 +443,10 @@ h:messages标记在与UI元素对应的一个地方显示所有消息。
 ```html
 <table>
    <tr>
-      <td><input type="radio" checked="checked" name="j_idt6:j_idt8" 
+      <td><input type="radio" checked="checked" name="j_idt6:j_idt8"
             id="j_idt6:j_idt8:0" value="1" />
          <label for="j_idt6:j_idt8:0"> Item 1</label></td>
-      <td><input type="radio" name="j_idt6:j_idt8" 
+      <td><input type="radio" name="j_idt6:j_idt8"
             id="j_idt6:j_idt8:1" value="2" />
          <label for="j_idt6:j_idt8:1"> Item 2</label></td>
    </tr>
@@ -460,16 +460,16 @@ h:messages标记在与UI元素对应的一个地方显示所有消息。
 @SessionScoped
 public class UserBean implements Serializable{
   public String item;
-	// 省略 getter 和 setter 方法
-  
+    // See note 1 below.
+
   //Generated by Object array
   public static class Item{
     public String label;
     public String value;
 
-		// 省略 有参和无参 构造方法
+        // See note 2 below.
 
-		// 省略 getter 和 setter 方法
+        // See note 3 below.
   }
   public Item[] itemList;
 
@@ -481,8 +481,8 @@ public class UserBean implements Serializable{
     itemList[2] = new Item("Color - Blue", "Blue");
 
     return itemList;
-  }  
-  
+  }
+
   //Generated by Map
   private static Map<String,Object> itemValue;
   static{
@@ -494,28 +494,35 @@ public class UserBean implements Serializable{
 
   public Map<String,Object> getItemValue() {
     return itemValue;
-  } 
+  }
 }
 ```
+
+示例说明：
+
+1. 省略 getter 和 setter 方法
+2. 省略 有参和无参 构造方法
+3. 省略 getter 和 setter 方法
+
 
 以下是文件：`index.xhtml` 中的代码。
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core">
     <h:body>
       <h:form>
-        
+
         Generated by Object array and iterate with var :
        <h:selectOneRadio value="#{user.item}">
          <f:selectItems value="#{user.itemValue}" var="c"
          itemLabel="#{c.label}" itemValue="#{c.value}" />
        </h:selectOneRadio>
-        
+
          Generated by Map :
        <h:selectOneRadio value="#{user.item}">
          <f:selectItems value="#{user.itemValue}" />
@@ -530,27 +537,25 @@ public class UserBean implements Serializable{
 ```
 
 
-
-### <h:selectOneMenu>
+### `<h:selectOneMenu>`
 
 呈现大小未指定的“`select`”类型的 HTML 下拉菜单输入元素。
 
 ```html
 <h:selectOneMenu value="#{userData.data}">
    <f:selectItem itemValue="1" itemLabel="Item 1" />
-   <f:selectItem itemValue="2" itemLabel="Item 2" />                   
+   <f:selectItem itemValue="2" itemLabel="Item 2" />
 </h:selectOneMenu>
 ```
 
 被渲染成以下HTML代码：
 
 ```html
-<select name="j_idt6:j_idt8">  
+<select name="j_idt6:j_idt8">
    <option value="1">Item 1</option>
    <option value="2">Item 2</option>
 </select>
 ```
-
 
 
 它支持 map 渲染 和 组合框内部项渲染：
@@ -588,17 +593,17 @@ public class UserBean implements Serializable{
 
   public Map<String,Object> getFavItemValue() {
     return value;
-  }  
+  }
 }
 ```
 
-以下是文件：*index.xhtml* 中的代码 - 
+以下是文件：*index.xhtml* 中的代码 -
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core">
     <h:body>
@@ -622,9 +627,9 @@ public class UserBean implements Serializable{
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html">
 <h:body>
   <p>User Selected : #{user.favItem}</p>
@@ -633,16 +638,15 @@ public class UserBean implements Serializable{
 ```
 
 
-
 **组合框内部项**
 
 *index.xhtml* 中的代码：
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core">
     <h:body>
@@ -663,9 +667,9 @@ public class UserBean implements Serializable{
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html">
 <h:body>
   <p>Selected: #{user.favItem}</p>
@@ -715,32 +719,30 @@ public class UserBean implements Serializable{
     itemList[1] = new Item("Item B", "B");
     itemList[2] = new Item("Item C", "C");
     return itemList;
-  }  
+  }
 }
 ```
 
 
-
-### <h:selectOneListbox>
+### `<h:selectOneListbox>`
 
 呈现指定大小的“`select`”类型的HTML列表输入元素。
 
 ```html
 <h:selectOneListbox value="#{userData.data}">
    <f:selectItem itemValue="1" itemLabel="Item 1" />
-   <f:selectItem itemValue="2" itemLabel="Item 2" />                   
+   <f:selectItem itemValue="2" itemLabel="Item 2" />
 </h:selectOneListbox>
 ```
 
 被渲染成以下HTML标签：
 
 ```html
-<select name="j_idt6:j_idt8" size="2">  
+<select name="j_idt6:j_idt8" size="2">
    <option value="1">Item 1</option>
    <option value="2">Item 2</option>
 </select>
 ```
-
 
 
 **由映射生成的列表框**
@@ -749,9 +751,9 @@ public class UserBean implements Serializable{
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html">
 <h:body>
   <p>Selected: #{user.item}</p>
@@ -779,7 +781,7 @@ public class UserBean implements Serializable{
 
   public void setItem(String i) {
     this.item = i;
-  }  
+  }
   //Generated by Map
   private static Map<String,Object> itemValue;
   static{
@@ -787,10 +789,10 @@ public class UserBean implements Serializable{
     itemValue.put("Item 1", "1"); //label, value
     itemValue.put("Item 2", "2");
     itemValue.put("Item 3", "3");
-  }  
+  }
   public Map<String,Object> getItemValue() {
     return itemValue;
-  }    
+  }
 }
 ```
 
@@ -798,9 +800,9 @@ public class UserBean implements Serializable{
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core">
     <h:body>
@@ -840,7 +842,7 @@ public class UserBean implements Serializable{
 
   public void setItem(String i) {
     this.item = i;
-  }  
+  }
   public static class Item{
     public String label;
     public String value;
@@ -868,7 +870,7 @@ public class UserBean implements Serializable{
     itemList[2] = new Item("item - 3", "3");
 
     return itemList;
-  }    
+  }
 }
 ```
 
@@ -876,9 +878,9 @@ public class UserBean implements Serializable{
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html">
 <h:body>
   <p>Selected: #{user.item}</p>
@@ -890,9 +892,9 @@ public class UserBean implements Serializable{
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core">
     <h:body>
@@ -912,8 +914,7 @@ public class UserBean implements Serializable{
 ```
 
 
-
-### <h:selectManyListbox>
+### `<h:selectManyListbox>`
 
 呈现一个类型为“`select`”的HTML输入元素，并指定其大小和多项目。
 
@@ -921,18 +922,17 @@ public class UserBean implements Serializable{
 <h:selectManyListbox value="#{userData.data}">
    <f:selectItem itemValue="1" itemLabel="Item 1" />
    <f:selectItem itemValue="2" itemLabel="Item 2" />
-</h:selectOneListbox>
+</h:selectManyListbox>
 ```
 
 被渲染成以下HTML代码：
 
 ```html
-<select name="j_idt6:j_idt8" size="2" multiple="multiple">  
+<select name="j_idt6:j_idt8" size="2" multiple="multiple">
    <option value="1">Item 1</option>
    <option value="2">Item 2</option>
 </select>
 ```
-
 
 
 **SelectManyListBox实例**
@@ -999,9 +999,9 @@ public class UserBean implements Serializable{
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
       >
@@ -1025,9 +1025,9 @@ public class UserBean implements Serializable{
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:c="http://java.sun.com/jsp/jstl/core">
@@ -1036,7 +1036,6 @@ public class UserBean implements Serializable{
     </h:body>
 </html>
 ```
-
 
 
 **通过映射的SelectManyListBox实例**
@@ -1080,13 +1079,13 @@ public class UserBean implements Serializable{
 }
 ```
 
-以下是文件： *index.xhtml* 中的代码 - 
+以下是文件： *index.xhtml* 中的代码 -
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
       >
@@ -1108,9 +1107,9 @@ public class UserBean implements Serializable{
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:c="http://java.sun.com/jsp/jstl/core">
@@ -1121,8 +1120,7 @@ public class UserBean implements Serializable{
 ```
 
 
-
-### <h:selectBooleanCheckbox>
+### `<h:selectBooleanCheckbox>`
 
 h:selectBooleanCheckbox 标签渲染类型为“checkbox"的 HTML 输入元素。
 
@@ -1135,7 +1133,7 @@ h:selectBooleanCheckbox 标签渲染类型为“checkbox"的 HTML 输入元素�
 渲染到以下HTML标记：
 
 ```html
-<input id="jsfForm1:chkRememberMe" type="checkbox" 
+<input id="jsfForm1:chkRememberMe" type="checkbox"
    name="jsfForm1:chkRememberMe" checked="checked" />
 ```
 
@@ -1155,25 +1153,24 @@ JSF 中的以下标记：
 ```html
 <table>
    <tr>
-      <td><input name="j_idt6:j_idt8" id="j_idt6:j_idt8:0" value="1" 
+      <td><input name="j_idt6:j_idt8" id="j_idt6:j_idt8:0" value="1"
             type="checkbox" checked="checked" />
          <label for="j_idt6:j_idt8:0" class=""> Item 1</label>
       </td>
-      <td><input name="j_idt6:j_idt8" id="j_idt6:j_idt8:1" value="2" 
+      <td><input name="j_idt6:j_idt8" id="j_idt6:j_idt8:1" value="2"
             type="checkbox" checked="checked" />
          <label for="j_idt6:j_idt8:1" class=""> Item 2</label>
-      </td>     
+      </td>
    </tr>
 </table>
 ```
 
 
+### `<f:attribute>`
 
-### <h:attribute>
+使用`<f:attribute>`标签通过动作侦听器将属性值传递给组件，或将参数传递给组件。
 
-使用`<h:attribute>`标签通过动作侦听器将属性值传递给组件，或将参数传递给组件。
-
-以下代码显示如何使用`<h:attribute>`标签。
+以下代码显示如何使用`<f:attribute>`标签。
 
 *index.xhtml* 中的代码:
 
@@ -1216,15 +1213,14 @@ public class UserBean{
 ```
 
 
-
-### <f:param>
+### `<f:param>`
 
 我们可以使用f:param标签将参数传递给组件或传递请求参数。
 
 以下代码显示如何将参数传递到UI组件。
 
 ```html
-<h:outputFormat value="Hello {0}!.">        
+<h:outputFormat value="Hello {0}!.">
    <f:param value="World" />
 </h:outputFormat>
 ```
@@ -1232,25 +1228,23 @@ public class UserBean{
 以下代码传递请求参数及其名称。
 
 ```html
-<h:commandButton id="submit" 
+<h:commandButton id="submit"
    value="Show Message" action="#{userData.showResult}">
    <f:param name="username" value="JSF 2.0 User" />
 </h:commandButton>
 ```
 
 
-
-### <h:setPropertyActionListener>
+### `<f:setPropertyActionListener>`
 
 以下代码显示如何使用`<f:setPropertyActionListener>`标签。
 
 ```html
-<h:commandButton id="submit" action="result" value="Show Message"> 
-   <f:setPropertyActionListener target="#{userData.data}" 
+<h:commandButton id="submit" action="result" value="Show Message">
+   <f:setPropertyActionListener target="#{userData.data}"
       value="JSF 2.0 User" />
 </h:commandButton>
 ```
-
 
 
 实例：
@@ -1285,9 +1279,9 @@ public class UserBean{
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
       >
@@ -1305,9 +1299,9 @@ public class UserBean{
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       >
     <h:body>
@@ -1318,8 +1312,7 @@ public class UserBean{
 ```
 
 
-
-### <f:ajax>
+### `<f:ajax>`
 
 JSF 支持使用`f:ajax`标签进行Ajax调用。
 
@@ -1333,10 +1326,10 @@ JSF 支持使用`f:ajax`标签进行Ajax调用。
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:f="http://java.sun.com/jsf/core"      
+      xmlns:f="http://java.sun.com/jsf/core"
       xmlns:h="http://java.sun.com/jsf/html">
 
     <h:body>
@@ -1344,7 +1337,7 @@ JSF 支持使用`f:ajax`标签进行Ajax调用。
         <h:inputText id="name" value="#{userBean.name}"></h:inputText>
         <h:commandButton value="Welcome Me">
            <!-- Using Ajax tag for the button to show the input name -->
-           <f:ajax execute="name" render="output" />    
+           <f:ajax execute="name" render="output" />
         </h:commandButton>
         <h2><h:outputText id="output" value="#{userBean.sayWelcome}" /></h2>
       </h:form>
@@ -1353,6 +1346,7 @@ JSF 支持使用`f:ajax`标签进行Ajax调用。
 ```
 
 
+<a id="section-1"></a>
 
 # JSF 转换器标签
 
@@ -1363,15 +1357,14 @@ JSF 有转换器将其 UI 组件的数据转换为托管 bean 中使用的对象
 要使用转换器标签，我们必须在 `html` 节点中使用 URI 的以下命名空间。
 
 ```html
-<html 
-   xmlns="http://www.w3.org/1999/xhtml" 
+<html
+   xmlns="http://www.w3.org/1999/xhtml"
    xmlns:f="http://java.sun.com/jsf/core">
 </html>
 ```
 
 
-
-### <f:convertNumber>
+### `<f:convertNumber>`
 
 用于将字符串值转换为所需格式的数量。
 
@@ -1390,7 +1383,7 @@ JSF 有转换器将其 UI 组件的数据转换为托管 bean 中使用的对象
 | maxIntegerDigits  | 整数部分的最大位数                                |
 | minIntegerDigits  | 整数部分的最小位数                                |
 | integerOnly       | 如果只解析整数部分，则为`true`(默认值：`false`)   |
-| groupingUsed      | 如果使用分组分隔符，则为`false`(默认值为`true`)   |
+| groupingUsed      | true 表示使用分组分隔符，例如 1,000；默认 true   |
 | locale            | 用于分析和格式化的首选项的区域设置                |
 | currencyCode      | 转换货币值时使用的ISO 4217货币代码                |
 | currencySymbol    | 转换货币值时使用的货币符号                        |
@@ -1399,23 +1392,23 @@ JSF 有转换器将其 UI 组件的数据转换为托管 bean 中使用的对象
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:c="http://java.sun.com/jsp/jstl/core"
       >
     <h:body>
     <p>
-      Amount [minFractionDigits="2"] : 
+      Amount [minFractionDigits="2"] :
       <!-- 999.01 -->
       <h:outputText value="#{receipt.amount}" >
         <f:convertNumber minFractionDigits="2" />
       </h:outputText>
     </p>
     <p>
-      Amount [pattern="#0.000"] : 
+      Amount [pattern="#0.000"] :
       <!-- 999.010 -->
       <h:outputText value="#{receipt.amount}" >
         <f:convertNumber pattern="#0.000" />
@@ -1429,14 +1422,14 @@ JSF 有转换器将其 UI 组件的数据转换为托管 bean 中使用的对象
       </h:outputText>
     </p>
     <p>
-      Amount [currencyCode="JPY"] : 
+      Amount [currencyCode="JPY"] :
       <!-- JPY999.01 -->
       <h:outputText value="#{receipt.amount}" >
         <f:convertNumber currencyCode="GBP" type="currency" />
       </h:outputText>
     </p>
     <p>
-      Amount [type="percent"] : 
+      Amount [type="percent"] :
       <!-- 99,901% -->
       <h:outputText value="#{receipt.amount}" >
         <f:convertNumber type="percent" />
@@ -1447,13 +1440,12 @@ JSF 有转换器将其 UI 组件的数据转换为托管 bean 中使用的对象
 ```
 
 
+### `<f:convertDateTime>`
 
-### <f:convertDateTime>
-
-用于将用户输入转换为指定的日期。 您可以通过将组件标签内的`convertDateTime`标签嵌套来将组件的数据转换为`java.util.Date`。 
+用于将用户输入转换为指定的日期。 您可以通过将组件标签内的`convertDateTime`标签嵌套来将组件的数据转换为`java.util.Date`。
 
 ```html
-<f:convertDateTime pattern="yyyy-mm-dd" />
+<f:convertDateTime pattern="yyyy-MM-dd" />
 ```
 
 **标签属性**
@@ -1466,106 +1458,108 @@ JSF 有转换器将其 UI 组件的数据转换为托管 bean 中使用的对象
 | locale    | String 或 Locale   | 它是一个区域设置的实例，它在格式化或解析期间使用了日期和时间的预定义样式。 如果未指定，将使用`FacesContext.getLocale`返回的区域设置。 |
 | pattern   | String             | 它用于自定义格式化模式，用于确定如何格式化和解析日期/时间字符串。 如果指定了此属性，则将忽略`dateStyle`，`timeStyle`和`type`属性。 |
 | timeStyle | String             | 它用于定义由`java.text.DateFormat`指定的时间或日期字符串的时间部分的格式。 仅当类型为时间和模式未定义时才应用。有效值：`default`，`short`，`medium`，`long`和`full`。 如果没有指定值，则使用默认值。 |
-| timeStyle | String             | 它用于定义由`java.text.DateFormat`指定的时间或日期字符串的时间部分的格式。 仅当类型为时间和模式未定义时才应用。有效值：`default`，`short`，`medium`，`long`和`full`。如果没有指定值，则使用默认值。 |
 | timeZone  | String 或 TimeZone | 它用于解释日期字符串中任何时间信息的时区。                   |
 | type      | String             | 它用于指定字符串值是否包含日期，时间或两者。有效值是日期，时间或两者。 如果未指定值，则使用日期。 |
 
 *result.xhtml* 的代码内容如下所示:
 
 ```html
-<?xml version='1.0' encoding='UTF-8' ?>  
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
-<html xmlns="http://www.w3.org/1999/xhtml"  
-      xmlns:h="http://xmlns.jcp.org/jsf/html"  
-      xmlns:f="http://java.sun.com/jsf/core">  
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core">
 
-    <h:head>  
-        <title>Response Page</title>  
-    </h:head>  
-    <h:body>  
+    <h:head>
+        <title>Response Page</title>
+    </h:head>
+    <h:body>
         <h:outputLabel value="Your date of birth in different-different formats is given below:"></h:outputLabel><br/>
-      
-      	<!-- 1990-6-1 -->
-        <h:outputText value="#{user.dob}">  
-            <f:convertDateTime type="date" dateStyle="medium"/>  
-        </h:outputText>  
-        <br/>  
-      
-      	<!-- 1990年6月1日 金曜日 -->
-        <h:outputText value="#{user.dob}">  
-            <f:convertDateTime type="date" dateStyle="full"/>  
-        </h:outputText>  
-        <br/>  
-      
-      	<!-- 0:09:00 -->
-        <h:outputText value="#{user.dob}">  
-            <f:convertDateTime type="time" dateStyle="full"/>  
-        </h:outputText>  
-        <br/>  
-      
-      	<!-- 01/06/1990 -->
-        <h:outputText value="#{user.dob}">  
-            <f:convertDateTime type="date" pattern="dd/mm/yyyy"/>  
-        </h:outputText>  
-        <br/> 
-      	
-      	<!-- 1990-06-01 -->
-        <h:outputText value="#{user.dob}">  
-            <f:convertDateTime dateStyle="full" pattern="yyyy-mm-dd"/>  
-        </h:outputText>  
-        <br/>  
-      	
-      	<!-- 1990.06.01 at 00:09:00 GMT -->
-        <h:outputText value="#{user.dob}">  
-            <f:convertDateTime dateStyle="full" pattern="yyyy.MM.dd 'at' HH:mm:ss z"/>  
-        </h:outputText>  
-        <br/>  
-      
+
+          <!-- 1990-6-1 -->
+        <h:outputText value="#{user.dob}">
+            <f:convertDateTime type="date" dateStyle="medium"/>
+        </h:outputText>
+        <br/>
+
+          <!-- See note 1 below. -->
+        <h:outputText value="#{user.dob}">
+            <f:convertDateTime type="date" dateStyle="full"/>
+        </h:outputText>
+        <br/>
+
+          <!-- 0:09:00 -->
+        <h:outputText value="#{user.dob}">
+            <f:convertDateTime type="time" timeStyle="full"/>
+        </h:outputText>
+        <br/>
+
+          <!-- 01/06/1990 -->
+        <h:outputText value="#{user.dob}">
+            <f:convertDateTime type="date" pattern="dd/MM/yyyy"/>
+        </h:outputText>
+        <br/>
+
+          <!-- 1990-06-01 -->
+        <h:outputText value="#{user.dob}">
+            <f:convertDateTime dateStyle="full" pattern="yyyy-MM-dd"/>
+        </h:outputText>
+        <br/>
+
+          <!-- 1990.06.01 at 00:09:00 GMT -->
+        <h:outputText value="#{user.dob}">
+            <f:convertDateTime dateStyle="full" pattern="yyyy.MM.dd 'at' HH:mm:ss z"/>
+        </h:outputText>
+        <br/>
+
        <!-- 12:09 AM -->
-        <h:outputText value="#{user.dob}">  
-            <f:convertDateTime dateStyle="full" pattern="h:mm a"/>  
-        </h:outputText>  
-        <br/>  
-      
-      	<!-- 1990年6月1日 12:09:00 -->
-        <h:outputText value="#{user.dob}">  
-            <f:convertDateTime dateStyle="long" timeZone="EST" type="both"/>  
-        </h:outputText>  
-        <br/>  
-      
-      	<!-- Donnerstag, 1, June 1990 00:09:00 GMT -->
-        <h:outputText value="#{user.dob}">  
-            <f:convertDateTime locale="de" timeStyle="long" type="both" dateStyle="full"/>  
-        </h:outputText>  
-        <br/>  
-      
-      	<!-- Friday, June 1, 1990 12:09 AM -->
-        <h:outputText value="#{user.dob}">  
-            <f:convertDateTime locale="en" timeStyle="short" type="both" dateStyle="full"/>  
-        </h:outputText>  
-    </h:body>  
+        <h:outputText value="#{user.dob}">
+            <f:convertDateTime dateStyle="full" pattern="h:mm a"/>
+        </h:outputText>
+        <br/>
+
+          <!-- See note 2 below. -->
+        <h:outputText value="#{user.dob}">
+            <f:convertDateTime dateStyle="long" timeZone="EST" type="both"/>
+        </h:outputText>
+        <br/>
+
+          <!-- Donnerstag, 1, June 1990 00:09:00 GMT -->
+        <h:outputText value="#{user.dob}">
+            <f:convertDateTime locale="de" timeStyle="long" type="both" dateStyle="full"/>
+        </h:outputText>
+        <br/>
+
+          <!-- Friday, June 1, 1990 12:09 AM -->
+        <h:outputText value="#{user.dob}">
+            <f:convertDateTime locale="en" timeStyle="short" type="both" dateStyle="full"/>
+        </h:outputText>
+    </h:body>
 </html>
 ```
 
+示例说明：
+
+1. 1990年6月1日 金曜日
+2. 1990年6月1日 12:09:00
 
 
-### <f:converter>
+### `<f:converter>`
 
 我们可以在 JSF 中创建自定义转换器的步骤。
 
 1. 通过实现`javax.faces.convert.Converter`接口创建一个转换器类。
 2. 实现上述接口的`getAsObject()`和`getAsString()`方法。
-3. 使用注解`@FacesConvertor`为自定义转换器分配唯一的ID。
-
+3. 使用注解`@FacesConverter`为自定义转换器分配唯一的ID。
 
 
 *index.xhtml* 的代码:
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core">
     <h:body>
@@ -1587,16 +1581,16 @@ JSF 有转换器将其 UI 组件的数据转换为托管 bean 中使用的对象
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:c="http://java.sun.com/jsp/jstl/core"
       >
     <h:body>
         <h:panelGrid columns="2">
-            Bookmark URL :  
+            Bookmark URL :
             <h:outputText value="#{user.bookmarkURL}" />
         </h:panelGrid>
     </h:body>
@@ -1650,6 +1644,7 @@ public class URLConverter implements Converter {
 ```
 
 
+<a id="section-2"></a>
 
 # JSF 验证器标签
 
@@ -1658,15 +1653,14 @@ JSF 有内置的验证器验证其 UI 组件。验证器标签可以验证可以
 我们必须在`html`节点中使用 URI 的以下命名空间来包含验证器标签。
 
 ```html
-<html 
-   xmlns="http://www.w3.org/1999/xhtml" 
+<html
+   xmlns="http://www.w3.org/1999/xhtml"
    xmlns:f="http://java.sun.com/jsf/core">
 </html>
 ```
 
 
-
-### <f:validateLength>
+### `<f:validateLength>`
 
 用于验证字符串值的长度。
 
@@ -1678,17 +1672,17 @@ JSF 有内置的验证器验证其 UI 组件。验证器标签可以验证可以
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:c="http://java.sun.com/jsp/jstl/core">
     <h:body>
         <h:form>
             <h:panelGrid columns="3">
-                Enter UserName : 
-                <h:inputText id="username" value="#{user.username}" 
+                Enter UserName :
+                <h:inputText id="username" value="#{user.username}"
                              size="20" required="true"
                              label="UserName" >
                     <f:validateLength minimum="5" maximum="10" />
@@ -1702,8 +1696,7 @@ JSF 有内置的验证器验证其 UI 组件。验证器标签可以验证可以
 ```
 
 
-
-### <f:validateLongRange>
+### `<f:validateLongRange>`
 
 用于验证特定范围内的长值。
 
@@ -1715,16 +1708,16 @@ JSF 有内置的验证器验证其 UI 组件。验证器标签可以验证可以
 
 | 属性    | 说明                   |
 | ------- | ---------------------- |
-| minimum | 在可选范围内最小长度值 |
-| maximum | 在可选范围内最大长度值 |
+| minimum | 在可选范围内最小数值 |
+| maximum | 在可选范围内最大数值 |
 
 *index.xhtml* 的代码:
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:c="http://java.sun.com/jsp/jstl/core"
@@ -1732,8 +1725,8 @@ JSF 有内置的验证器验证其 UI 组件。验证器标签可以验证可以
     <h:body>
         <h:form>
             <h:panelGrid columns="3">
-                Enter your age : 
-                <h:inputText id="age" value="#{user.age}" 
+                Enter your age :
+                <h:inputText id="age" value="#{user.age}"
                              size="10" required="true"
                              label="Age" >
                     <f:validateLongRange maximum="10" minimum="1" />
@@ -1747,8 +1740,7 @@ JSF 有内置的验证器验证其 UI 组件。验证器标签可以验证可以
 ```
 
 
-
-### <f:validateDoubleRange>
+### `<f:validateDoubleRange>`
 
 用于验证一个浮点(`float/double`)值的范围。
 
@@ -1760,23 +1752,23 @@ JSF 有内置的验证器验证其 UI 组件。验证器标签可以验证可以
 
 | 属性    | 说明                   |
 | ------- | ---------------------- |
-| minimum | 在可选范围内最小长度值 |
-| maximum | 在可选范围内最大长度值 |
+| minimum | 在可选范围内最小数值 |
+| maximum | 在可选范围内最大数值 |
 
 *index.xhtml* 的代码:
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core">
     <h:body>
         <h:form>
             <h:panelGrid columns="3">
-                Enter a double value: 
-                <h:inputText id="salary" value="#{user.salary}" 
+                Enter a double value:
+                <h:inputText id="salary" value="#{user.salary}"
                              size="10" required="true"
                              label="Salary" >
                     <f:validateDoubleRange minimum="10.11" maximum="10000.99" />
@@ -1790,8 +1782,7 @@ JSF 有内置的验证器验证其 UI 组件。验证器标签可以验证可以
 ```
 
 
-
-### <f:validateRegex>
+### `<f:validateRegex>`
 
 用于将字符串值验证为所需格式。
 
@@ -1809,16 +1800,16 @@ JSF 有内置的验证器验证其 UI 组件。验证器标签可以验证可以
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core">
     <h:body>
         <h:form>
             <h:panelGrid columns="3">
-                Enter your password : 
-                <h:inputSecret id="password" value="#{user.password}" 
+                Enter your password :
+                <h:inputSecret id="password" value="#{user.password}"
                                size="20" required="true"
                                label="Password">
                     <f:validateRegex pattern="\d\d\d\d" />
@@ -1832,8 +1823,7 @@ JSF 有内置的验证器验证其 UI 组件。验证器标签可以验证可以
 ```
 
 
-
-### <f:validator>
+### `<f:validator>`
 
 我们可以在 JSF 中创建自定义验证器。
 
@@ -1842,21 +1832,20 @@ JSF 有内置的验证器验证其 UI 组件。验证器标签可以验证可以
 - 使用注释`@FacesValidator`为自定义验证器分配唯一的ID。
 
 
-
 *index.xhtml* 的代码:
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core">
     <h:body>
         <h:form>
             <h:panelGrid columns="3">
                 Enter your email :
-                <h:inputText id="email" value="#{user.email}" 
+                <h:inputText id="email" value="#{user.email}"
                              size="20" required="true" label="Email Address">
                     <f:validator validatorId="com.demo.EmailValidator" />
                 </h:inputText>
@@ -1915,10 +1904,11 @@ public class EmailValidator implements Validator {
 ```
 
 
+<a id="section-3"></a>
 
 # JSF 表格标签
 
-### <h:dataTable>
+### `<h:dataTable>`
 
 JSF中有一个叫作`DataTable`的控件，可用来渲染和格式化`html`表格。使用`DataTable`，我们可以迭代收集或数组数组来显示数据。
 
@@ -1927,8 +1917,8 @@ JSF中有一个叫作`DataTable`的控件，可用来渲染和格式化`html`表
 要使用`DataTable`，我们需要添加以下HTML头：
 
 ```html
-<html 
-   xmlns="http://www.w3.org/1999/xhtml"   
+<html
+   xmlns="http://www.w3.org/1999/xhtml"
    xmlns:h="http://java.sun.com/jsf/html">
 </html>
 ```
@@ -1940,8 +1930,8 @@ JSF 表格：
    styleClass="employeeTable"
    headerClass="employeeTableHeader"
    rowClasses="employeeTableOddRow,employeeTableEvenRow">
-   <h:column>            
-      <f:facet name="header">Name</f:facet>            
+   <h:column>
+      <f:facet name="header">Name</f:facet>
       #{employee.name}
    </h:column>
    <h:column>
@@ -1993,51 +1983,50 @@ JSF 表格：
 ```
 
 
-
 #### 添加删除
 
 *index.xhtml* 的代码:
 
 ```html
 <h:form>
-	<h:dataTable value="#{book.bookList}" var="o" styleClass="book-table" headerClass="book-table-header" rowClasses="book-table-odd-row,book-table-even-row">
-		<h:column>
-			<f:facet name="header">Book No</f:facet>#{o.bookNo}
-		</h:column>
-		<h:column>
-			<f:facet name="header">Product Name</f:facet>#{o.productName}
-		</h:column>
-		<h:column>
-			<f:facet name="header">Price</f:facet>#{o.price}
-		</h:column>
-		<h:column>
-			<f:facet name="header">Quantity</f:facet>#{o.qty}
-		</h:column>
-		<h:column>
-			<f:facet name="header">Action</f:facet>
-			<h:commandLink value="Delete" action="#{book.deleteAction(o)}" />
-		</h:column>
-	</h:dataTable>
-	<h3>Enter Book</h3>
+    <h:dataTable value="#{book.bookList}" var="o" styleClass="book-table" headerClass="book-table-header" rowClasses="book-table-odd-row,book-table-even-row">
+        <h:column>
+            <f:facet name="header">Book No</f:facet>#{o.bookNo}
+        </h:column>
+        <h:column>
+            <f:facet name="header">Product Name</f:facet>#{o.productName}
+        </h:column>
+        <h:column>
+            <f:facet name="header">Price</f:facet>#{o.price}
+        </h:column>
+        <h:column>
+            <f:facet name="header">Quantity</f:facet>#{o.qty}
+        </h:column>
+        <h:column>
+            <f:facet name="header">Action</f:facet>
+            <h:commandLink value="Delete" action="#{book.deleteAction(o)}" />
+        </h:column>
+    </h:dataTable>
+    <h3>Enter Book</h3>
   <table>
-		<tr>
-			<td>Book No :</td>
-			<td><h:inputText size="20" value="#{book.bookNo}" /></td>
-		</tr>
-		<tr>
-			<td>Product Name :</td>
-			<td><h:inputText size="20" value="#{book.productName}" /></td>
-		</tr>
-		<tr>
-			<td>Quantity :</td>
-			<td><h:inputText size="20" value="#{book.price}" /></td>
-		</tr>
-		<tr>
-			<td>Price :</td>
-			<td><h:inputText size="20" value="#{book.qty}" /></td>
-		</tr>
-	</table>
-	<h:commandButton value="Add" action="#{book.addAction}" />
+        <tr>
+            <td>Book No :</td>
+            <td><h:inputText size="20" value="#{book.bookNo}" /></td>
+        </tr>
+        <tr>
+            <td>Product Name :</td>
+            <td><h:inputText size="20" value="#{book.productName}" /></td>
+        </tr>
+        <tr>
+            <td>Quantity :</td>
+            <td><h:inputText size="20" value="#{book.price}" /></td>
+        </tr>
+        <tr>
+            <td>Price :</td>
+            <td><h:inputText size="20" value="#{book.qty}" /></td>
+        </tr>
+    </table>
+    <h:commandButton value="Add" action="#{book.addAction}" />
 </h:form>
 ```
 
@@ -2059,16 +2048,15 @@ JSF 表格：
 ```
 
 
-
 #### **更新数据**
 
 *index.xhtml* 的代码:
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:f="http://java.sun.com/jsf/core"
       xmlns:ui="http://java.sun.com/jsf/facelets"
@@ -2141,7 +2129,7 @@ public class User implements Serializable {
     }
 
     public String saveAction() {
-        //get all existing value but set "editable" to false 
+        //get all existing value but set "editable" to false
         for (Book book : bookList) {
             book.setEditable(false);
         }
@@ -2213,7 +2201,6 @@ public class User implements Serializable {
 ```
 
 
-
 #### **排序**
 
 *User.java* 的代码:
@@ -2249,32 +2236,31 @@ public class User implements Serializable {
 ```html
 <h:form>
   <h:dataTable value="#{book.bookList}" var="o" styleClass="book-table" headerClass="book-table-header" rowClasses="book-table-odd-row,book-table-even-row">
-		<h:column>
-			<f:facet name="header">
-				<h:commandLink action="#{book.sortByBookNo}">
+        <h:column>
+            <f:facet name="header">
+                <h:commandLink action="#{book.sortByBookNo}">
            Book No
          </h:commandLink>
        </f:facet>
          #{o.bookNo}
-		</h:column>
+        </h:column>
 
-		<h:column>
+        <h:column>
        <f:facet name="header">
          Product Name
        </f:facet>
          #{o.productName}
-		</h:column>
-	</h:dataTable>
+        </h:column>
+    </h:dataTable>
 </h:form>
 ```
 
 
-
-### <ui:repeat>
+### `<ui:repeat>`
 
 使用 ui:repeat 标签创建表格。
 
-`User.java` 文件中的代码 - 
+`User.java` 文件中的代码 -
 
 ```java
 import java.io.Serializable;
@@ -2291,7 +2277,7 @@ public class User implements Serializable{
 
   private static final long serialVersionUID = 1L;
 
-  private static final ArrayList<Book> bookList = 
+  private static final ArrayList<Book> bookList =
     new ArrayList<Book>(Arrays.asList(
     new Book("1", "CSS", new BigDecimal("711.00"), 1),
     new Book("2", "SQL", new BigDecimal("522.00"), 2),
@@ -2315,7 +2301,7 @@ public class User implements Serializable{
     BigDecimal price;
     int qty;
 
-    public Book(String bookNo, String productName, 
+    public Book(String bookNo, String productName,
         BigDecimal price, int qty) {
       this.bookNo = bookNo;
       this.productName = productName;
@@ -2359,13 +2345,13 @@ public class User implements Serializable{
 }
 ```
 
-以下是文件：`index.xhtml` 文件中的代码 - 
+以下是文件：`index.xhtml` 文件中的代码 -
 
 ```html
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"   
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://java.sun.com/jsf/html"
       xmlns:ui="http://java.sun.com/jsf/facelets"
       xmlns:c="http://java.sun.com/jsp/jstl/core"
@@ -2404,32 +2390,33 @@ public class User implements Serializable{
 ```
 
 
+<a id="section-4"></a>
 
 # 事件处理
 
 ### JSF 值变化的事件
 
-#### <f:valueChangeListener>
+#### `<f:valueChangeListener>`
 
 在JSF中，我们可以处理`<h:inputText>`或`<h:selectOneMenu>`的值变化的事件。
 
 要注册事件处理程序侦听器，请在UI组件的`valueChangeListener`属性中传递托管 bean 方法的名称。
 
-或者实现`ValueChangeListener`接口，并将实现类名传递给UI组件的`valueChangeListener`属性。
+或者实现`ValueChangeListener`接口，并使用嵌套 f:valueChangeListener 的 type 属性指定实现类，或通过 binding 引用监听器对象。
 
 以下代码显示了如何将托管Bean的方法注册到`valueChangeListener`方法。
 
 ```java
 public void localeChanged(ValueChangeEvent e){
    //assign new value to country
-   selectedCountry = e.getNewValue().toString(); 
+   selectedCountry = e.getNewValue().toString();
 }
 ```
 
 **注册方法**
 
 ```html
-<h:selectOneMenu value="#{userData.selectedCountry}" onchange="submit()" 
+<h:selectOneMenu value="#{userData.selectedCountry}" onchange="submit()"
    valueChangeListener="#{userData.localeChanged}" >
    <f:selectItems value="#{userData.countries}" />
 </h:selectOneMenu>
@@ -2444,7 +2431,7 @@ public class LocaleChangeListener implements ValueChangeListener {
       throws AbortProcessingException {
      //access country bean directly
      UserData userData = (UserData) FacesContext.getCurrentInstance().
-        getExternalContext().getSessionMap().get("userData"); 
+        getExternalContext().getSessionMap().get("userData");
      userData.setSelectedCountry(event.getNewValue().toString());
    }
 }
@@ -2461,14 +2448,13 @@ public class LocaleChangeListener implements ValueChangeListener {
 ```
 
 
-
 ### JSF 操作事件
 
 #### f:actionListener
 
-在 JSF 中，我们可以处理如`<h:commandButton>`或`<h:link>`组件的用户点击事件。要注册事件处理程序，我们可以在 UI 组件的`actionListener`属性中传递托管 bean 方法的名称。
+在 JSF 中，我们可以处理如 h:commandButton 或 h:commandLink 组件（h:link 是普通导航链接，不提交 action 事件）的用户点击事件。要注册事件处理程序，我们可以在 UI 组件的`actionListener`属性中传递托管 bean 方法的名称。
 
-或者也可以选择实现`ActionListener`接口，并将实现类名称传递给 UI 组件的`actionListener`属性。
+或者也可以选择实现`ActionListener`接口，并使用嵌套 f:actionListener 的 type 属性指定实现类，或通过 binding 引用监听器对象。
 
 以下代码显示了如何从`<h:commandButton>`向`actionListener`属性添加用户定义的方法。
 
@@ -2481,10 +2467,9 @@ public void updateData(ActionEvent e){
 使用上述方法
 
 ```html
-<h:commandButton id="submitButton" 
+<h:commandButton id="submitButton"
    value="Submit" action="#{userData.showResult}"
    actionListener="#{userData.updateData}" />
-</h:commandButton>
 ```
 
 以下代码显示了如何实现`ActionListener`并使用`f:actionListener`标签。
@@ -2495,8 +2480,9 @@ public class UserActionListener implements ActionListener{
    public void processAction(ActionEvent arg0)
    throws AbortProcessingException {
       //access userData bean directly
-      UserData userData = (UserData) FacesContext.getCurrentInstance().
-         getExternalContext().getSessionMap().get("userData"); 
+      FacesContext context = FacesContext.getCurrentInstance();
+      UserData userData = context.getApplication().evaluateExpressionGet(
+          context, "#{userData}", UserData.class);
       userData.setData("Hello World");
    }
 }
@@ -2505,12 +2491,11 @@ public class UserActionListener implements ActionListener{
 使用侦听器方法 -
 
 ```html
-<h:commandButton id="submitButton1" 
+<h:commandButton id="submitButton1"
    value="Submit" action="#{userData.showResult}" >
    <f:actionListener type="com.demo.test.UserActionListener" />
 </h:commandButton>
 ```
-
 
 
 ### 预构建应用程序事件
@@ -2528,19 +2513,30 @@ JSF 在 JSF 应用程序生命周期中有处理应用程序特定任务的系�
 以下代码显示了如何实现 SystemEventListener 接口。
 
 ```java
+package cn.w3cschool.common;
+
+import javax.faces.application.Application;
+import javax.faces.event.AbortProcessingException;
+import javax.faces.event.PostConstructApplicationEvent;
+import javax.faces.event.SystemEvent;
+import javax.faces.event.SystemEventListener;
+
 public class CustomSystemEventListener implements SystemEventListener {
-   @Override
-   public void processEvent(SystemEvent event) throws 
-      AbortProcessingException {
-      if(event instanceof PostConstructApplicationEvent){
-         System.out.println("Application Started. 
-            PostConstructApplicationEvent occurred!");
-      }      
-   }
+    @Override
+    public boolean isListenerForSource(Object source) {
+        return source instanceof Application;
+    }
+
+    @Override
+    public void processEvent(SystemEvent event) throws AbortProcessingException {
+        if (event instanceof PostConstructApplicationEvent) {
+            System.out.println("Application started.");
+        }
+    }
 }
 ```
 
-然后我们可以在faces-config.xml中注册系统事件的自定义系统事件侦听器
+然后我们可以在 faces-config.xml 的 application 元素内注册此系统事件监听器
 
 ```xml
 <system-event-listener>
@@ -2549,7 +2545,7 @@ public class CustomSystemEventListener implements SystemEventListener {
    </system-event-listener-class>
    <system-event-class>
       javax.faces.event.PostConstructApplicationEvent
-   </system-event-class>              
+   </system-event-class>
 </system-event-listener>
 ```
 
@@ -2568,8 +2564,7 @@ public void handleEvent(ComponentSystemEvent event){
 ```
 
 
-
-
+<a id="section-5"></a>
 
 # Facelets 技术
 
@@ -2581,7 +2576,6 @@ public void handleEvent(ComponentSystemEvent event){
 - 除了支持 JavaServer Faces 和 JSTL 标记库之外，它还支持 Facelets 标签库。
 - 它支持表达语言(EL)。
 - 它是使用组件和页面的模板。
-
 
 
 下表显示了Facelets支持的标签库。
@@ -2596,7 +2590,6 @@ public void handleEvent(ComponentSystemEvent event){
 | 复合组件标签库     | http://xmlns.jcp.org/jsf/composite      | `cc:`  | `cc:interface`                     | 支持复合组件的标签                          |
 | JSTL核心标签库     | http://xmlns.jcp.org/jsp/jstl/core      | `c:`   | `c:forEach`, `c:catch`             | JSTL 1.2核心标签                            |
 | JSTL函数标签库     | http://xmlns.jcp.org/jsp/jstl/functions | `fn:`  | `fn:toUpperCase`, `fn:toLowerCase` | JSTL 1.2函数标签                            |
-
 
 
 ### Facelets 的生命周期
@@ -2614,55 +2607,56 @@ JSF规范定义了JavaServer Faces应用程序的生命周期。以下步骤为�
 9. 将新视图作为对客户端的响应。
 
 
-
 ### Facelets 视图
 
 Facelets 视图是`XHTML`页面。 您可以通过向页面添加组件来创建网页或视图，将组件连接到后端`bean`的值和属性，并在组件上注册转换器，验证器或侦听器。
 
-`XHTML`网页作为前端。 您的应用程序的第一页默认为`index.xhtml`。
+`XHTML`网页作为前端。 首页由 welcome-file-list 或容器配置决定；index.xhtml 是本例的约定，不是所有 Faces 应用的固定首页。
 
 网页(如，在`index.xhtml`中)的第一部分声明页面的内容类型，即 XHTML：
 
 ```html
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<!--
-在下一段中指定`XHTML`页面的语言，然后声明网页中使用的标签库的XML命名空间。
--->
+<!-- See note 1 below. -->
 
-<html lang="en"  
-xmlns="http://www.w3.org/1999/xhtml"  
-xmlns:h="http://xmlns.jcp.org/jsf/html"  
+<html lang="en"
+xmlns="http://www.w3.org/1999/xhtml"
+xmlns:h="http://xmlns.jcp.org/jsf/html"
 xmlns:f="http://xmlns.jcp.org/jsf/core">
 ```
+
+示例说明：
+
+1. 在下一段中指定'XHTML'页面的语言，然后声明网页中使用的标签库的XML命名空间。
+
 
 完整的 *index.xhtml* 代码:
 
 ```html
-<?xml version='1.0' encoding='UTF-8' ?>  
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
-<html xmlns="http://www.w3.org/1999/xhtml"  
-xmlns:h="http://xmlns.jcp.org/jsf/html"  
-xmlns:f="http://xmlns.jcp.org/jsf/core">  
-<h:head>  
-    <title>Jsf Form</title>  
-</h:head>  
-    <h:body>  
-        <h:form id="form">  
-        <h:outputLabel for="username">User Name</h:outputLabel>  
-        <h:inputText id="name" value="#{user.name}" required="true">  
-        <f:validateRequired for="name" />  
-        </h:inputText><br/>  
-        <h:commandButton value="OK" action="response.xhtml"></h:commandButton>  
-        </h:form>  
-    </h:body>  
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+xmlns:h="http://xmlns.jcp.org/jsf/html"
+xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+    <title>Jsf Form</title>
+</h:head>
+    <h:body>
+        <h:form id="form">
+        <h:outputLabel for="username">User Name</h:outputLabel>
+        <h:inputText id="name" value="#{user.name}" required="true">
+        <f:validateRequired for="name" />
+        </h:inputText><br/>
+        <h:commandButton value="OK" action="response.xhtml"></h:commandButton>
+        </h:form>
+    </h:body>
 </html>
 ```
 
 Facelets HTML标签以`h:`开头，用于在网页和核心标签上添加组件`f:validateRequired`用于验证用户输入。
 
 `h:inputText`标签接受用户输入，并通过EL表达式`#{user.name}`设置托管`bean`属性名称的值。
-
 
 
 ### 映射 Faces Servlet
@@ -2672,30 +2666,29 @@ Facelets HTML标签以`h:`开头，用于在网页和核心标签上添加组件
 一个自动生成的`web.xml`文件的内容。
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>  
-<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">  
-	<context-param>  
-		<param-name>javax.faces.PROJECT_STAGE</param-name>  
-		<param-value>Development</param-value>  
-	</context-param>  
-	<servlet>  
-		<servlet-name>Faces Servlet</servlet-name>  
-		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>  
-		<load-on-startup>1</load-on-startup>  
-	</servlet>  
-	<servlet-mapping>  
-		<servlet-name>Faces Servlet</servlet-name>  
-		<url-pattern>/faces/*</url-pattern>  
-	</servlet-mapping>  
-	<session-config>  
-		<session-timeout>30</session-timeout>  
-	</session-config>  
-	<welcome-file-list>  
-		<welcome-file>faces/index.xhtml</welcome-file>  
-	</welcome-file-list>  
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+    <context-param>
+        <param-name>javax.faces.PROJECT_STAGE</param-name>
+        <param-value>Development</param-value>
+    </context-param>
+    <servlet>
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>/faces/*</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+    <welcome-file-list>
+        <welcome-file>faces/index.xhtml</welcome-file>
+    </welcome-file-list>
 </web-app>
 ```
-
 
 
 ### Facelets 模板
@@ -2721,13 +2714,12 @@ Facelets HTML标签以`h:`开头，用于在网页和核心标签上添加组件
 | `ui:remove`      | 它用于从页面中删除内容。                                     |
 
 
-
 Facelets 标签库包括主模板标签 `ui:insert`。 使用此标签创建的模板页面允许为页面定义默认结构。 我们可以使用模板页面作为其他页面的模板。
 
 *template.xhtml* 中的代码：
 
 ```html
-<?xml version='1.0' encoding='UTF-8' ?> 
+<?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
@@ -2754,41 +2746,40 @@ Facelets 标签库包括主模板标签 `ui:insert`。 使用此标签创建的�
 </html>
 ```
 
-上述模板文件分为四个部分：顶部，左部分，内容部分。 我们可以对应用程序的其他页面进一步重用此结构。
+上述模板文件分为三个部分：顶部，左部分，内容部分。 我们可以对应用程序的其他页面进一步重用此结构。
 
 *index.xhtml* 中的代码：
 
 ```html
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
-<html xmlns="http://www.w3.org/1999/xhtml"  
-      xmlns:h="http://xmlns.jcp.org/jsf/html"  
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">  
-    <h:head>  
-        <meta http-equiv="Content-Type"  
-              content="text/html; charset=UTF-8" />  
-        <h:outputStylesheet library="css" name="default.css"/>  
-        <h:outputStylesheet library="css" name="cssLayout.css"/>  
-        <title>Facelets Template Example</title>  
-    </h:head>  
-    <h:body>  
-        <ui:composition template="./template.xhtml">  
-            <ui:define name="top">  
-                <h:graphicImage value="/resources/images/header.png"/>  
-            </ui:define>  
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:head>
+        <meta http-equiv="Content-Type"
+              content="text/html; charset=UTF-8" />
+        <h:outputStylesheet library="css" name="default.css"/>
+        <h:outputStylesheet library="css" name="cssLayout.css"/>
+        <title>Facelets Template Example</title>
+    </h:head>
+    <h:body>
+        <ui:composition template="./template.xhtml">
+            <ui:define name="top">
+                <h:graphicImage value="/resources/images/header.png"/>
+            </ui:define>
 
-            <ui:define name="left">  
-                <h:graphicImage value="/resources/images/left.png"/>  
-            </ui:define>  
+            <ui:define name="left">
+                <h:graphicImage value="/resources/images/left.png"/>
+            </ui:define>
 
-            <ui:define name="content">  
-                <h:graphicImage value="/resources/images/right.png"/>  
-            </ui:define>  
+            <ui:define name="content">
+                <h:graphicImage value="/resources/images/right.png"/>
+            </ui:define>
 
-        </ui:composition>  
-    </h:body>  
+        </ui:composition>
+    </h:body>
 </html>
 ```
-
 
 
 ### JSF 复合组件
@@ -2800,11 +2791,10 @@ JSF 通过 Facelets 提供复合组件(有点类似于`Widget`)的概念。复�
 在创建组合组件之前，请确保使用正确的命名空间，如下所示。
 
 ```html
-<html xmlns="http://www.w3.org/1999/xhtml"  
+<html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:composite="http://xmlns.jcp.org/jsf/composite"
 </html>
 ```
-
 
 
 以下表格包含复合标签以及说明:
@@ -2820,40 +2810,38 @@ JSF 通过 Facelets 提供复合组件(有点类似于`Widget`)的概念。复�
 | `composite:actionSource`        | 它用于声明由该元素嵌套的`composite:interface`声明其约定的组合组件，暴露了适用于使用页面中附加对象目标的`ActionSource`实现。 |
 
 
-
 #### 创建复合组件
 
 创建一个文件：`composite-component.xhtml`，代码如下:
 
 ```html
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
-<html xmlns="http://www.w3.org/1999/xhtml"  
-      xmlns:composite="http://xmlns.jcp.org/jsf/composite"  
-      xmlns:h="http://xmlns.jcp.org/jsf/html">  
-    <h:head>  
-        <title>Composite Component Example</title>  
-    </h:head>  
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:composite="http://xmlns.jcp.org/jsf/composite"
+      xmlns:h="http://xmlns.jcp.org/jsf/html">
+    <h:head>
+        <title>Composite Component Example</title>
+    </h:head>
 
     <h:body>
         <h2>In composite-component.xhtml Form</h2>
-        <composite:interface>  
-            <composite:attribute name="username" required="false"/>  
-            <composite:attribute name="email" required="false"/>  
-        </composite:interface>  
-        <composite:implementation>  
-            <h:outputLabel value="User Name " />  
-            <h:inputText value="#{cc.attrs.username}"/><br/>  
-            <h:outputLabel value="Email ID "/>  
-            <h:inputText value="#{cc.attrs.email}"/><br/>  
-        </composite:implementation>  
-    </h:body>  
+        <composite:interface>
+            <composite:attribute name="username" required="false"/>
+            <composite:attribute name="email" required="false"/>
+        </composite:interface>
+        <composite:implementation>
+            <h:outputLabel value="User Name " />
+            <h:inputText value="#{cc.attrs.username}"/><br/>
+            <h:outputLabel value="Email ID "/>
+            <h:inputText value="#{cc.attrs.email}"/><br/>
+        </composite:implementation>
+    </h:body>
 </html>
 ```
 
-在上面的例子中，`composite:interface`标签用于声明可配置的值。 `composite:implementation`标签用于声明所有 XHTML 标记和`cc.attrs.username`用于定义`inputText`组件的值。 CSS 是 JSF 中复合组件的保留字。 表达式`#{cc.attrs.attribute-name}`用于访问为组合组件界面定义的属性。
+在上面的例子中，`composite:interface`标签用于声明可配置的值。 `composite:implementation`标签用于声明所有 XHTML 标记和`cc.attrs.username`用于定义`inputText`组件的值。 cc 是访问当前复合组件的隐式 EL 对象，不是 CSS。 表达式`#{cc.attrs.attribute-name}`用于访问为组合组件界面定义的属性。
 
 上述代码作为名为`composite-component.xhtml`的文件存储在应用程序 Web 根目录的 `resources/com` 文件夹中。
-
 
 
 #### 使用复合组件
@@ -2869,19 +2857,18 @@ JSF 通过 Facelets 提供复合组件(有点类似于`Widget`)的概念。复�
 创建一个文件：`index.xhtml`，代码如下:
 
 ```html
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"  
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">  
-<html xmlns="http://www.w3.org/1999/xhtml"  
-      xmlns:h="http://xmlns.jcp.org/jsf/html"  
-      xmlns:co="http://xmlns.jcp.org/jsf/composite/com">  
-    <h:head>  
-        <title>Implementing Composite Component</title>  
-    </h:head>  
-    <body>  
-        <h:form>  
-            <co:composite-component />  
-        </h:form>  
-    </body>  
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:co="http://xmlns.jcp.org/jsf/composite/com">
+    <h:head>
+        <title>Implementing Composite Component</title>
+    </h:head>
+    <body>
+        <h:form>
+            <co:composite-component />
+        </h:form>
+    </body>
 </html>
 ```
-

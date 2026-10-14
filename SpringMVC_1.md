@@ -1,4 +1,23 @@
-## SpringMVC_day01
+# Spring MVC：请求与响应基础
+
+理解请求映射、参数接收、响应和 REST 接口，开发时查对应注解。
+
+**学习前提与版本：** 本篇保留 Spring 5.2 / javax / Tomcat 9 的历史教学环境，片段按各小节所在项目使用。Spring 6 的完整配置见 SSM.md。
+
+**截图说明：** 图片保留原教学环境的操作过程；若截图中的旧写法与正文不同，以修订后的正文和所选版本的官方文档为准。
+
+**示例使用：** 除明确列出全部文件和运行步骤的项目外，代码块是各小节的独立片段。省略号、占位名称需要补齐；标明错误的行用于说明问题。同节替代写法不要合并。
+
+[学习索引与常见词](README.md) · [官方参考](https://docs.spring.io/spring-framework/docs/5.2.10.RELEASE/spring-framework-reference/web.html)
+
+**内容导航**
+
+- [1，SpringMVC 概述](#section-1)
+- [2，SpringMVC 入门案例](#section-2)
+- [3，PostMan 工具的使用](#section-3)
+- [4，请求与响应](#section-4)
+- [5，Rest风格](#section-5)
+
 
 **今日内容**
 
@@ -32,6 +51,8 @@ SSM 整合是把咱们所学习的 SpringMVC+Spring+Mybatis 整合在一起来�
 3. 能够根据实际业务建立前后端开发通信协议并进行实现
 4. ==基于 SSM 整合技术开发任意业务模块功能==
 
+<a id="section-1"></a>
+
 ## 1，SpringMVC 概述
 
 学习 SpringMVC 我们先来回顾下现在 web 程序是如何做的，咱们现在 web 程序大都基于三层架构来实现。
@@ -48,7 +69,7 @@ SSM 整合是把咱们所学习的 SpringMVC+Spring+Mybatis 整合在一起来�
   * web层主要由servlet来处理，负责页面请求和数据的收集以及响应结果给前端
   * service层主要负责业务逻辑的处理
   * dao层主要负责数据的增删改查操作
-* servlet处理请求和数据的时候，存在的问题是一个servlet只能处理一个请求
+* Servlet 可以处理多个请求。Spring MVC 通过 DispatcherServlet 统一分发，减少手工编写路径判断和参数解析的工作。
 * 针对web层进行了优化，采用了MVC设计模式，将其设计为`controller`、`view`和`Model`
   * controller负责请求和数据的接收，接收后将其转发给service进行业务处理
   * service根据需要会调用dao对数据进行增删改查
@@ -56,14 +77,13 @@ SSM 整合是把咱们所学习的 SpringMVC+Spring+Mybatis 整合在一起来�
   * controller根据需求组装成Model和View,Model和View组合起来生成页面转发给前端浏览器
   * 这样做的好处就是controller可以处理多个请求，并对请求进行分发，执行不同的业务操作。
 
-随着互联网的发展，上面的模式因为是同步调用，性能慢慢的跟不是需求，所以异步调用慢慢的走到了前台，是现在比较流行的一种处理方式。
+前后端分离时，浏览器常用 fetch 或 Axios 请求数据，再由前端更新页面。浏览器异步请求与服务器是否使用异步处理是两件事；返回 JSON 本身并不保证性能更高。
 
 ![1630427769938](Resources/1630427769938.png)
 
 
-
-* 因为是异步调用，所以后端不需要返回view视图，将其去除
-* 前端如果通过异步调用的方式进行交互，后台就需要将返回的数据转换成json格式进行返回
+* 在这个前后端分离示例中，后端返回数据，页面由前端渲染；Spring MVC 仍支持服务端模板视图
+* 示例选用 JSON 作为数据格式；异步请求也可以接收 HTML、文本或文件
 * SpringMVC==主要==负责的就是
   * controller如何接收请求和数据
   * 如何将请求和数据转发给业务层
@@ -80,9 +100,11 @@ SSM 整合是把咱们所学习的 SpringMVC+Spring+Mybatis 整合在一起来�
 
   这里所说的优点，就需要我们在使用的过程中慢慢体会。
 
+<a id="section-2"></a>
+
 ## 2，SpringMVC 入门案例
 
-因为SpringMVC是一个Web框架，将来是要替换Servlet,所以先来回顾下以前Servlet是如何进行开发的?
+Spring MVC 底层仍使用 Servlet。先回顾 Servlet 接收请求的方式，再了解 DispatcherServlet 如何统一分发请求。
 
 1.创建web工程(Maven结构)
 
@@ -128,7 +150,7 @@ SpringMVC的制作过程和上述流程几乎是一致的，具体的实现流�
 
 将pom.xml中多余的内容删除掉，再添加SpringMVC需要的依赖
 
-```java
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -191,7 +213,7 @@ public class SpringMvcConfig {
 ```java
 @Controller
 public class UserController {
-    
+
     @RequestMapping("/save")
     public void save(){
         System.out.println("user save ...");
@@ -206,26 +228,35 @@ public class UserController {
 
 ```java
 public class ServletContainersInitConfig extends AbstractDispatcherServletInitializer {
-    //加载springmvc配置类
+    // See note 1 below.
     protected WebApplicationContext createServletApplicationContext() {
-        //初始化WebApplicationContext对象
+        // See note 2 below.
         AnnotationConfigWebApplicationContext ctx = new AnnotationConfigWebApplicationContext();
-        //加载指定配置类
+        // See note 3 below.
         ctx.register(SpringMvcConfig.class);
         return ctx;
     }
 
-    //设置由springmvc控制器处理的请求映射路径
+    // See note 4 below.
     protected String[] getServletMappings() {
         return new String[]{"/"};
     }
 
-    //加载spring配置类
+    // See note 5 below.
     protected WebApplicationContext createRootApplicationContext() {
         return null;
     }
 }
 ```
+
+示例说明：
+
+1. 加载springmvc配置类
+2. 初始化WebApplicationContext对象
+3. 加载指定配置类
+4. 设置由springmvc控制器处理的请求映射路径
+5. 加载spring配置类
+
 
 #### 步骤7:配置 Tomcat 环境
 
@@ -250,7 +281,7 @@ public class ServletContainersInitConfig extends AbstractDispatcherServletInitia
 ```java
 @Controller
 public class UserController {
-    
+
     @RequestMapping("/save")
     public String save(){
         System.out.println("user save ...");
@@ -273,7 +304,7 @@ public class UserController {
 ```java
 @Controller
 public class UserController {
-    
+
     @RequestMapping("/save")
     @ResponseBody
     public String save(){
@@ -446,16 +477,16 @@ controller、service和dao这些类都需要被容器管理成bean对象，那�
 
   ```xml
   <?xml version="1.0" encoding="UTF-8"?>
-  
+
   <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-  
+
     <groupId>com.itheima</groupId>
     <artifactId>springmvc_02_bean_load</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
-  
+
     <dependencies>
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -473,32 +504,32 @@ controller、service和dao这些类都需要被容器管理成bean对象，那�
         <artifactId>druid</artifactId>
         <version>1.1.16</version>
       </dependency>
-  
+
       <dependency>
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis</artifactId>
         <version>3.5.6</version>
       </dependency>
-  
+
       <dependency>
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
         <version>5.1.47</version>
       </dependency>
-  
+
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-jdbc</artifactId>
         <version>5.2.10.RELEASE</version>
       </dependency>
-  
+
       <dependency>
         <groupId>org.mybatis</groupId>
         <artifactId>mybatis-spring</artifactId>
         <version>1.3.0</version>
       </dependency>
     </dependencies>
-  
+
     <build>
       <plugins>
         <plugin>
@@ -513,7 +544,7 @@ controller、service和dao这些类都需要被容器管理成bean对象，那�
       </plugins>
     </build>
   </project>
-  
+
   ```
 
 - 创建对应的配置类
@@ -532,17 +563,17 @@ controller、service和dao这些类都需要被容器管理成bean对象，那�
         return null;
       }
   }
-  
+
   @Configuration
   @ComponentScan("com.itheima.controller")
   public class SpringMvcConfig {
   }
-  
+
   @Configuration
   @ComponentScan("com.itheima")
   public class SpringConfig {
   }
-  
+
   ```
 
 - 编写Controller，Service，Dao，Domain类
@@ -550,7 +581,7 @@ controller、service和dao这些类都需要被容器管理成bean对象，那�
   ```java
   @Controller
   public class UserController {
-  
+
       @RequestMapping("/save")
       @ResponseBody
       public String save(){
@@ -558,18 +589,18 @@ controller、service和dao这些类都需要被容器管理成bean对象，那�
           return "{'info':'springmvc'}";
       }
   }
-  
+
   public interface UserService {
       public void save(User user);
   }
-  
+
   @Service
   public class UserServiceImpl implements UserService {
       public void save(User user) {
           System.out.println("user service ...");
       }
   }
-  
+
   public interface UserDao {
       @Insert("insert into tbl_user(name,age)values(#{name},#{age})")
       public void save(User user);
@@ -578,9 +609,14 @@ controller、service和dao这些类都需要被容器管理成bean对象，那�
       private Integer id;
       private String name;
       private Integer age;
-      //setter..getter..toString略
+      // See note 1 below.
   }
   ```
+
+示例说明：
+
+1. setter..getter..toString略
+
 
 最终创建好的项目结构如下:
 
@@ -607,7 +643,7 @@ public class SpringConfig {
 @Configuration
 @ComponentScan(value="com.itheima",
     excludeFilters=@ComponentScan.Filter(
-    	type = FilterType.ANNOTATION,
+        type = FilterType.ANNOTATION,
         classes = Controller.class
     )
 )
@@ -633,7 +669,7 @@ public class SpringConfig {
 
 ```java
 public class App{
-	public static void main (String[] args){
+    public static void main (String[] args){
         AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(SpringConfig.class);
         System.out.println(ctx.getBean(UserController.class));
     }
@@ -659,7 +695,7 @@ public class App{
 ```java
 public class ServletContainersInitConfig extends AbstractDispatcherServletInitializer {
     protected WebApplicationContext createServletApplicationContext() {
-      //加载SpringMVC容器
+      // See note 1 below.
         AnnotationConfigWebApplicationContext ctx = new AnnotationConfigWebApplicationContext();
         ctx.register(SpringMvcConfig.class);
         return ctx;
@@ -668,13 +704,19 @@ public class ServletContainersInitConfig extends AbstractDispatcherServletInitia
         return new String[]{"/"};
     }
     protected WebApplicationContext createRootApplicationContext() {
-      //加载Spring容器
+      // See note 2 below.
       AnnotationConfigWebApplicationContext ctx = new AnnotationConfigWebApplicationContext();
         ctx.register(SpringConfig.class);
         return ctx;
     }
 }
 ```
+
+示例说明：
+
+1. 加载SpringMVC容器
+2. 加载Spring容器
+
 
 对于上述的配置方式，Spring还提供了一种更简单的配置方式，可以不用再去创建`AnnotationConfigWebApplicationContext`对象，不用手动`register`对应的配置类，如何实现?
 
@@ -696,7 +738,6 @@ public class ServletContainersInitConfig extends AbstractAnnotationConfigDispatc
 ```
 
 
-
 ### 知识点1：@ComponentScan
 
 | 名称     | @ComponentScan                                               |
@@ -705,6 +746,8 @@ public class ServletContainersInitConfig extends AbstractAnnotationConfigDispatc
 | 位置     | 类定义上方                                                   |
 | 作用     | 设置spring配置类扫描路径，用于加载使用注解格式定义的bean     |
 | 相关属性 | excludeFilters:排除扫描路径中加载的bean,需要指定类别(type)和具体项(classes)<br/>includeFilters:加载指定的bean，需要指定类别(type)和具体项(classes) |
+
+<a id="section-3"></a>
 
 ## 3，PostMan 工具的使用
 
@@ -751,6 +794,8 @@ public class ServletContainersInitConfig extends AbstractAnnotationConfigDispatc
 
 **注意:**第一次请求需要创建一个新的目录，后面就不需要创建新目录，直接保存到已经创建好的目录即可。
 
+<a id="section-4"></a>
+
 ## 4，请求与响应
 
 前面我们已经完成了入门案例相关的知识学习，接来了我们就需要针对SpringMVC相关的知识点进行系统的学习，之前我们提到过，SpringMVC是web层的框架，主要的作用是接收请求、接收数据、响应结果，所以这一章节是学习SpringMVC的==重点==内容，我们主要会讲解四部分内容:
@@ -770,16 +815,16 @@ public class ServletContainersInitConfig extends AbstractAnnotationConfigDispatc
 
   ```xml
   <?xml version="1.0" encoding="UTF-8"?>
-  
+
   <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-  
+
     <groupId>com.itheima</groupId>
     <artifactId>springmvc_03_request_mapping</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
-  
+
     <dependencies>
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -793,7 +838,7 @@ public class ServletContainersInitConfig extends AbstractAnnotationConfigDispatc
         <version>5.2.10.RELEASE</version>
       </dependency>
     </dependencies>
-  
+
     <build>
       <plugins>
         <plugin>
@@ -808,14 +853,14 @@ public class ServletContainersInitConfig extends AbstractAnnotationConfigDispatc
       </plugins>
     </build>
   </project>
-  
+
   ```
 
 - 创建对应的配置类
 
   ```java
   public class ServletContainersInitConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
-  
+
       protected Class<?>[] getServletConfigClasses() {
           return new Class[]{SpringMvcConfig.class};
       }
@@ -826,12 +871,12 @@ public class ServletContainersInitConfig extends AbstractAnnotationConfigDispatc
           return new Class[0];
       }
   }
-  
+
   @Configuration
   @ComponentScan("com.itheima.controller")
   public class SpringMvcConfig {
   }
-  
+
   ```
 
 - 编写BookController和UserController
@@ -839,14 +884,14 @@ public class ServletContainersInitConfig extends AbstractAnnotationConfigDispatc
   ```java
   @Controller
   public class UserController {
-  
+
       @RequestMapping("/save")
       @ResponseBody
       public String save(){
           System.out.println("user save ...");
           return "{'module':'user save'}";
       }
-      
+
       @RequestMapping("/delete")
       @ResponseBody
       public String save(){
@@ -854,10 +899,10 @@ public class ServletContainersInitConfig extends AbstractAnnotationConfigDispatc
           return "{'module':'user delete'}";
       }
   }
-  
+
   @Controller
   public class BookController {
-  
+
       @RequestMapping("/save")
       @ResponseBody
       public String save(){
@@ -907,7 +952,7 @@ public class UserController {
         System.out.println("user save ...");
         return "{'module':'user save'}";
     }
-    
+
     @RequestMapping("/user/delete")
     @ResponseBody
     public String save(){
@@ -945,7 +990,7 @@ public class UserController {
         System.out.println("user save ...");
         return "{'module':'user save'}";
     }
-    
+
     @RequestMapping("/delete")
     @ResponseBody
     public String save(){
@@ -995,16 +1040,16 @@ public class BookController {
 
   ```xml
   <?xml version="1.0" encoding="UTF-8"?>
-  
+
   <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-  
+
     <groupId>com.itheima</groupId>
     <artifactId>springmvc_03_request_mapping</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
-  
+
     <dependencies>
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -1018,7 +1063,7 @@ public class BookController {
         <version>5.2.10.RELEASE</version>
       </dependency>
     </dependencies>
-  
+
     <build>
       <plugins>
         <plugin>
@@ -1033,14 +1078,14 @@ public class BookController {
       </plugins>
     </build>
   </project>
-  
+
   ```
 
 - 创建对应的配置类
 
   ```java
   public class ServletContainersInitConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
-  
+
       protected Class<?>[] getServletConfigClasses() {
           return new Class[]{SpringMvcConfig.class};
       }
@@ -1051,12 +1096,12 @@ public class BookController {
           return new Class[0];
       }
   }
-  
+
   @Configuration
   @ComponentScan("com.itheima.controller")
   public class SpringMvcConfig {
   }
-  
+
   ```
 
 - 编写UserController
@@ -1064,7 +1109,7 @@ public class BookController {
   ```java
   @Controller
   public class UserController {
-  
+
       @RequestMapping("/commonParam")
       @ResponseBody
       public String commonParam(){
@@ -1079,14 +1124,20 @@ public class BookController {
   public class Address {
       private String province;
       private String city;
-      //setter...getter...略
+      // See note 1 below.
   }
   public class User {
       private String name;
       private int age;
-      //setter...getter...略
+      // See note 2 below.
   }
   ```
+
+示例说明：
+
+1. setter...getter...略
+2. setter...getter...略
+
 
 最终创建好的项目结构如下:
 
@@ -1165,14 +1216,21 @@ public class UserController {
         <artifactId>tomcat7-maven-plugin</artifactId>
         <version>2.1</version>
         <configuration>
-          <port>80</port><!--tomcat端口号-->
-          <path>/</path> <!--虚拟目录-->
-          <uriEncoding>UTF-8</uriEncoding><!--访问路径编解码字符集-->
+          <port>80</port><!-- See note 1 below. -->
+          <path>/</path> <!-- See note 2 below. -->
+          <uriEncoding>UTF-8</uriEncoding><!-- See note 3 below. -->
         </configuration>
       </plugin>
     </plugins>
   </build>
 ```
+
+示例说明：
+
+1. tomcat端口号
+2. 虚拟目录
+3. 访问路径编解码字符集
+
 
 ##### POST发送参数
 
@@ -1224,7 +1282,7 @@ public class ServletContainersInitConfig extends AbstractAnnotationConfigDispatc
         return new String[]{"/"};
     }
 
-    //乱码处理
+    // See note 1 below.
     @Override
     protected Filter[] getServletFilters() {
         CharacterEncodingFilter filter = new CharacterEncodingFilter();
@@ -1233,6 +1291,11 @@ public class ServletContainersInitConfig extends AbstractAnnotationConfigDispatc
     }
 }
 ```
+
+示例说明：
+
+1. 乱码处理
+
 
 CharacterEncodingFilter是在spring-web包中，所以用之前需要导入对应的jar包。
 
@@ -1259,8 +1322,13 @@ CharacterEncodingFilter是在spring-web包中，所以用之前需要导入对�
 发送请求与参数:
 
 ```
-http://localhost/commonParamDifferentName?name=张三&age=18
+http:// See note 1 below.
 ```
+
+示例说明：
+
+1. localhost/commonParamDifferentName?name=张三&age=18
+
 
 后台接收参数:
 
@@ -1290,7 +1358,7 @@ public String commonParamDifferentName(String userName , int age){
     }
 ```
 
-**注意:写上@RequestParam注解框架就不需要自己去解析注入，能提升框架处理性能**
+**@RequestParam 明确参数绑定名称、是否必传和默认值。框架仍需读取、转换参数，不能据此保证性能提升。**
 
 #### 4.3.2 POJO数据类型
 
@@ -1304,9 +1372,14 @@ public String commonParamDifferentName(String userName , int age){
 public class User {
     private String name;
     private int age;
-    //setter...getter...略
+    // See note 1 below.
 }
 ```
+
+示例说明：
+
+1. setter...getter...略
+
 
 发送请求和参数:
 
@@ -1315,7 +1388,7 @@ public class User {
 后台接收参数:
 
 ```java
-//POJO参数：请求参数与形参对象中的属性对应即可完成参数传递
+// See note 1 below.
 @RequestMapping("/pojoParam")
 @ResponseBody
 public String pojoParam(User user){
@@ -1323,6 +1396,11 @@ public String pojoParam(User user){
     return "{'module':'pojo param'}";
 }
 ```
+
+示例说明：
+
+1. POJO参数：请求参数与形参对象中的属性对应即可完成参数传递
+
 
 **注意:**
 
@@ -1337,15 +1415,21 @@ public String pojoParam(User user){
 public class Address {
     private String province;
     private String city;
-    //setter...getter...略
+    // See note 1 below.
 }
 public class User {
     private String name;
     private int age;
     private Address address;
-    //setter...getter...略
+    // See note 2 below.
 }
 ```
+
+示例说明：
+
+1. setter...getter...略
+2. setter...getter...略
+
 
 * 嵌套POJO参数：请求参数名与形参对象属性名相同，按照对象层次结构关系即可接收嵌套POJO属性参数
 
@@ -1356,7 +1440,7 @@ public class User {
 后台接收参数:
 
 ```java
-//POJO参数：请求参数与形参对象中的属性对应即可完成参数传递
+// See note 1 below.
 @RequestMapping("/pojoParam")
 @ResponseBody
 public String pojoParam(User user){
@@ -1364,6 +1448,11 @@ public String pojoParam(User user){
     return "{'module':'pojo param'}";
 }
 ```
+
+示例说明：
+
+1. POJO参数：请求参数与形参对象中的属性对应即可完成参数传递
+
 
 **注意:**
 
@@ -1382,7 +1471,7 @@ public String pojoParam(User user){
 后台接收参数:
 
 ```java
-  //数组参数：同名请求参数可以直接映射到对应名称的形参数组对象中
+  // See note 1 below.
     @RequestMapping("/arrayParam")
     @ResponseBody
     public String arrayParam(String[] likes){
@@ -1390,6 +1479,11 @@ public String pojoParam(User user){
         return "{'module':'array param'}";
     }
 ```
+
+示例说明：
+
+1. 数组参数：同名请求参数可以直接映射到对应名称的形参数组对象中
+
 
 #### 4.3.5 集合类型参数
 
@@ -1402,7 +1496,7 @@ public String pojoParam(User user){
 后台接收参数:
 
 ```java
-//集合参数：同名请求参数可以使用@RequestParam注解映射到对应名称的集合对象中作为数据
+// See note 1 below.
 @RequestMapping("/listParam")
 @ResponseBody
 public String listParam(List<String> likes){
@@ -1410,6 +1504,11 @@ public String listParam(List<String> likes){
     return "{'module':'list param'}";
 }
 ```
+
+示例说明：
+
+1. 集合参数：同名请求参数可以使用@RequestParam注解映射到对应名称的集合对象中作为数据
+
 
 运行会报错，
 
@@ -1420,7 +1519,7 @@ public String listParam(List<String> likes){
 解决方案是:使用`@RequestParam`注解
 
 ```java
-//集合参数：同名请求参数可以使用@RequestParam注解映射到对应名称的集合对象中作为数据
+// See note 1 below.
 @RequestMapping("/listParam")
 @ResponseBody
 public String listParam(@RequestParam List<String> likes){
@@ -1428,6 +1527,11 @@ public String listParam(@RequestParam List<String> likes){
     return "{'module':'list param'}";
 }
 ```
+
+示例说明：
+
+1. 集合参数：同名请求参数可以使用@RequestParam注解映射到对应名称的集合对象中作为数据
+
 
 * 集合保存普通参数：请求参数名与形参集合对象名相同且请求参数为多个，@RequestParam绑定参数关系
 * 对于简单数据类型使用数组会比集合更简单些。
@@ -1478,16 +1582,21 @@ SpringMVC默认使用的是jackson来处理json的转换，所以需要在pom.xm
 ```java
 @Configuration
 @ComponentScan("com.itheima.controller")
-//开启json数据类型自动转换
+// See note 1 below.
 @EnableWebMvc
 public class SpringMvcConfig {
 }
 ```
 
+示例说明：
+
+1. 开启json数据类型自动转换
+
+
 ###### 步骤4:参数前添加@RequestBody
 
 ```java
-//使用@RequestBody注解将外部传递的json数组数据映射到形参的集合对象中作为数据
+// See note 1 below.
 @RequestMapping("/listParamForJson")
 @ResponseBody
 public String listParamForJson(@RequestBody List<String> likes){
@@ -1495,6 +1604,11 @@ public String listParamForJson(@RequestBody List<String> likes){
     return "{'module':'list common for json param'}";
 }
 ```
+
+示例说明：
+
+1. 使用@RequestBody注解将外部传递的json数组数据映射到形参的集合对象中作为数据
+
 
 ###### 步骤5:启动运行程序
 
@@ -1510,8 +1624,8 @@ JSON普通数组的数据就已经传递完成，下面针对JSON对象数据和
 
 ```json
 {
-	"name":"itcast",
-	"age":15
+    "name":"itcast",
+    "age":15
 }
 ```
 
@@ -1540,8 +1654,8 @@ address为null的原因是前端没有传递数据给后端。
 
 ```json
 {
-	"name":"itcast",
-	"age":15,
+    "name":"itcast",
+    "age":15,
     "address":{
         "province":"beijing",
         "city":"beijing"
@@ -1641,7 +1755,7 @@ SpringMVC接收JSON数据的实现步骤为:
 ```java
 @RequestMapping("/dataParam")
 @ResponseBody
-public String dataParam(Date date)
+public String dataParam(Date date) {
     System.out.println("参数传递 date ==> "+date);
     return "{'module':'data param'}";
 }
@@ -1674,7 +1788,7 @@ public String dataParam(Date date)
 ```java
 @RequestMapping("/dataParam")
 @ResponseBody
-public String dataParam(Date date,Date date1)
+public String dataParam(Date date,Date date1) {
     System.out.println("参数传递 date ==> "+date);
     return "{'module':'data param'}";
 }
@@ -1698,9 +1812,9 @@ Resolved [org.springframework.web.method.annotation.==MethodArgumentTypeMismatch
 @RequestMapping("/dataParam")
 @ResponseBody
 public String dataParam(Date date,
-                        @DateTimeFormat(pattern="yyyy-MM-dd") Date date1)
+                        @DateTimeFormat(pattern="yyyy-MM-dd") Date date1) {
     System.out.println("参数传递 date ==> "+date);
-	System.out.println("参数传递 date1(yyyy-MM-dd) ==> "+date1);
+    System.out.println("参数传递 date1(yyyy-MM-dd) ==> "+date1);
     return "{'module':'data param'}";
 }
 ```
@@ -1720,10 +1834,10 @@ public String dataParam(Date date,
 @ResponseBody
 public String dataParam(Date date,
                         @DateTimeFormat(pattern="yyyy-MM-dd") Date date1,
-                        @DateTimeFormat(pattern="yyyy/MM/dd HH:mm:ss") Date date2)
+                        @DateTimeFormat(pattern="yyyy/MM/dd HH:mm:ss") Date date2) {
     System.out.println("参数传递 date ==> "+date);
-	System.out.println("参数传递 date1(yyyy-MM-dd) ==> "+date1);
-	System.out.println("参数传递 date2(yyyy/MM/dd HH:mm:ss) ==> "+date2);
+    System.out.println("参数传递 date1(yyyy-MM-dd) ==> "+date1);
+    System.out.println("参数传递 date2(yyyy/MM/dd HH:mm:ss) ==> "+date2);
     return "{'module':'data param'}";
 }
 ```
@@ -1737,7 +1851,6 @@ public String dataParam(Date date,
 重新启动服务器，重新发送请求测试，SpringMVC就可以将日期时间的数据进行转换
 
 ![1630495507353](Resources/1630495507353.png)
-
 
 
 #### 知识点1：@DateTimeFormat
@@ -1778,10 +1891,15 @@ public String dataParam(Date date,
 */
 public interface Converter<S, T> {
     @Nullable
-    //该方法就是将从页面上接收的数据(S)转换成我们想要的数据类型(T)返回
+    // See note 1 below.
     T convert(S source);
 }
 ```
+
+示例说明：
+
+1. 该方法就是将从页面上接收的数据(S)转换成我们想要的数据类型(T)返回
+
 
 **注意:Converter所属的包为`org.springframework.core.convert.converter`**
 
@@ -1799,7 +1917,7 @@ Converter接口的实现类
 
 该接口是实现对象与JSON之间的转换工作
 
-**==注意:SpringMVC的配置类把@EnableWebMvc当做标配配置上去，不要省略==**
+**本节手工配置 Spring MVC 时使用 @EnableWebMvc。Spring Boot 中一般由自动配置提供 MVC 支持；直接添加它会接管 MVC 配置，不能不加区分地复制。**
 
 ### 4.6 响应
 
@@ -1824,16 +1942,16 @@ SpringMVC接收到请求和数据后，进行一些了的处理，当然这个�
 
   ```xml
   <?xml version="1.0" encoding="UTF-8"?>
-  
+
   <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-  
+
     <groupId>com.itheima</groupId>
     <artifactId>springmvc_05_response</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
-  
+
     <dependencies>
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -1852,7 +1970,7 @@ SpringMVC接收到请求和数据后，进行一些了的处理，当然这个�
         <version>2.9.0</version>
       </dependency>
     </dependencies>
-  
+
     <build>
       <plugins>
         <plugin>
@@ -1867,7 +1985,7 @@ SpringMVC接收到请求和数据后，进行一些了的处理，当然这个�
       </plugins>
     </build>
   </project>
-  
+
   ```
 
 - 创建对应的配置类
@@ -1877,16 +1995,16 @@ SpringMVC接收到请求和数据后，进行一些了的处理，当然这个�
       protected Class<?>[] getRootConfigClasses() {
           return new Class[0];
       }
-  
+
       protected Class<?>[] getServletConfigClasses() {
           return new Class[]{SpringMvcConfig.class};
       }
-  
+
       protected String[] getServletMappings() {
           return new String[]{"/"};
       }
-  
-      //乱码处理
+
+      // See note 1 below.
       @Override
       protected Filter[] getServletFilters() {
           CharacterEncodingFilter filter = new CharacterEncodingFilter();
@@ -1894,16 +2012,22 @@ SpringMVC接收到请求和数据后，进行一些了的处理，当然这个�
           return new Filter[]{filter};
       }
   }
-  
+
   @Configuration
   @ComponentScan("com.itheima.controller")
-  //开启json数据类型自动转换
+  // See note 2 below.
   @EnableWebMvc
   public class SpringMvcConfig {
   }
-  
-  
+
+
   ```
+
+示例说明：
+
+1. 乱码处理
+2. 开启json数据类型自动转换
+
 
 - 编写模型类User
 
@@ -1911,9 +2035,14 @@ SpringMVC接收到请求和数据后，进行一些了的处理，当然这个�
   public class User {
       private String name;
       private int age;
-      //getter...setter...toString省略
+      // See note 1 below.
   }
   ```
+
+示例说明：
+
+1. getter...setter...toString省略
+
 
 - webapp下创建page.jsp
 
@@ -1930,8 +2059,8 @@ SpringMVC接收到请求和数据后，进行一些了的处理，当然这个�
   ```java
   @Controller
   public class UserController {
-  
-      
+
+
   }
   ```
 
@@ -1946,18 +2075,25 @@ SpringMVC接收到请求和数据后，进行一些了的处理，当然这个�
 ```java
 @Controller
 public class UserController {
-    
+
     @RequestMapping("/toJumpPage")
-    //注意
-    //1.此处不能添加@ResponseBody,如果加了该注入，会直接将page.jsp当字符串返回前端
-    //2.方法需要返回String
+    // See note 1 below.
+    // See note 2 below.
+    // See note 3 below.
     public String toJumpPage(){
         System.out.println("跳转页面");
         return "page.jsp";
     }
-    
+
 }
 ```
+
+示例说明：
+
+1. 注意
+2. 1.此处不能添加@ResponseBody,如果加了该注入，会直接将page.jsp当字符串返回前端
+3. 2.方法需要返回String
+
 
 ##### 步骤2:启动程序测试
 
@@ -1974,17 +2110,22 @@ public class UserController {
 ```java
 @Controller
 public class UserController {
-    
-   	@RequestMapping("/toText")
-	//注意此处该注解就不能省略，如果省略了,会把response text当前页面名称去查找，如果没有回报404错误
+
+       @RequestMapping("/toText")
+    // See note 1 below.
     @ResponseBody
     public String toText(){
         System.out.println("返回纯文本数据");
         return "response text";
     }
-    
+
 }
 ```
+
+示例说明：
+
+1. 注意此处该注解就不能省略，如果省略了,会把response text当前页面名称去查找，如果没有回报404错误
+
 
 ##### 步骤2:启动程序测试
 
@@ -1999,7 +2140,7 @@ public class UserController {
 ```java
 @Controller
 public class UserController {
-    
+
     @RequestMapping("/toJsonPOJO")
     @ResponseBody
     public User toJsonPOJO(){
@@ -2009,7 +2150,7 @@ public class UserController {
         user.setAge(15);
         return user;
     }
-    
+
 }
 ```
 
@@ -2024,7 +2165,7 @@ public class UserController {
 ```java
 @Controller
 public class UserController {
-    
+
     @RequestMapping("/toJsonList")
     @ResponseBody
     public List<User> toJsonList(){
@@ -2043,7 +2184,7 @@ public class UserController {
 
         return userList;
     }
-    
+
 }
 
 ```
@@ -2059,7 +2200,7 @@ public class UserController {
 | 类型     | ==方法\类注解==                                              |
 | 位置     | SpringMVC控制器方法定义上方和控制类上                        |
 | 作用     | 设置当前控制器返回值作为响应体,<br/>写在类上，该类的所有方法都有该注解功能 |
-| 相关属性 | pattern：指定日期时间格式字符串                              |
+| 相关属性 | 无；返回格式由 HttpMessageConverter 和响应 Content-Type 决定 |
 
 **说明:**
 
@@ -2069,10 +2210,12 @@ public class UserController {
   * 方法的返回值为字符串，会将其作为文本内容直接响应给前端
   * 方法的返回值为对象，会将对象转换成JSON响应给前端
 
-此处又使用到了类型转换，内部还是通过Converter接口的实现类完成的，所以Converter除了前面所说的功能外，它还可以实现:
+此处又使用到了类型转换，内部通过 HttpMessageConverter 的实现类完成，例如 Jackson JSON 转换器，所以Converter除了前面所说的功能外，它还可以实现:
 
 * 对象转Json数据(POJO -> json)
 * 集合转Json数据(Collection -> json)
+
+<a id="section-5"></a>
 
 ## 5，Rest风格
 
@@ -2093,7 +2236,7 @@ public class UserController {
     * `http://localhost/user/getById?id=1` 查询id为1的用户信息
     * `http://localhost/user/saveUser` 保存用户信息
   * REST风格描述形式
-    * `http://localhost/user/1` 
+    * `http://localhost/user/1`
     * `http://localhost/user`
 
 传统方式一般是一个请求url对应一种操作，这样做不仅麻烦，也不安全，因为会程序的人读取了你的请求url地址，就大概知道该url实现的是一个什么样的操作。
@@ -2147,16 +2290,16 @@ public class UserController {
 
   ```xml
   <?xml version="1.0" encoding="UTF-8"?>
-  
+
   <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-  
+
     <groupId>com.itheima</groupId>
     <artifactId>springmvc_06_rest</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
-  
+
     <dependencies>
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -2175,7 +2318,7 @@ public class UserController {
         <version>2.9.0</version>
       </dependency>
     </dependencies>
-  
+
     <build>
       <plugins>
         <plugin>
@@ -2190,7 +2333,7 @@ public class UserController {
       </plugins>
     </build>
   </project>
-  
+
   ```
 
 - 创建对应的配置类
@@ -2200,16 +2343,16 @@ public class UserController {
       protected Class<?>[] getRootConfigClasses() {
           return new Class[0];
       }
-  
+
       protected Class<?>[] getServletConfigClasses() {
           return new Class[]{SpringMvcConfig.class};
       }
-  
+
       protected String[] getServletMappings() {
           return new String[]{"/"};
       }
-  
-      //乱码处理
+
+      // See note 1 below.
       @Override
       protected Filter[] getServletFilters() {
           CharacterEncodingFilter filter = new CharacterEncodingFilter();
@@ -2217,16 +2360,22 @@ public class UserController {
           return new Filter[]{filter};
       }
   }
-  
+
   @Configuration
   @ComponentScan("com.itheima.controller")
-  //开启json数据类型自动转换
+  // See note 2 below.
   @EnableWebMvc
   public class SpringMvcConfig {
   }
-  
-  
+
+
   ```
+
+示例说明：
+
+1. 乱码处理
+2. 开启json数据类型自动转换
+
 
 - 编写模型类User和Book
 
@@ -2234,49 +2383,55 @@ public class UserController {
   public class User {
       private String name;
       private int age;
-      //getter...setter...toString省略
+      // See note 1 below.
   }
-  
+
   public class Book {
       private String name;
       private double price;
-       //getter...setter...toString省略
+       // See note 2 below.
   }
   ```
+
+示例说明：
+
+1. getter...setter...toString省略
+2. getter...setter...toString省略
+
 
 - 编写UserController和BookController
 
   ```java
   @Controller
   public class UserController {
-  	@RequestMapping("/save")
+      @RequestMapping("/save")
       @ResponseBody
       public String save(@RequestBody User user) {
           System.out.println("user save..."+user);
           return "{'module':'user save'}";
       }
-  
+
       @RequestMapping("/delete")
       @ResponseBody
       public String delete(Integer id) {
           System.out.println("user delete..." + id);
           return "{'module':'user delete'}";
       }
-  
+
       @RequestMapping("/update")
       @ResponseBody
       public String update(@RequestBody User user) {
           System.out.println("user update..." + user);
           return "{'module':'user update'}";
       }
-  
+
       @RequestMapping("/getById")
       @ResponseBody
       public String getById(Integer id) {
           System.out.println("user getById..." + id);
           return "{'module':'user getById'}";
       }
-  
+
       @RequestMapping("/findAll")
       @ResponseBody
       public String getAll() {
@@ -2284,46 +2439,46 @@ public class UserController {
           return "{'module':'user getAll'}";
       }
   }
-  
-  
+
+
   @Controller
   public class BookController {
-      
-  	@RequestMapping(value = "/books",method = RequestMethod.POST)
+
+      @RequestMapping(value = "/books",method = RequestMethod.POST)
       @ResponseBody
       public String save(@RequestBody Book book){
           System.out.println("book save..." + book);
           return "{'module':'book save'}";
       }
-  
+
       @RequestMapping(value = "/books/{id}",method = RequestMethod.DELETE)
       @ResponseBody
       public String delete(@PathVariable Integer id){
           System.out.println("book delete..." + id);
           return "{'module':'book delete'}";
       }
-  
+
       @RequestMapping(value = "/books",method = RequestMethod.PUT)
       @ResponseBody
       public String update(@RequestBody Book book){
           System.out.println("book update..." + book);
           return "{'module':'book update'}";
       }
-  
+
       @RequestMapping(value = "/books/{id}",method = RequestMethod.GET)
       @ResponseBody
       public String getById(@PathVariable Integer id){
           System.out.println("book getById..." + id);
           return "{'module':'book getById'}";
       }
-  
+
       @RequestMapping(value = "/books",method = RequestMethod.GET)
       @ResponseBody
       public String getAll(){
           System.out.println("book getAll...");
           return "{'module':'book getAll'}";
       }
-      
+
   }
   ```
 
@@ -2352,7 +2507,7 @@ public class UserController {
 ```java
 @Controller
 public class UserController {
-	//设置当前请求方法为POST，表示REST风格中的添加操作
+    // See note 1 below.
     @RequestMapping(value = "/users",method = RequestMethod.POST)
     @ResponseBody
     public String save() {
@@ -2361,6 +2516,11 @@ public class UserController {
     }
 }
 ```
+
+示例说明：
+
+1. 设置当前请求方法为POST，表示REST风格中的添加操作
+
 
 * 将请求路径更改为`/users`
 
@@ -2377,8 +2537,8 @@ public class UserController {
 ```java
 @Controller
 public class UserController {
-    //设置当前请求方法为DELETE，表示REST风格中的删除操作
-	@RequestMapping(value = "/users",method = RequestMethod.DELETE)
+    // See note 1 below.
+    @RequestMapping(value = "/users",method = RequestMethod.DELETE)
     @ResponseBody
     public String delete(Integer id) {
         System.out.println("user delete..." + id);
@@ -2386,6 +2546,11 @@ public class UserController {
     }
 }
 ```
+
+示例说明：
+
+1. 设置当前请求方法为DELETE，表示REST风格中的删除操作
+
 
 * 将请求路径更改为`/users`
   - 访问该方法使用 DELETE: `http://localhost/users`
@@ -2404,8 +2569,8 @@ public class UserController {
 ```java
 @Controller
 public class UserController {
-    //设置当前请求方法为DELETE，表示REST风格中的删除操作
-	@RequestMapping(value = "/users/{id}",method = RequestMethod.DELETE)
+    // See note 1 below.
+    @RequestMapping(value = "/users/{id}",method = RequestMethod.DELETE)
     @ResponseBody
     public String delete(@PathVariable Integer id) {
         System.out.println("user delete..." + id);
@@ -2413,6 +2578,11 @@ public class UserController {
     }
 }
 ```
+
+示例说明：
+
+1. 设置当前请求方法为DELETE，表示REST风格中的删除操作
+
 
 **思考如下两个问题:**
 
@@ -2429,8 +2599,8 @@ public class UserController {
 ```java
 @Controller
 public class UserController {
-    //设置当前请求方法为DELETE，表示REST风格中的删除操作
-	@RequestMapping(value = "/users/{id}/{name}",method = RequestMethod.DELETE)
+    // See note 1 below.
+    @RequestMapping(value = "/users/{id}/{name}",method = RequestMethod.DELETE)
     @ResponseBody
     public String delete(@PathVariable Integer id,@PathVariable String name) {
         System.out.println("user delete..." + id+","+name);
@@ -2439,12 +2609,17 @@ public class UserController {
 }
 ```
 
+示例说明：
+
+1. 设置当前请求方法为DELETE，表示REST风格中的删除操作
+
+
 ##### 修改
 
 ```java
 @Controller
 public class UserController {
-    //设置当前请求方法为PUT，表示REST风格中的修改操作
+    // See note 1 below.
     @RequestMapping(value = "/users",method = RequestMethod.PUT)
     @ResponseBody
     public String update(@RequestBody User user) {
@@ -2453,6 +2628,11 @@ public class UserController {
     }
 }
 ```
+
+示例说明：
+
+1. 设置当前请求方法为PUT，表示REST风格中的修改操作
+
 
 - 将请求路径更改为`/users`
 
@@ -2467,7 +2647,7 @@ public class UserController {
 ```java
 @Controller
 public class UserController {
-    //设置当前请求方法为GET，表示REST风格中的查询操作
+    // See note 1 below.
     @RequestMapping(value = "/users/{id}" ,method = RequestMethod.GET)
     @ResponseBody
     public String getById(@PathVariable Integer id){
@@ -2476,6 +2656,11 @@ public class UserController {
     }
 }
 ```
+
+示例说明：
+
+1. 设置当前请求方法为GET，表示REST风格中的查询操作
+
 
 将请求路径更改为`/users`
 
@@ -2486,7 +2671,7 @@ public class UserController {
 ```java
 @Controller
 public class UserController {
-    //设置当前请求方法为GET，表示REST风格中的查询操作
+    // See note 1 below.
     @RequestMapping(value = "/users" ,method = RequestMethod.GET)
     @ResponseBody
     public String getAll() {
@@ -2495,6 +2680,11 @@ public class UserController {
     }
 }
 ```
+
+示例说明：
+
+1. 设置当前请求方法为GET，表示REST风格中的查询操作
+
 
 将请求路径更改为`/users`
 
@@ -2555,8 +2745,8 @@ public String delete(==@PathVariable== Integer ==id==){
 @RestController //@Controller + ReponseBody
 @RequestMapping("/books")
 public class BookController {
-    
-	//@RequestMapping(method = RequestMethod.POST)
+
+    //@RequestMapping(method = RequestMethod.POST)
     @PostMapping
     public String save(@RequestBody Book book){
         System.out.println("book save..." + book);
@@ -2590,7 +2780,7 @@ public class BookController {
         System.out.println("book getAll...");
         return "{'module':'book getAll'}";
     }
-    
+
 }
 ```
 
@@ -2672,16 +2862,16 @@ public class BookController {
 
   ```xml
   <?xml version="1.0" encoding="UTF-8"?>
-  
+
   <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-  
+
     <groupId>com.itheima</groupId>
     <artifactId>springmvc_07_rest_case</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
-  
+
     <dependencies>
       <dependency>
         <groupId>javax.servlet</groupId>
@@ -2700,7 +2890,7 @@ public class BookController {
         <version>2.9.0</version>
       </dependency>
     </dependencies>
-  
+
     <build>
       <plugins>
         <plugin>
@@ -2715,7 +2905,7 @@ public class BookController {
       </plugins>
     </build>
   </project>
-  
+
   ```
 
 - 创建对应的配置类
@@ -2725,16 +2915,16 @@ public class BookController {
       protected Class<?>[] getRootConfigClasses() {
           return new Class[0];
       }
-  
+
       protected Class<?>[] getServletConfigClasses() {
           return new Class[]{SpringMvcConfig.class};
       }
-  
+
       protected String[] getServletMappings() {
           return new String[]{"/"};
       }
-  
-      //乱码处理
+
+      // See note 1 below.
       @Override
       protected Filter[] getServletFilters() {
           CharacterEncodingFilter filter = new CharacterEncodingFilter();
@@ -2742,16 +2932,22 @@ public class BookController {
           return new Filter[]{filter};
       }
   }
-  
+
   @Configuration
   @ComponentScan("com.itheima.controller")
-  //开启json数据类型自动转换
+  // See note 2 below.
   @EnableWebMvc
   public class SpringMvcConfig {
   }
-  
-  
+
+
   ```
+
+示例说明：
+
+1. 乱码处理
+2. 开启json数据类型自动转换
+
 
 - 编写模型类Book
 
@@ -2761,17 +2957,22 @@ public class BookController {
       private String type;
       private String name;
       private String description;
-      //setter...getter...toString略
+      // See note 1 below.
   }
   ```
+
+示例说明：
+
+1. setter...getter...toString略
+
 
 - 编写BookController
 
   ```java
   @Controller
   public class BookController {
-  
-      
+
+
   }
   ```
 
@@ -2794,7 +2995,7 @@ public class BookController {
         return "{'module':'book save success'}";
     }
 
- 	@GetMapping
+     @GetMapping
     public List<Book> getAll(){
         System.out.println("book getAll is running ...");
         List<Book> bookList = new ArrayList<Book>();
@@ -2872,10 +3073,10 @@ SpringMVC拦截了静态资源，根据/pages/books.html去controller找对应�
 ```java
 @Configuration
 public class SpringMvcSupport extends WebMvcConfigurationSupport {
-    //设置静态资源访问过滤，当前类需要设置为配置类，并被扫描加载
+    // See note 1 below.
     @Override
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
-        //当访问/pages/????时候，从/pages目录下查找内容
+        // See note 2 below.
         registry.addResourceHandler("/pages/**").addResourceLocations("/pages/");
         registry.addResourceHandler("/js/**").addResourceLocations("/js/");
         registry.addResourceHandler("/css/**").addResourceLocations("/css/");
@@ -2884,6 +3085,12 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport {
 }
 
 ```
+
+示例说明：
+
+1. 设置静态资源访问过滤，当前类需要设置为配置类，并被扫描加载
+2. 当访问/pages/????时候，从/pages目录下查找内容
+
 
 * 该配置类是在config目录下，SpringMVC扫描的是controller包，所以该配置类还未生效，要想生效需要将SpringMvcConfig配置类进行修改
 
@@ -2894,7 +3101,11 @@ public class SpringMvcSupport extends WebMvcConfigurationSupport {
 public class SpringMvcConfig {
 }
 
-或者
+```
+
+或者，二选一，不要重复定义同名类：
+
+```java
 
 @Configuration
 @ComponentScan("com.itheima")
@@ -2910,10 +3121,10 @@ public class SpringMvcConfig {
 
 <html>
     <head>
-        <!-- 页面meta -->
+        <!-- See note 1 below. -->
         <meta charset="utf-8">
         <title>SpringMVC案例</title>
-        <!-- 引入样式 -->
+        <!-- See note 2 below. -->
         <link rel="stylesheet" href="../plugins/elementui/index.css">
         <link rel="stylesheet" href="../plugins/font-awesome/css/font-awesome.min.css">
         <link rel="stylesheet" href="../css/style.css">
@@ -2959,7 +3170,7 @@ public class SpringMvcConfig {
                         </el-pagination>
                     </div>
 
-                    <!-- 新增标签弹层 -->
+                    <!-- See note 3 below. -->
                     <div class="add-form">
                         <el-dialog title="新增图书" :visible.sync="dialogFormVisible">
                             <el-form ref="dataAddForm" :model="formData" :rules="rules" label-position="right" label-width="100px">
@@ -2995,7 +3206,7 @@ public class SpringMvcConfig {
         </div>
     </body>
 
-    <!-- 引入组件库 -->
+    <!-- See note 4 below. -->
     <script src="../js/vue.js"></script>
     <script src="../plugins/elementui/index.js"></script>
     <script type="text/javascript" src="../js/jquery.min.js"></script>
@@ -3007,39 +3218,39 @@ public class SpringMvcConfig {
             el: '#app',
 
             data:{
-				dataList: [],//当前页要展示的分页列表数据
-                formData: {},//表单数据
-                dialogFormVisible: false,//增加表单是否可见
-                dialogFormVisible4Edit:false,//编辑表单是否可见
-                pagination: {},//分页模型数据，暂时弃用
+                dataList: [],// See note 5 below.
+                formData: {},// See note 6 below.
+                dialogFormVisible: false,// See note 7 below.
+                dialogFormVisible4Edit:false,// See note 8 below.
+                pagination: {},// See note 9 below.
             },
 
-            //钩子函数，VUE对象初始化完成后自动执行
+            // See note 10 below.
             created() {
                 this.getAll();
             },
 
             methods: {
-                // 重置表单
+                // See note 11 below.
                 resetForm() {
-                    //清空输入框
+                    // See note 12 below.
                     this.formData = {};
                 },
 
-                // 弹出添加窗口
+                // See note 13 below.
                 openSave() {
                     this.dialogFormVisible = true;
                     this.resetForm();
                 },
 
-                //添加
+                // See note 14 below.
                 saveBook () {
                     axios.post("/books",this.formData).then((res)=>{
 
                     });
                 },
 
-                //主页列表查询
+                // See note 15 below.
                 getAll() {
                     axios.get("/books").then((res)=>{
                         this.dataList = res.data;
@@ -3052,3 +3263,20 @@ public class SpringMvcConfig {
 </html>
 ```
 
+示例说明：
+
+1. 页面meta
+2. 引入样式
+3. 新增标签弹层
+4. 引入组件库
+5. 当前页要展示的分页列表数据
+6. 表单数据
+7. 增加表单是否可见
+8. 编辑表单是否可见
+9. 分页模型数据，暂时弃用
+10. 钩子函数，VUE对象初始化完成后自动执行
+11. 重置表单
+12. 清空输入框
+13. 弹出添加窗口
+14. 添加
+15. 主页列表查询

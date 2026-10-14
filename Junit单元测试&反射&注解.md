@@ -1,136 +1,135 @@
-# Junit 单元测试
+# JUnit、反射与注解入门
 
-### 测试分类：
+学习写可重复的测试，并理解反射和注解各自的作用。
 
-- 黑盒测试∶不需要写代码，给输入值，看程序是否能够输出期望的值
-- 白盒测试︰需要写代码的。关注程序具体的执行流程（Junit 单元测试属于白盒测试）
+**学习前提与版本：** 需要 Java 类与方法基础。完整测试示例采用 JUnit 4.13.2；JUnit Jupiter 的注解放在对照部分，不能混用导入包。
 
+**示例使用：** 除明确列出全部文件和运行步骤的项目外，代码块是各小节的独立片段。省略号、占位名称需要补齐；标明错误的行用于说明问题。同节替代写法不要合并。
 
+[学习索引与常见词](README.md) · [官方参考](https://junit.org/junit4/)
 
-### Junit 单元测试(白盒测试)
+**内容导航**
 
-Junit 使用步骡∶
-
-1. 定义一个测试类(测试用例)
-
-   建议︰
-
-   - 测试类名︰被测试的类名Test 如calculatorTest
-   - 包名∶xxx.xxx.xx.test 如cn.itcast.test
-
-2. 定义测试方法:可以独立运行
-
-   建议:
-
-   - 方法名: test测试的方法名 如testAdd()
-   - 返回值: void
-   - 参数列表:空参
-
-3. 给方法加@Test注解
-
-4. 导入 junit 依赖环境
-
-5. 判定结果∶
-
-   - 红色∶失败
-   - 绿色: 成功
-   - —般会使用断言操作来处理结果 Assert.assertEquals (期望的结果,运算的结果)
+- [测试：先写预期，再比较结果](#section-1)
+- [JUnit 4 示例](#section-2)
+- [JUnit Jupiter 对照](#section-3)
+- [反射：运行时查看和调用类](#section-4)
+- [注解：给工具提供信息](#section-5)
 
 
+<a id="section-1"></a>
+
+## 测试：先写预期，再比较结果
+
+单元测试验证一个较小的代码单元。断言比较实际结果和预期结果；不相等时测试失败。只打印结果不等于完成验证。
+
+黑盒测试根据对外行为设计用例，白盒测试根据内部结构设计用例。两者都可以自动化，JUnit 不限定测试必须属于哪一类。
+
+<a id="section-2"></a>
+
+## JUnit 4 示例
+
+用于维护 JUnit 4 项目。JUnit Jupiter 的包名不同，不能混用 org.junit.Test 与 org.junit.jupiter.api.Test。
+
+文件：src/main/java/example/Calculator.java。
 
 ```java
-package cn.itcast.test;
-import cn.itcast.junit.Calculator;
+package example;
+
+public class Calculator {
+    public int add(int left, int right) { return left + right; }
+    public int subtract(int left, int right) { return left - right; }
+}
+```
+
+文件：src/test/java/example/CalculatorTest.java。
+
+```java
+package example;
+
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
 public class CalculatorTest {
-    /**
-     * 初始化方法：
-     *  用于资源申请，所有测试方法在执行之前都会先执行该方法
-     */
+    private Calculator calculator;
+
     @Before
-    public void init(){
-        System.out.println("init...");
-    }
+    public void setUp() { calculator = new Calculator(); }
 
-    /**
-     * 释放资源方法：
-     *  在所有测试方法执行完后，都会自动执行该方法
-     */
     @After
-    public void close(){
-        System.out.println("close...");
-    }
-
-
-    /**
-     * 测试add方法
-     */
-    @Test
-    public void testAdd(){
-       // System.out.println("我被执行了");
-        //1.创建计算器对象
-        System.out.println("testAdd...");
-        Calculator c  = new Calculator();
-        //2.调用add方法
-        int result = c.add(1, 2);
-        //一般不用输出来看效果，而是使用断言来让结果和预期相比较
-        //System.out.println(result);
-
-        //3.断言  我断言这个结果是3
-        Assert.assertEquals(3,result);
-
-    }
+    public void tearDown() { calculator = null; }
 
     @Test
-    public void testSub(){
-        //1.创建计算器对象
-        Calculator c  = new Calculator();
-        int result = c.sub(1, 2);
-        System.out.println("testSub....");
-        Assert.assertEquals(-1,result);
+    public void addsTwoNumbers() { assertEquals(3, calculator.add(1, 2)); }
+
+    @Test
+    public void subtractsTwoNumbers() {
+        assertEquals(-1, calculator.subtract(1, 2));
     }
 }
 ```
 
+@Before 在每个测试方法前执行，@After 在每个测试方法后执行。整个测试类只执行一次的准备和清理使用 @BeforeClass、@AfterClass，对应方法必须为 public static void。
 
+把以下依赖放进 POM 的 dependencies 中，运行 mvn test。
 
-# 反射
+```xml
+<dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>4.13.2</version>
+    <scope>test</scope>
+</dependency>
+```
 
-反射:框架设计的灵魂
+失败时先看失败用例及期望值、实际值。不要依赖测试方法的执行顺序。
 
-- 框架:半成品软件。可以在框架的基础上进行软件开发，简化编码
-- 反射:将类的各个组成部分封装为其他对象，这就是反射机制
-- 反射机制好处∶
-  - 1．可以在程序运行过程中，操作这些对象
-  - 2．可以解耦，提高程序的可扩展性
+<a id="section-3"></a>
 
+## JUnit Jupiter 对照
 
+| JUnit 4 | JUnit Jupiter | 时机 |
+| --- | --- | --- |
+| @Test | @Test | 声明测试方法，包名不同 |
+| @Before / @After | @BeforeEach / @AfterEach | 每个测试前后 |
+| @BeforeClass / @AfterClass | @BeforeAll / @AfterAll | 整个测试类前后 |
+| Assert.assertEquals | Assertions.assertEquals | 比较预期与实际值 |
 
-获取class对象的方式
-1.class.forName(“全类名”):将字节码文件加载进内存，返回class对象
-多用于配置文件，将类名定义在配置文件中。读取文件，加载类
-2．类名.class :通过类名的属性class获取
-多用于参数的传递
-3．对象.getClass() : getClass()方法是在Object类中定义
-多用于对象的获取字节码的方式
+Spring Boot 项目使用其管理的 spring-boot-starter-test 和测试框架版本。普通 Maven 项目还需配置能运行 Jupiter 的 Surefire 插件，不能只更换注解。
 
+<a id="section-4"></a>
 
+## 反射：运行时查看和调用类
 
+反射可以在运行时查看构造器、字段和方法。框架常用它创建对象或填充属性。
 
+```java
+Class<?> byName = Class.forName("example.Calculator");
+Class<Calculator> byType = Calculator.class;
+Calculator calculator = new Calculator();
+Class<?> byObject = calculator.getClass();
 
-# 注解
+Object instance = byName.getDeclaredConstructor().newInstance();
+Object result = byName.getMethod("add", int.class, int.class)
+                        .invoke(instance, 1, 2);
+```
 
-注解概念︰说明程序的。给计算机看的
-回顾注释:用文字描述程序的。给程序员看的
-定义: 注解(Annotation)，也叫元数据。一种代码级别的说明。它是JDK1.5及以后版本引又的一个特性，与类、接口、枚举是在同一个层次。它可以声明在包、类、字段、方法、局部变量、方法参数等的前面，用来对这些元素进行说明，注释；
-注解概念描述∶
-JDK1.5之后的新特性
-说明程序的
-使用注解∶@注解名称
-作用分类︰
-编写文档:通过代码里标识的注解生成文档【生成文档doc文档】
-代码分析∶通过代码里标识的注解对代码进行分析【使用反射】
-编译检查:通过代码里标识的注解让编译器能够实现基本的编译检查【Override】
+片段放在方法内部，并处理或声明反射相关异常。Class.forName 的名字包含包名；getClass() 返回对象的实际运行时类型。运行这个片段还需要前面的 Calculator 类。
+
+访问成员受访问权限和模块边界约束。不要把外部输入的任意类名或方法名直接用于反射调用。
+
+<a id="section-5"></a>
+
+## 注解：给工具提供信息
+
+注解是元数据，本身不会执行业务逻辑，需要编译器、工具或框架读取并处理。
+
+- @Override：编译器检查方法是否覆盖父类或接口的方法。
+- @Test：测试框架识别测试方法。
+- @Controller：Spring 识别控制器。
+
+自定义注解的 @Target 限定使用位置，@Retention 决定保留到哪个阶段。运行时反射读取的注解需要 RetentionPolicy.RUNTIME。
+
+参考：[JUnit 4 API](https://junit.org/junit4/javadoc/latest/)、[JUnit 文档](https://docs.junit.org/)、[反射教程](https://docs.oracle.com/javase/tutorial/reflect/)。

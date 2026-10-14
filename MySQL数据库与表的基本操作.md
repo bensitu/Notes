@@ -1,5 +1,31 @@
 # MySQL 数据库
 
+学习建库、建表、字段类型和增删改，开发时核对语法及事务影响。
+
+**学习前提与版本：** 面向 MySQL 8.x，使用 InnoDB 练习事务；历史 5.7 示例另作说明。先创建自己的练习库，employees 等查询示例需要对应数据集。
+
+**示例使用：** 除明确列出全部文件和运行步骤的项目外，代码块是各小节的独立片段。省略号、占位名称需要补齐；标明错误的行用于说明问题。同节替代写法不要合并。
+
+[学习索引与常见词](README.md) · [官方参考](https://dev.mysql.com/doc/refman/8.4/en/)
+
+**内容导航**
+
+- [注释](#section-1)
+- [命名规则](#section-2)
+- [数据导入指令](#section-3)
+- [数据库的基本操作](#section-4)
+- [基础知识](#section-5)
+- [创建和管理数据库](#section-6)
+- [表的基本操作](#section-7)
+- [创建和管理表](#section-8)
+- [表数据的基本操作](#section-9)
+- [生成列（MySQL 5.7 起支持）](#section-10)
+- [表的拓展](#section-11)
+- [其他命令](#section-12)
+
+
+<a id="section-1"></a>
+
 ## 注释
 
 单行注释：#注释文字 (MySQL特有的方式)
@@ -7,12 +33,13 @@
 多行注释：/* 注释文字 */
 
 
+<a id="section-2"></a>
 
 ## 命名规则
 
-- 数据库、表名不得超过30个字符，变量名限制为29个
+- 数据库名、表名和列名通常最多为 64 个字符。不同对象有不同限制，不要把其他数据库的规则套到 MySQL。
 
-- 必须只能包含 A–Z, a–z, 0–9, _共63个字符
+- 为了便于跨平台协作，建议使用小写字母、数字和下划线。这是命名约定，不是 MySQL 允许字符的完整列表。
 
 - 数据库名、表名、字段名等对象名中间不要包含空格
 
@@ -24,29 +51,40 @@
 
 - 表名、字段名必须使用小写字母或数字，不要使用驼峰式命名，禁止出现数字开头，禁止两个下划线中间只出现数字。
 
-  > 说明：MySQL 在 Windows 下不区分大小写，但在 Linux 下默认是区分大小写。因此，数据库名、表名、字段名，都不允许出现任何大写字母，避免节外生枝。
+  > 数据库名、表名的大小写行为受操作系统和 lower_case_table_names 设置影响；列名通常不区分大小写。统一使用小写可以减少迁移问题，不代表大写名称在语法上非法。
   >
-  > 正例：aliyun_admin，rdc_config，level3_name 
+  > 正例：aliyun_admin，rdc_config，level3_name
   >
   > 反例：AliyunAdmin，rdcConfig，level_3_name
 
 举例：
 
 ```sql
-#以下两句是一样的，不区分大小写
+# See note 1 below.
 show databases;
 SHOW DATABASES;
-#创建表格
-#create table student info(...); #表名错误，因为表名有空格
+# See note 2 below.
+# See note 3 below.
 create table student_info(...);
-#其中order使用飘号，因为order和系统关键字或系统函数名等预定义标识符重名了
-CREATE TABLEorder();
-select id as "编号",nameas "姓名" from t_stu; #起别名时，as都可以省略
-select id as 编号,nameas 姓名 from t_stu; #如果字段别名中没有空格，那么可以省略""
-select id as 编 号,name as 姓 名 from t_stu; #错误，如果字段别名中有空格，那么不能省略""
+# See note 4 below.
+CREATE TABLE `order` (id INT);
+select id as "编号",name AS "姓名" from t_stu; # See note 5 below.
+select id as 编号,name AS 姓名 from t_stu; # See note 6 below.
+select id as 编 号,name as 姓 名 from t_stu; # See note 7 below.
 ```
 
+示例说明：
 
+1. 以下两句是一样的，不区分大小写
+2. 创建表格
+3. create table student info(...); #表名错误，因为表名有空格
+4. 其中order使用飘号，因为order和系统关键字或系统函数名等预定义标识符重名了
+5. 起别名时，as都可以省略
+6. 如果字段别名中没有空格，那么可以省略""
+7. 错误，如果字段别名中有空格，那么不能省略""
+
+
+<a id="section-3"></a>
 
 ## 数据导入指令
 
@@ -57,8 +95,11 @@ mysql> source d:\mysqldb.sql
 ```
 
 
+<a id="section-4"></a>
 
 # 数据库的基本操作
+
+<a id="section-5"></a>
 
 ## 基础知识
 
@@ -80,23 +121,30 @@ mysql> source d:\mysqldb.sql
 
 其中，常用的几类类型介绍如下：
 
-| 数据类型      | 描述                                                         |
-| ------------- | ------------------------------------------------------------ |
-| INT           | 从-2^31到2^31 -1的整型数据。存储大小为 4个字节。默认长度为11 |
-| CHAR(size)    | 定长字符数据。若未指定，默认为1个字符，最大长度255           |
-| VARCHAR(size) | 可变长字符数据，根据字符串实际长度保存，必须指定长度         |
-| FLOAT(M,D)    | 单精度，占用4个字节，M=整数位+小数位，D=小数位。 D<=M<=255,0<=D<=30，默认M+D<=6 |
-| DOUBLE(M,D)   | 双精度，占用8个字节，D<=M<=255,0<=D<=30，默认M+D<=15         |
-| DECIMAL(M,D)  | 高精度小数，占用M+2个字节，D<=M<=65，0<=D<=30，最大取值范围与DOUBLE相同。 |
-| DATE          | 日期型数据，格式’YYYY-MM-DD’                                 |
-| BLOB          | 二进制形式的长文本数据，最大可达4G                           |
-| TEXT          | 长文本数据，最大可达4G                                       |
+| 数据类型 | 含义与边界 |
+| --- | --- |
+| INT | 有符号范围 -2^31 到 2^31-1，占 4 字节；显示宽度不是最大位数 |
+| BIGINT | 有符号占 8 字节；UNSIGNED 扩大正数范围但不允许负数 |
+| CHAR(n) | 定长字符类型，n 为字符数，最大 255 |
+| VARCHAR(n) | 变长字符类型，n 为字符数，实际容量还受字符集和行大小限制 |
+| FLOAT / DOUBLE | 近似浮点数，通常占 4 / 8 字节；不适合要求精确的金额计算 |
+| DECIMAL(M,D) | 精确小数，M 为总位数，D 为小数位数；M 最大 65，D 最大 30，存储大小取决于两部分的位数 |
+| DATE | 日期，常用输入格式为 'YYYY-MM-DD' |
+| DATETIME | 日期和时间，不自动按会话时区换算 |
+| TIMESTAMP | 日期和时间，存取涉及会话时区，范围与 DATETIME 不同 |
+| BLOB / TEXT | 普通类型最大 65,535 字节，分别用于二进制和文本 |
+| MEDIUMBLOB / MEDIUMTEXT | 最大 16,777,215 字节 |
+| LONGBLOB / LONGTEXT | 理论上最大 4,294,967,295 字节，实际还受客户端、数据包和存储限制 |
 
+旧式 FLOAT(M,D)、DOUBLE(M,D) 已弃用。金额示例可选择 DECIMAL(10,2)，表示总计 10 位，其中两位小数；这并不等于允许 10 位整数。
 
+参考：[MySQL 数据类型与存储要求](https://dev.mysql.com/doc/refman/8.0/en/storage-requirements.html)。
+
+<a id="section-6"></a>
 
 ## 创建和管理数据库
 
-### 创建数据库	
+### 创建数据库
 
 - 方式1：创建数据库
 
@@ -121,14 +169,18 @@ CREATE DATABASE IF NOT EXISTS 数据库名;
 > 注意：DATABASE 不能改名。一些可视化工具可以改名，它是建新库，把所有表复制到新库，再删旧库完成的。
 
 
-
 ### 查看和使用数据库
 
 - 查看当前所有的数据库
 
 ```sql
-SHOW DATABASES; #有一个S，代表多个数据库
+SHOW DATABASES; # See note 1 below.
 ```
+
+示例说明：
+
+1. 有一个S，代表多个数据库
+
 
 > - “information_schema”是 MySQL 系统自带的数据库，主要保存 MySQL数据库服务器的系统信息，比如数据库的名称、数据表的名称、字段名称、存取权限、数据文件 所在的文件夹和系统使用的文件夹，等等
 > - “performance_schema”是 MySQL 系统自带的数据库，可以用来监控 MySQL 的各类性能指标。
@@ -136,13 +188,15 @@ SHOW DATABASES; #有一个S，代表多个数据库
 > - “mysql”数据库保存了 MySQL 数据库服务器运行时需要的系统信息，比如数据文件夹、当前使用的字符集、约束检查信息，等等
 
 
-
 - 查看当前正在使用的数据库
 
 ```sql
-SELECT DATABASE();	#使用的一个 mysql 中的全局函数
+SELECT DATABASE();	# See note 1 below.
 ```
 
+示例说明：
+
+1. 使用的一个 mysql 中的全局函数
 
 
 - 查看指定库下所有的表
@@ -152,15 +206,17 @@ SHOW TABLES FROM 数据库名;
 ```
 
 
-
 - 查看数据库的创建信息
 
 ```sql
 SHOW CREATE DATABASE 数据库名;
-#或者：
+# See note 1 below.
 SHOW CREATE DATABASE 数据库名\G
 ```
 
+示例说明：
+
+1. 或者：
 
 
 - 使用/切换数据库
@@ -172,15 +228,17 @@ USE 数据库名;
 > 注意：要操作表格和数据之前必须先说明是对哪个数据库进行操作，否则就要对所有对象加上“数据库名.”。
 
 
-
 ### 修改数据库
 
 - 更改数据库字符集
 
 ```sql
-ALTER DATABASE 数据库名 CHARACTER SET 字符集;	#比如：gbk、utf8等
+ALTER DATABASE 数据库名 CHARACTER SET 字符集;	# See note 1 below.
 ```
 
+示例说明：
+
+1. 比如：gbk、utf8等
 
 
 ### 删除数据库
@@ -192,7 +250,6 @@ DROP DATABASE 数据库名;
 ```
 
 
-
 - 方式2：删除指定的数据库（推荐 ）
 
 ```sql
@@ -200,8 +257,11 @@ DROP DATABASE IF EXISTS 数据库名;
 ```
 
 
+<a id="section-7"></a>
 
 # 表的基本操作
+
+<a id="section-8"></a>
 
 ## 创建和管理表
 
@@ -214,11 +274,17 @@ CREATE TABLE 表名称(字段名 数据类型, 字段名 数据类型);
 
 例：
 CREATE TABLE peoples(
-id int,      #MySQL8.x中，不再推荐为 INT 类型指定显示长度
-name varchar(20), 	#名字不超过20个字符
-sex varchar(1) 
+id int,      # See note 1 below.
+name varchar(20), 	# See note 2 below.
+sex varchar(1)
 );
 ```
+
+示例说明：
+
+1. MySQL8.x中，不再推荐为 INT 类型指定显示长度
+2. 名字不超过20个字符
+
 
 推荐使用以下方式：
 
@@ -237,7 +303,6 @@ CREATE TABLE [IF NOT EXISTS] 表名(
 MySQL 在执行建表语句时，将id字段的类型设置为 int(11)，这里的11实际上是 int 类型指定的显示宽度，默认的显示宽度为11。也可以在创建数据表的时候指定数据的显示宽度。在 MySQL 8.x版本中，不再推荐为 INT 类型指定显示长度，并在未来的版本中可能去掉这样的语法
 
 
-
 ### 查看数据表的创建命令
 
 语法格式：
@@ -245,7 +310,6 @@ MySQL 在执行建表语句时，将id字段的类型设置为 int(11)，这里�
 ```sql
 SHOW CREATE TABLE 表名;
 ```
-
 
 
 ### 显示表结构
@@ -267,7 +331,6 @@ Default：表示该列是否有默认值，如果有，那么值是多少。
 Extra：表示可以获取的与给定列有关的附加信息，例如AUTO_INCREMENT等。
 
 
-
 ### 修改表
 
 #### 追加一个列
@@ -283,7 +346,6 @@ ALTER TABLE 表名 ADD [COLUMN] 字段名 字段类型 [FIRST|AFTER 字段名];
 ```sql
 ALTER TABLE dept80 ADD job_id varchar(15);
 ```
-
 
 
 #### 修改一个列
@@ -306,7 +368,6 @@ ALTER TABLE dept80 MODIFY last_name VARCHAR(30);
 注： 不能重命名列
 
 
-
 #### 重命名一个列
 
 使用 **CHANGE** old_column new_column dataType 子句重命名列。语法格式如下：
@@ -320,7 +381,6 @@ ALTER TABLE 表名 CHANGE 列名 新列名 新数据类型;
 ```sql
 ALTER TABLE dept80 CHANGE department_name dept_name varchar(15);
 ```
-
 
 
 #### 删除一个列
@@ -338,18 +398,17 @@ ALTER TABLE dept80 DROP COLUMN job_id;
 ```
 
 
-
 ### 删除表
 
 - 在MySQL中，当一张数据表没有与其他任何数据表形成关联关系 时，可以将当前数据表直接删除。
 - 数据和结构都被删除
-- 所有正在运行的相关事务被提交
+- 普通 DROP TABLE 会隐式提交当前会话的事务，不是提交其他连接中所有相关事务；临时表有不同规则。
 - 所有相关索引被删除
 
 语法格式：
 
 ```sql
-DROP TABLE 表名称; 
+DROP TABLE 表名称;
 ```
 
 推荐使用：
@@ -359,7 +418,6 @@ DROP TABLE IF EXISTS 表名1 [, 表名2, …, 表名n];
 ```
 
 > IF EXISTS 的含义为：如果当前数据库中存在相应的数据表，则删除数据表；如果当前数据库中不存在相应的数据表，则忽略删除语句，不再执行删除数据表的操作。
-
 
 
 ### 清空表
@@ -373,8 +431,7 @@ TRUNCATE TABLE 语句：
 TRUNCATE TABLE detail_dept;
 ```
 
-**TRUNCATE 语句不能回滚，而使用 DELETE 语句删除数据，可以回滚**
-
+**普通 TRUNCATE TABLE 会隐式提交，不能按普通 DML 回滚。DELETE 只有在支持事务的表中、尚未提交时才能回滚。**
 
 
 ### 重命名表
@@ -386,15 +443,19 @@ RENAME TABLE emp TO myemp;
 ```
 
 
-
 - 方式二：
 
 ```sql
-ALTER table dept 
-RENAME [TO] detail_dept;	-- [TO]可以省略
+ALTER table dept
+RENAME [TO] detail_dept;	-- See note 1 below.
 ```
 
+示例说明：
 
+1. [TO]可以省略
+
+
+<a id="section-9"></a>
 
 ## 表数据的基本操作
 
@@ -402,7 +463,7 @@ RENAME [TO] detail_dept;	-- [TO]可以省略
 
 #### 1：VALUES 的方式添加
 
-使用这种语法一次只能向表中插入一条数据。
+VALUES 后可以写一组或多组值；一组插入一行，多组用逗号分隔。
 
 **情况1：为表的所有字段按默认顺序插入数据**
 
@@ -418,19 +479,17 @@ INSERT INTO peoples VALUES(1, 'Tom','m');
 INSERT INTO peoples VALUES(2, 'Mary','f');
 ```
 
-注：5.7版本下因字符集的问题，添加中文会报错。
+中文能否正常存储取决于连接、数据库和列的字符集，不是 MySQL 5.7 本身不支持中文。通常使用 utf8mb4，并确认客户端编码一致。
 
 **值列表中需要为表的每一个字段指定值，并且值的顺序必须和数据表中字段定义时的顺序相同。**
-
 
 
 **情况2：为表的指定字段插入数据**
 
 ```sql
-INSERT INTO 目标表名(column1 [, column2, …, columnn]) 
+INSERT INTO 目标表名(column1 [, column2, …, columnn])
 VALUES (value1 [,value2, …, valuen]);
 ```
-
 
 
 为表的指定字段插入数据，就是在INSERT语句中只向部分字段中插入值，而其他字段的值为表定义时的默认值。
@@ -465,7 +524,6 @@ VALUES
 一个同时插入多行记录的 INSERT 语句等同于多个单行插入的 INSERT 语句，但是多行的 INSERT 语句在处理过程中 效率更高 。因为 MySQL 执行单条 INSERT 语句插入多行数据比使用多条 INSERT 语句快，所以在插入多条记录时最好选择使用单条 INSERT 语句的方式插入。
 
 
-
 #### 2：将查询结果插入到表中
 
 INSERT 还可以将 SELECT 语句查询的结果插入到表中，此时不需要把每一条记录的值一个一个输入，只需要使用一条 INSERT 语句和一条 SELECT 语句组成的组合语句即可快速地从一个或多个表中向一个表中插入多行。
@@ -476,7 +534,7 @@ INSERT 还可以将 SELECT 语句查询的结果插入到表中，此时不需�
 INSERT INTO 目标表名
 (tar_column1 [, tar_column2, …, tar_columnn])
 SELECT
-(src_column1 [, src_column2, …, src_columnn])
+src_column1 [, src_column2, …, src_columnn]
 FROM 源表名
 [WHERE condition]
 ```
@@ -486,20 +544,18 @@ FROM 源表名
 - 子查询中的值列表应与 INSERT 子句中的列名对应。
 
 
-
 #### 3：插入或替换
 
 如果我们希望插入一条新记录（INSERT），但如果记录已经存在，就**先删除**原记录，再插入新记录。此时，可以使用 `REPLACE` 语句，这样就不必先查询，再决定是否先删除再插入：
 
 ```sql
-REPLACE INTO 目标表名 
-(column1, column2, column3...) 
-VALUES 
+REPLACE INTO 目标表名
+(column1, column2, column3...)
+VALUES
 (value1, value2, value3...);
 ```
 
-若 `column1=value1` 的记录不存在，`REPLACE`语句将插入新记录，否则，当前 `column1=value1` 的记录将被删除，然后再插入新记录。
-
+若新行没有与主键或 UNIQUE 索引发生冲突，`REPLACE`语句将插入新记录，否则，与主键或 UNIQUE 索引冲突的记录将被删除，然后再插入新记录。
 
 
 #### 4：插入或更新
@@ -507,15 +563,14 @@ VALUES
 如果我们希望插入一条新记录（INSERT），但如果记录已经存在，就**更新**该记录。此时，可以使用 `INSERT INTO ... ON DUPLICATE KEY UPDATE ...`语句：
 
 ```sql
-INSERT INTO 目标表名 
-(column1, column2, column3...) 
-VALUES 
+INSERT INTO 目标表名
+(column1, column2, column3...)
+VALUES
 (value1, value2, value3...)
 ON DUPLICATE KEY UPDATE column3=value3, column4=value4, column5=value5;
 ```
 
-若 `column1=value1` 的记录不存在，`INSERT ` 语句将插入新记录，否则，当前 `column1=value1` 的记录将被更新，更新的字段由 `UPDATE` 指定。
-
+若新行没有与主键或 UNIQUE 索引发生冲突，`INSERT ` 语句将插入新记录，否则，与主键或 UNIQUE 索引冲突的记录将被更新，更新的字段由 `UPDATE` 指定。
 
 
 #### 5：插入或忽略
@@ -523,14 +578,13 @@ ON DUPLICATE KEY UPDATE column3=value3, column4=value4, column5=value5;
 如果我们希望插入一条新记录（INSERT），但如果记录已经存在，就啥事也不干直接忽略，此时，可以使用 `INSERT IGNORE INTO ...` 语句：
 
 ```sql
-INSERT IGNORE INTO 目标表名 
-(column1, column2, column3...) 
-VALUES 
+INSERT IGNORE INTO 目标表名
+(column1, column2, column3...)
+VALUES
 (value1, value2, value3...);
 ```
 
-若 `column1=value1` 的记录不存在，`INSERT` 语句将插入新记录，否则，不执行任何操作。
-
+若新行没有与主键或 UNIQUE 索引发生冲突，`INSERT` 语句将插入新记录，主键或 UNIQUE 索引冲突时通常忽略该行。IGNORE 还可能把某些其他错误转成警告，所以不能把它只当作“存在则跳过”。
 
 
 ### 更新数据
@@ -539,7 +593,7 @@ VALUES
 
 ```sql
 UPDATE 目标表名
-SET column1=value1, column2=value2, … , column=valuen 
+SET column1=value1, column2=value2, … , column=valuen
 WHERE condition
 ```
 
@@ -557,7 +611,6 @@ WHERE id = 00001;
 使用 WHERE 子句指定需要更新的数据。如果省略 WHERE 子句，则表中的所有数据都将被更新。
 
 
-
 ### 删除数据
 
 使用 DELETE 语句从表中删除数据。语法如下：
@@ -567,7 +620,6 @@ DELETE FROM 目标表名 [WHERE <condition>];
 ```
 
 目标表名 指定要执行删除操作的表；“[WHERE ]”为可选参数，指定删除条件，如果没有WHERE子句，DELETE语句将删除表中的所有记录。
-
 
 
 ### 查询数据
@@ -599,7 +651,6 @@ FROM departments;
 MySQL中的SQL语句是不区分大小写的，因此SELECT和select的作用是相同的。
 
 
-
 #### 查询过滤
 
 语法：
@@ -623,7 +674,6 @@ SELECT employee_id, last_name, job_id, department_id FROM employees WHERE depart
 # 2
 SELECT employee_id, last_name, job_id, department_id FROM employees WHERE department_id=90 ORDER BY employee_id DESC;
 ```
-
 
 
 #### 列的别名
@@ -653,7 +703,6 @@ FROM employees;
 ```
 
 
-
 #### 去除重复行
 
 默认情况下，查询会返回全部行，包括重复行。在SELECT语句中使用关键字DISTINCT去除重复行。
@@ -673,13 +722,12 @@ FROM employees;
 > 这里有两点需要注意：
 >
 > 1. DISTINCT 需要放到所有列名的前面，如果写成 SELECT salary, DISTINCT department_id FROM employees 会报错。
-> 2. DISTINCT 其实是对后面所有列名的组合进行去重，你能看到最后的结果是 74 条，因为这 74 个部门id不同，都有 salary 这个属性值。如果你想要看都有哪些不同的部门（department_id），只需要写 DISTINCT department_id 即可，后面不需要再加其他的列名了。
-
+> 2. DISTINCT 对所选列的整个组合去重。例如 (department_id, salary) 相同的两行才会合并。结果行数取决于当前数据，不能解释为部门数量；只想统计不同部门时，仅选择 DISTINCT department_id。
 
 
 #### 空值参与运算
 
-所有运算符或列值遇到null值，运算的结果都为null
+NULL 表示缺少或未知的值。普通算术运算和比较通常会得到 NULL；IS NULL、NULL 安全相等运算符 <=>、COALESCE，以及部分逻辑运算有自己的规则，不能概括为所有运算都返回 NULL。
 
 ```sql
 SELECT employee_id, salary, commission_pct,
@@ -687,8 +735,7 @@ SELECT employee_id, salary, commission_pct,
 FROM employees;
 ```
 
-在 MySQL 里面， 空值不等于空字符串。一个空字符串的长度是 0，而一个空值的长度是空。而且，在 MySQL 里面，空值是占用空间的。null不等同于0、’ ’ 以及’null’.
-
+在 MySQL 里面， 空值不等于空字符串。一个空字符串的长度是 0，而LENGTH(NULL) 的结果是 NULL。而且，在 MySQL 里面，空值是占用空间的。null不等同于0、’ ’ 以及’null’.
 
 
 #### 着重号
@@ -711,7 +758,6 @@ SELECT * FROM `ORDER`;
 要保证表中的字段、表名等没有和保留字、数据库系统或常用方法冲突。如果真的相同，请在SQL语句中使用一对``（着重号）引起来。
 
 
-
 #### 查询常数
 
 SELECT 查询还可以对常数进行查询。对的，就是在 SELECT 查询结果中增加一列固定的常数列。这列的取值是我们指定的，而不是从数据表中动态取出的。
@@ -724,10 +770,9 @@ FROM employees;
 ```
 
 
+<a id="section-10"></a>
 
-
-
-## MySQL8 新特性：计算列
+## 生成列（MySQL 5.7 起支持）
 
 在 MySQL 8.0 中，CREATE TABLE 和 ALTER TABLE 中都支持增加计算列。
 
@@ -757,6 +802,7 @@ SELECT * FROM	tb1;
 NULL	100	200	300
 
 
+<a id="section-11"></a>
 
 ## 表的拓展
 
@@ -779,35 +825,32 @@ NULL	100	200	300
 - 正例：无符号值可以避免误存负数，且扩大了表示范围。
 
 
-
-
+<a id="section-12"></a>
 
 ## 其他命令
 
 ### 查看编码命令
 
 ```sql
-SHOW variables like 'character_%'; 
+SHOW variables like 'character_%';
 
 SHOW variables like 'collation_%';
 ```
-
 
 
 ### 编码问题
 
 修改MySQL的数据目录下的my.ini配置文件
 
-在63行添加：
+在 [client] 或 [mysql] 配置段中添加，位置不依赖固定行号：
 
 ```ini
-default-character-set=utf8
+default-character-set=utf8mb4
 ```
 
-在78行添加：
+在 [mysqld] 配置段中添加，服务器配置修改后需要重新启动服务：
 
 ```ini
-character-set-server=utf8 
-collation-server=utf8_general_ci
+character-set-server=utf8mb4
+collation-server=utf8mb4_unicode_ci
 ```
-

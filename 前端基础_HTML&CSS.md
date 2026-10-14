@@ -1,28 +1,28 @@
-# 前言
+# HTML 与 CSS 基础
 
-Java 程序员一提起前端知识，心情那是五味杂陈，百感交集。
+学习网页内容结构、表单与样式，开发时查标签、请求格式和 CSS 规则。
 
-* 说不学它吧，说不定进公司以后，就会被抓壮丁去时不时写点前端代码
-* 说学它吧，HTML、CSS、JavaScript 哪个不得下大功夫才能精通？
-* 学一点够不够用呢？如果只学基础的 JavaScript 是不够用的，前端都已经工程化了，Vue、React 这些框架你去看吧，光有点基础根本看不懂，甚至连前端页面路径在哪儿配置，如何跳转都不甚了解，所以得学，而且要学的还不少，请把前端当作 web 不可或缺的一部分来学习。
-* 学习前端好处挺多，我听说过这么一句挺有道理的话：一个程序员至少应该掌握一门静态语言，如 Java，还应该掌握一门动态语言，如 JavaScript。而且，你不觉得学了前端，就如打通了程序员的任督二脉，可以独立接活了嘛
+**学习前提与版本：** 不要求框架经验。浏览器负责解析 HTML 和 CSS；标签示例需要放在有效的 HTML 文件中，表单提交还需要实际接收地址。
 
-这门课为什么不由前端老师来讲？
+**示例使用：** 除明确列出全部文件和运行步骤的项目外，代码块是各小节的独立片段。省略号、占位名称需要补齐；标明错误的行用于说明问题。同节替代写法不要合并。
 
-* 前端老师不知道后端学员的痛点，他认为重要的咱不关心，他认为是常识一带而过的又恰恰是咱迷茫的地方，作为后端老师，我更懂后端学员
-* 前端老师不懂后端知识，只能用前端思维来讲前端，如果授课老师懂 Java，能用一些现有知识对比讲解，能起到快速突破的效果
-* 前端每个框架动辄需要数十个小时的学习，咱耗不起，我们更希望学到对我们最有用的那部分，其它的省省吧，总不能夺了前端程序员的饭碗
+[学习索引与常见词](README.md) · [官方参考](https://html.spec.whatwg.org/multipage/)
 
-课程安排
+**内容导航**
 
-* 整个课程分成五章
-  * HTML / CSS 这部分对咱们来说，不是重点，但又不能不讲，这俩知识作为第一章，必学
-  * JavaScript 这部分是重点，尤其是 ES6 以后的一些新语法，不理解这些，前端代码你根本看不懂，必学
-  * Vue2，Vue3，React 这三章是三选一的关系，根据你入职公司的使用的前端技术不同，有针对地学习
-    * 后三章会涵盖 TypeScript、VueCli、Vuex、VueRouter、ElementUI、Vite、CreateReactApp、React、Redux、ReactRouter 等库和工具的使用
-  * jquery 经过调研，还有一些学员毕业后确实会用到，所以也作为一个可选章节进行学习
+- [第一章. HTML 与 CSS](#section-1)
+- [1. HTML 元素](#section-2)
+- [2. HTML 页面](#section-3)
+- [3. 常见元素](#section-4)
+- [4. HTTP 请求](#section-5)
+- [5. CSS](#section-6)
 
 
+本篇面向第一次接触网页开发的读者：HTML 定义内容结构，CSS 控制外观，JavaScript 负责交互。先用浏览器打开一个简单 HTML 文件，再逐节增加元素和样式。后续 JavaScript、Vue 和 TypeScript 文档分别讲解其他内容；本文没有包含 React 或 jQuery 的完整教程。
+
+代码片段需要放进 HTML 文件的适当位置。同一小节里的多个标签示例是独立写法，不必全部拼进一页。
+
+<a id="section-1"></a>
 
 # 第一章. HTML 与 CSS
 
@@ -34,6 +34,7 @@ HTML 是什么：即 HyperText Markup language 超文本标记语言，咱们熟
 CSS 是什么：即 Cascading  Style  Sheets 级联（层叠）样式表，它描述了网页的表现与展示效果
 
 
+<a id="section-2"></a>
 
 ## 1. HTML 元素
 
@@ -50,7 +51,6 @@ HTML 由一系列元素 `elements` 组成，例如
 * p 是预先定义好的 html 标签，作用是将内容作为一个单独的段落
 
 
-
 元素还可以有属性，如
 
 ```html
@@ -58,7 +58,6 @@ HTML 由一系列元素 `elements` 组成，例如
 ```
 
 * 属性一般是预先定义好的，这里的 id 属性是给元素一个唯一的标识
-
 
 
 元素之间可以嵌套，如
@@ -74,7 +73,6 @@ HTML 由一系列元素 `elements` 组成，例如
 ```
 
 
-
 不包含内容的元素称之为空元素，如
 
 ```html
@@ -86,6 +84,7 @@ HTML 由一系列元素 `elements` 组成，例如
 * src 属性用来指明图片路径
 
 
+<a id="section-3"></a>
 
 ## 2. HTML 页面
 
@@ -110,6 +109,7 @@ HTML 由一系列元素 `elements` 组成，例如
 * `body` 元素包含了对用户展现内容的元素，例如后面会学到的用于展示文本、图片、视频、音频的各种元素
 
 
+<a id="section-4"></a>
 
 ## 3. 常见元素
 
@@ -127,13 +127,11 @@ HTML 由一系列元素 `elements` 组成，例如
 ```
 
 
-
 #### Paragraph
 
 ```html
 <p>段落</p>
 ```
-
 
 
 #### List
@@ -163,7 +161,7 @@ HTML 由一系列元素 `elements` 组成，例如
 ```html
 <ul>
     <li>
-    	北京市
+        北京市
         <ul>
             <li>海淀区</li>
             <li>朝阳区</li>
@@ -171,7 +169,7 @@ HTML 由一系列元素 `elements` 组成，例如
         </ul>
     </li>
     <li>
-    	河北省
+        河北省
         <ul>
             <li>石家庄</li>
             <li>保定</li>
@@ -181,7 +179,6 @@ HTML 由一系列元素 `elements` 组成，例如
 ```
 
 
-
 #### Anchor
 
 锚，超链接
@@ -189,7 +186,6 @@ HTML 由一系列元素 `elements` 组成，例如
 ```html
 <a href="网页地址">超链接文本</a>
 ```
-
 
 
 ### 2) 多媒体
@@ -225,7 +221,6 @@ src 格式有 3 种
 ```
 
 
-
 ### 3) 表单
 
 #### 作用与语法
@@ -236,13 +231,18 @@ src 格式有 3 种
 
 ```html
 <form action="服务器地址" method="请求方式" enctype="数据格式">
-    <!-- 表单项 -->
-    
+    <!-- See note 1 below. -->
+
     <input type="submit" value="提交按钮">
 </form>
 ```
 
-* method 请求方式有 
+示例说明：
+
+1. 表单项
+
+
+* method 请求方式有
   * get （默认）提交时，数据跟在 URL 地址之后
   * post 提交时，数据在请求体内
 * enctype 在 post 请求时，指定请求体的数据格式
@@ -250,7 +250,6 @@ src 格式有 3 种
   * multipart/form-data
 * 其中表单项提供多种收集数据的方式
   * 有 name 属性的表单项数据，才会被发送给服务器
-
 
 
 #### 常见的表单项
@@ -301,6 +300,7 @@ src 格式有 3 种
 ```
 
 
+<a id="section-5"></a>
 
 ## 4. HTTP 请求
 
@@ -336,12 +336,11 @@ Content-Length: 21
 name=%E5%BC%A0&age=18
 ```
 
-application/x-www-form-urlencoed 格式细节：
+application/x-www-form-urlencoded 格式细节：
 
 * 参数分成名字和值，中间用 = 分隔
 * 多个参数使用 & 进行分隔
 * 【张】等特殊字符需要用 encodeURIComponent() 编码为 【%E5%BC%A0】后才能发送
-
 
 
 #### json 请求示例
@@ -354,7 +353,6 @@ Content-Length: 25
 
 {"name":"zhang","age":18}
 ```
-
 
 
 json 对象格式
@@ -377,7 +375,6 @@ json 数组格式
 ```
 [元素1, 元素2, ...]
 ```
-
 
 
 #### multipart 请求示例
@@ -404,24 +401,22 @@ Content-Disposition: form-data; name="age"
 * 结束分隔符是 `--分隔符--`
 
 
-
 #### 数据格式小结
 
 客户端发送
 
-* 编码 
+* 编码
   * application/x-www-form-urlencoded ：url 编码
   * application/json：utf-8 编码
   * multipart/form-data：每部分编码可以不同
-* 表单只支持以 application/x-www-form-urlencoded 和 multipart/form-data 格式发送数据
+* 原生 HTML 表单支持 application/x-www-form-urlencoded、multipart/form-data 和 text/plain；前两种最常见。要发送 JSON，通常使用 JavaScript 请求。
 * 文件上传需要用 multipart/form-data 格式
-* js 代码可以支持任意格式发送数据 
+* js 代码可以支持任意格式发送数据
 
 服务端接收
 
 * 对 application/x-www-form-urlencoded 和 multipart/form-data 格式的数据，Spring 接收方式是统一的，只需要用 java bean 的属性名对应请求参数名即可
-* 对于 applicaiton/json 格式的数据，Spring 接收需要使用 @RequestBody 注解 + java bean 的方式
-
+* 对于 application/json 格式的数据，Spring 接收需要使用 @RequestBody 注解 + java bean 的方式
 
 
 ### 3) session 原理
@@ -449,7 +444,6 @@ Cookie: JSESSIONID=560FA845D02AE09B176E1BC5D9816A5D
 ```
 
 
-
 session 技术实现身份验证
 
 ```mermaid
@@ -462,22 +456,17 @@ rect rgb(200, 223, 255)
 Client ->> +L : 登录请求
 L ->> L : 检查用户名，密码，验证通过
 L ->> +Session : 存入用户名
-Session -->> -L: 
+Session -->> -L:
 L -->> -Client: 登录成功
 end
 rect rgb(200, 190, 255)
 Client ->> +i : 其它请求
 i ->> +Session : 获取用户名
-Session -->> -i : 
+Session -->> -i :
 i ->> i: 用户名存在，放行
-i -->> -Client : 
+i -->> -Client :
 end
 ```
-
-
-
-
-
 
 
 ### 4) jwt 原理
@@ -499,7 +488,7 @@ end
 rect rgb(150, 190, 155)
 Client ->> +i : 其它请求，携带token
 i ->> i : 校验token，校验无误，放行
-i -->> -Client : 
+i -->> -Client :
 end
 ```
 
@@ -518,6 +507,7 @@ Authorization: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiJ9._1-P_TLlzQPb1_lCyGwplMZ
 ```
 
 
+<a id="section-6"></a>
 
 ## 5. CSS
 
