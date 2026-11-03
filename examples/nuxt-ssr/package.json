@@ -1,0 +1,25 @@
+{
+  "name": "notes-nuxt-ssr",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "dev": "nuxt dev --host 127.0.0.1 --port 3002",
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck",
+    "build": "nuxt build",
+    "start": "node .output/server/index.mjs"
+  },
+  "dependencies": {
+    "nuxt": "4.6.4",
+    "vue": "3.5.44"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vue-tsc": "3.3.14",
+    "@types/node": "24.10.0"
+  }
+}
