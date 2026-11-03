@@ -1,67 +1,125 @@
-# Java Web 与前端学习笔记
+# 开发学习与工程实践笔记
 
-这是一组面向初学者的学习笔记，也可在开发时按问题查阅。文档同时包含旧项目维护资料与较新的整合示例。**先确认版本，再复制代码**：同名 API 在不同版本中可能已经更名或删除。
+面向基础入门开发者的技术文档，也用于开发时查阅概念、配置、示例和常见问题。文档按技术领域整理；使用代码前先检查对应文档的学习前提、适用版本和运行环境。
 
-## 学习顺序与索引
+[贯穿示例与运行说明](examples/taskboard/README.md) · [示例验证记录](examples/taskboard/验证记录.md)
 
-| 阶段 | 先学什么 | 文档 |
-| --- | --- | --- |
-| 1. Java 工具与基础 | Maven、测试、随机数、命名 | [Maven](Maven基础.md)、[测试、反射与注解](Junit单元测试&反射&注解.md)、[随机数](Random随机数.md)、[命名规约](常用命名原则和规约.md) |
-| 2. 数据库 | 表、类型、运算、查询、分页 | [数据库与表](MySQL数据库与表的基本操作.md)、[运算符](MySQL运算符.md)、[查询与分页](MySQL的基本查询,%20多表查询与分页.md)、[带前缀编号](MySQL的VARCHAR型自增.md) |
-| 3. Java 访问数据库 | 连接、资源关闭、事务、映射 | [JDBC](JDBC基础.md)、[MyBatis](MyBatis的使用.md)、[MyBatis-Plus 排查](Mybatis-plus使用问题.md) |
-| 4. Java Web | HTTP、Servlet、分层与 MVC | [Java Web](Java%20Web基础.md)、[MVC 结构](MVC结构.md)、[Spring MVC 入门](SpringMVC_1.md)、[Spring MVC 进阶](SpringMVC_2.md) |
-| 5. Spring 整合 | IoC、事务、Boot 配置、注解 | [SSM 完整示例](SSM.md)、[Spring Boot](SpringBoot.md)、[注解速查](SpringBoot的所有注解.md) |
-| 6. 浏览器基础 | HTML、CSS、JavaScript、类型与请求 | [HTML/CSS](前端基础_HTML&CSS.md)、[JavaScript](前端基础-js.md)、[TypeScript](TypeScript基础.md)、[Axios 与异步代码](Axios与Promise,%20Async,%20Await.md) |
-| 7. Vue | 组件、响应式、路由、状态管理 | [Vue 2 详解](VUE基础.md)、[Vue 2 项目笔记](前端基础-vue2.md)、[Vue 3 项目笔记](前端基础-vue3.md) |
-| 8. Faces | 生命周期、组件、部署、整合 | [JSF 基础](JSF%20基础.md)、[JSF 标签](JSF%20标签.md)、[IDEA 历史部署流程](IDEA创建JSF项目.md)、[Boot + Faces + MyBatis 示例](Springboot+JSF+Mybatis.md) |
+## 目录
 
-没有数据库经验时，先练习建表与查询，再阅读 JDBC 和 MyBatis。没有浏览器开发经验时，先学 HTML、JavaScript 和异步请求，再学 Vue。Faces 与 Vue 是不同的页面开发路线，不必同时学习。
+- [Java 与后端开发](#java-与后端开发)
+- [数据库与数据访问](#数据库与数据访问)
+- [前端开发](#前端开发)
+- [Faces 页面开发](#faces-页面开发)
+- [中间件与服务入口](#中间件与服务入口)
+- [Python](#python)
+- [协作、测试与交付](#协作测试与交付)
+- [示例与版本说明](#示例与版本说明)
 
-## 版本怎样选择
+## Java 与后端开发
 
-| 文档路线 | 版本范围与用途 | 注意事项 |
-| --- | --- | --- |
-| Servlet、JSF 2、旧 Spring MVC / Boot 笔记 | 维护使用 javax.servlet、javax.faces 的历史项目 | 不能直接配 Tomcat 10.1 或 Faces 4 |
-| SSM.md | Java 17、Spring 6.2、MyBatis-Spring 3.0、Tomcat 10.1 | Servlet API 使用 jakarta.servlet |
-| Springboot+JSF+Mybatis.md | Java 17、Boot 3.5.6、JoinFaces 5.5.6、Faces 4 | 使用文中的 BOM 与 starter 组合 |
-| VUE基础.md / 前端基础-vue2.md | Vue 2、Vue Router 3、Vuex 3 | 维护旧项目；Vue 2 已结束官方维护 |
-| 前端基础-vue3.md | Vue 3；部分截图与 UI 库示例来自早期版本 | 核对安装版本的组件属性，不要混用 Vue 2 插件 |
-| TypeScript基础.md | TypeScript 5.x 的基础概念，建议 strict 模式 | 标为错误演示的代码不能作为成功运行示例 |
-
-这些是文档的教学版本，不代表最新发布版。做新项目或上线项目时，应结合所选版本的官方支持周期、修复公告和兼容矩阵确定依赖。[Vue 官方维护说明](https://v2.vuejs.org/eol/)、[MyBatis-Spring 兼容要求](https://mybatis.org/spring/)、[JoinFaces 5.5.6 文档](https://docs.joinfaces.org/5.5.6/reference/)。
-
-## 示例怎么用
-
-- **完整示例**：给出文件名、依赖、必要配置和启动步骤，按所在文档操作。数据库用户名、密码、端口等需替换为本机配置。
-- **代码片段**：只展示某个方法、标签或配置项。需要放进已有类、组件或配置文件，不能把每个代码块当成独立项目运行。
-- **语法模板**：包含省略号、占位名称或示意符号，用来说明结构，先补齐实际内容。
-- **错误演示**：故意展示类型错误或错误写法，阅读紧随其后的解释；不要复制到正常业务代码。
-- 同一节的多个写法通常是替代方案。重复的变量名、类名和配置不要全部放进同一个文件。
-- SQL 的 DROP、TRUNCATE、DELETE、UPDATE 会改动数据。在自己的练习库操作，并先确认 WHERE 条件。文中的 employees 等表属于示例数据集，查询结果数量不应当作固定结论。
-- 代码里的注释使用英文，中文解释放在代码块前后。编号说明与同一代码块中的 “See note” 注释对应。
-
-阅读顺序是“前提 → 示例 → 结果 → 注意事项”。开发时按目录定位问题，再检查所在小节的版本和上下文。
-
-## 常见词快速解释
-
-| 词 | 初学者可以怎样理解 |
+| 文档 | 内容 |
 | --- | --- |
-| HTTP 请求 / 响应 | 浏览器向服务器提出请求，服务器返回状态、响应头和内容 |
-| Servlet | Java Web 中接收 HTTP 请求的服务器端组件 |
-| MVC | 接收请求、组织数据、显示页面的职责分工；并不等于三层架构 |
-| IoC / DI | 对象由容器创建或管理，并把需要的依赖传入 |
-| Bean | 由相应容器管理的对象；Spring Bean 与 Faces Bean 的管理方式可能不同 |
-| DAO / Mapper | 把应用的数据访问操作转换为数据库操作 |
-| DTO | 用于接口或层之间传递数据的对象 |
-| 事务 | 让一组数据库操作作为一个整体成功或回滚 |
-| 作用域 Scope | 对象在什么范围内复用、何时结束，例如请求、会话、视图 |
-| Promise / await | 表达异步操作的结果，以及在异步函数中等待结果的语法 |
-| 响应式 | 数据变化时，框架能更新依赖这些数据的界面 |
-| BOM | 一组经过配套管理的依赖版本清单，不会自动引入所有依赖 |
+| [现代 Java 开发](现代Java开发.md) | 集合、record、异常、时间、Stream 与并发边界 |
+| [随机数](Random随机数.md) | 方法、取值区间与 API 选择 |
+| [JUnit、反射与注解](Junit单元测试&反射&注解.md) | 测试基础、反射调用与注解作用 |
+| [Maven 基础](Maven基础.md) | 项目结构、依赖、构建与冲突排查 |
+| [Java Web 基础](Java%20Web基础.md) | Servlet、请求、响应与作用域 |
+| [MVC 与分层](MVC结构.md) | 职责、调用方向、实体与 DTO |
+| [Spring MVC：请求与响应](SpringMVC_1.md) | 路由、参数绑定、JSON 与 REST |
+| [Spring MVC：整合与异常](SpringMVC_2.md) | 结果封装、异常处理与拦截器 |
+| [SSM 整合](SSM.md) | IoC、AOP、事务和完整整合示例 |
+| [Spring Boot 基础](SpringBoot.md) | starter、自动配置、配置文件与整合 |
+| [Spring Boot 项目实践](SpringBoot现代项目实践.md) | 校验、事务、API、安全与配置 |
+| [常用注解速查](SpringBoot的所有注解.md) | Spring、JPA、Jackson 与 Lombok |
+| [Boot 3 到 4 迁移](SpringBoot3到4迁移.md) | 依赖、配置、JSON、测试和行为回归 |
+| [登录认证与权限](登录认证与权限控制.md) | Session、CSRF、角色、资源归属与身份协议 |
 
-## 查错时的顺序
+## 数据库与数据访问
 
-1. 先记录实际报错、请求状态或 SQL，而不是只看截图。
-2. 检查版本、导入包、文件位置与配置是否匹配。
-3. 用最小输入复现，区分语法错误、类型错误、配置错误和业务错误。
-4. 查所在版本的官方文档。历史截图中的菜单、路径和结果仅供对照。
+| 文档 | 内容 |
+| --- | --- |
+| [MySQL 数据库与表](MySQL数据库与表的基本操作.md) | 类型、建表、增删改与数据约束 |
+| [MySQL 运算符](MySQL运算符.md) | 算术、比较、NULL、逻辑与模式匹配 |
+| [MySQL 查询与分页](MySQL的基本查询,%20多表查询与分页.md) | 去重、排序、连接、子查询与分页 |
+| [带前缀的业务编号](MySQL的VARCHAR型自增.md) | 数值自增、编号格式化、序列表与并发 |
+| [索引、事务与迁移](数据库索引事务与迁移.md) | 执行计划、锁、版本更新、迁移与恢复 |
+| [JDBC 基础](JDBC基础.md) | 参数绑定、资源关闭、批量写入与事务 |
+| [MyBatis](MyBatis的使用.md) | Mapper、参数、结果映射、动态 SQL 与缓存 |
+| [MyBatis-Plus 排查](Mybatis-plus使用问题.md) | 空结果、字段映射和配置检查 |
+| [NoSQL 与 MongoDB](NoSQL与MongoDB基础.md) | 文档建模、索引、原子更新与事务边界 |
+
+## 前端开发
+
+| 文档 | 内容 |
+| --- | --- |
+| [HTML 与 CSS](前端基础_HTML&CSS.md) | 网页结构、表单、请求格式与样式 |
+| [现代 CSS 与可访问性](现代CSS与可访问性.md) | Flex、Grid、响应式、键盘操作与反馈 |
+| [JavaScript](前端基础-js.md) | 变量、函数、对象、控制语句与浏览器 API |
+| [TypeScript](TypeScript基础.md) | 类型、接口、联合类型与泛型 |
+| [Axios、Promise 与 async/await](Axios与Promise,%20Async,%20Await.md) | 请求、错误、取消与异步顺序 |
+| [Vue 2 详解](VUE基础.md) | 绑定、响应式、组件、路由与状态管理 |
+| [Vue 2 项目实践](前端基础-vue2.md) | 组件、请求、动态路由、Vuex 与管理界面 |
+| [Vue 3 基础与实践](前端基础-vue3.md) | 响应式、组件通信、请求与工程类型 |
+| [Vue 3 工程化](Vue3工程化开发.md) | Vite、路由、Pinia、配置、构建与排错 |
+| [前端自动化测试](前端自动化测试.md) | 状态、组件和真实浏览器测试 |
+
+## Faces 页面开发
+
+| 文档 | 内容 |
+| --- | --- |
+| [JSF 基础](JSF%20基础.md) | 组件树、生命周期、Bean 与作用域 |
+| [JSF 标签](JSF%20标签.md) | 输入输出、转换、校验、表格与事件 |
+| [IDEA 创建与部署 JSF](IDEA创建JSF项目.md) | 依赖、容器、部署配置和操作对照 |
+| [Boot、Faces 与 MyBatis](Springboot+JSF+Mybatis.md) | JoinFaces、页面 Bean、数据库与安全边界 |
+
+## 中间件与服务入口
+
+| 文档 | 内容 |
+| --- | --- |
+| [Redis 缓存](Redis缓存实践.md) | TTL、淘汰、回源、竞争、一致性与故障 |
+| [消息队列与 RabbitMQ](消息队列基础与RabbitMQ实践.md) | 确认、重投、幂等、死信与业务事务 |
+| [Nginx 与 HTTPS](Nginx反向代理与HTTPS.md) | 反向代理、路径、缓存、转发头与证书 |
+
+## Python
+
+| 文档 | 内容 |
+| --- | --- |
+| [Python 基础与标准库](Python基础与标准库.md) | 数据类型、函数、对象、文件、异常与常用模块 |
+| [Python 项目工程化](Python项目工程化.md) | 环境、依赖、锁文件、Ruff 与 pytest |
+| [Python 自动化脚本](Python自动化脚本实践.md) | CSV、HTTP、命令行、外部程序与失败处理 |
+| [FastAPI 接口开发](FastAPI接口开发.md) | 参数校验、SQLAlchemy、事务、测试与部署边界 |
+
+## 协作、测试与交付
+
+| 文档 | 内容 |
+| --- | --- |
+| [Git 与团队协作](Git与团队协作.md) | 工作区、暂存、提交、冲突、审阅与撤销 |
+| [Linux 与网络排错](Linux与网络排错.md) | 进程、端口、权限、DNS、日志与请求链路 |
+| [HTTP 与 Web 安全](HTTP与Web安全基础.md) | 状态码、Cookie、CORS、CSRF、XSS 与越权 |
+| [命名原则与规约](常用命名原则和规约.md) | 类、方法、变量与团队约定 |
+| [后端自动化测试](后端自动化测试.md) | 单元、Web、数据库与失败路径验证 |
+| [Docker 与 Compose](Docker与Compose.md) | 镜像、容器、网络、数据卷与多服务运行 |
+| [GitHub Actions](GitHubActions持续集成.md) | 工作流、依赖锁定、测试、制品与权限 |
+| [部署、发布与回滚](部署发布与回滚.md) | 发布验证、数据库兼容、制品和恢复 |
+
+## 示例与版本说明
+
+文档中的完整项目、代码片段和语法模板有不同使用条件：
+
+- **完整项目**按文件、依赖和运行步骤使用；数据库、端口与凭证需要对应实际环境。
+- **代码片段**放入指定的类、组件或配置上下文；同节替代写法不要全部拼接。
+- **语法模板**中的占位名称和省略内容需要补齐；错误演示不能作为成功运行示例。
+- **验证记录**区分实际测试、配置检查和需要外部服务的验证，不能把一种结果当成另一种证明。
+- 代码注释使用英文，中文解释位于代码块前后。
+
+版本不同的示例独立使用，尤其注意：
+
+| 范围 | 需要核对 |
+| --- | --- |
+| Java / Spring | JDK、Boot、Framework、starter、构建插件和容器的配套要求 |
+| Servlet / Faces | javax 与 jakarta 的包名、规范版本及容器支持 |
+| Vue | Vue、Router、状态库、UI 库、TypeScript 和构建工具的组合 |
+| Python | 解释器、依赖锁、驱动和外部服务 |
+| 数据库 / 中间件 | 服务端版本、客户端、部署形态、持久化和备份恢复 |
+
+贯穿示例的精确依赖保存在 Maven POM、package-lock.json 和 uv.lock；容器镜像固定已核对的 digest。调整版本后重新验证，不仅修改一个版本号。

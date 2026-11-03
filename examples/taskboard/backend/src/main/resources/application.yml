@@ -1,0 +1,25 @@
+server:
+  address: 127.0.0.1
+  port: 8080
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        same-site: lax
+spring:
+  datasource:
+    url: jdbc:h2:mem:tasks;MODE=MySQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  flyway:
+    enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+app:
+  password: ${APP_PASSWORD:local-demo-change-me}

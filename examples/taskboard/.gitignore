@@ -1,0 +1,13 @@
+.env
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+**/.ruff_cache/
+**/*.egg-info/
+**/target/
+**/node_modules/
+**/dist/
+**/test-results/
+**/playwright-report/
+*.db
+*.db-*
