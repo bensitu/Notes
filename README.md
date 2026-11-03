@@ -61,6 +61,9 @@
 | [Vue 2 项目实践](前端基础-vue2.md) | 组件、请求、动态路由、Vuex 与管理界面 |
 | [Vue 3 基础与实践](前端基础-vue3.md) | 响应式、组件通信、请求与工程类型 |
 | [Vue 3 工程化](Vue3工程化开发.md) | Vite、路由、Pinia、配置、构建与排错 |
+| [React 基础与组件](React基础与组件.md) | JSX、props、state、表单、列表与组件通信 |
+| [React Hooks 与状态](ReactHooks与状态管理.md) | Effect、清理、闭包、ref、reducer 与状态归属 |
+| [React 工程化与测试](React工程化与测试.md) | Vite、路由、请求、组件与浏览器测试 |
 | [前端自动化测试](前端自动化测试.md) | 状态、组件和真实浏览器测试 |
 
 ## Faces 页面开发
