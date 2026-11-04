@@ -2,7 +2,7 @@
 
 面向基础入门开发者的技术文档，也用于开发时查阅概念、配置、示例和常见问题。文档按技术领域整理；使用代码前先检查对应文档的学习前提、适用版本和运行环境。
 
-[任务管理示例](examples/taskboard/README.md) · [React 示例](examples/react-taskboard/README.md) · [SSR 示例与验证](examples/ssr/README.md) · [任务管理验证记录](examples/taskboard/验证记录.md)
+[任务管理示例](examples/taskboard/README.md) · [React 示例](examples/react-taskboard/README.md) · [SSR 示例与验证](examples/ssr/README.md)
 
 [站内 Playground 使用说明](site/playground.md)：可以在浏览器中修改并运行 HTML/CSS/JavaScript、React 和 Vue 示例，并逐步观察 CSR、SSR 与水合的区别。
 
@@ -119,7 +119,7 @@
 - **完整项目**按文件、依赖和运行步骤使用；数据库、端口与凭证需要对应实际环境。
 - **代码片段**放入指定的类、组件或配置上下文；同节替代写法不要全部拼接。
 - **语法模板**中的占位名称和省略内容需要补齐；错误演示不能作为成功运行示例。
-- **验证记录**区分实际测试、配置检查和需要外部服务的验证，不能把一种结果当成另一种证明。
+- **验证方式**区分实际测试、配置检查和需要外部服务的验证，不能把一种结果当成另一种证明。
 - 代码注释使用英文，中文解释位于代码块前后。
 
 版本不同的示例独立使用，尤其注意：

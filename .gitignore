@@ -6,3 +6,12 @@
 /.translation-state/
 /.translation-run/
 /.translation-browser/
+/site/translation.md
+/site/translation-validation.md
+/site/validation.md
+/site/audit.md
+/site/README.md
+/site/audit-baseline.json
+/site/playground-validation.md
+/site/*-validation.md
+/examples/taskboard/验证记录.md
