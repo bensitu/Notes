@@ -256,7 +256,7 @@ request 每次请求一个实例；session 同一会话共享实例；singleton 
 
 输出组件默认转义文本。不要为了显示用户输入而随意设置 escape=false。
 
-从项目根目录运行 mvn spring-boot:run，然后访问 http://localhost:9000/index.xhtml。预期显示两本图书，点击刷新重新读取列表。也可执行 mvn package，再用 java -jar target/faces-notes-1.0.0.jar 启动。
+从项目根目录运行 mvn spring-boot:run，然后访问 <http://localhost:9000/index.xhtml>。预期显示两本图书，点击刷新重新读取列表。也可执行 mvn package，再用 java -jar target/faces-notes-1.0.0.jar 启动。
 
 <a id="section-8"></a>
 

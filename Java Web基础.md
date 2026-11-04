@@ -122,7 +122,7 @@ public class ServletDemo1 implements Servlet {
 
 5. 浏览器发送请求：
 
-- 在浏览器中输入网址http://localhost:8080/PROJECT-NAME/demo1 并按下回车，容器会调用相应的请求处理方法
+- 在浏览器中输入网址<http://localhost:8080/PROJECT-NAME/demo1> 并按下回车，容器会调用相应的请求处理方法
 - 运行成功可在idea的控制台上打印Hello Servlet
 
 
@@ -395,7 +395,7 @@ RequestFacade		--- Tomcat定义的实现类
          对应方法：String getQueryString()
    5. (*)获取请求URI：/request-demo/req
          对应方法：String getRequestURI():		/request-demo/req
-         对应方法：StringBuffer getRequestURL()  :http://localhost:8080/request-demo/req
+         对应方法：StringBuffer getRequestURL()  :<http://localhost:8080/request-demo/req>
    6. 获取协议及版本：HTTP/1.1
          对应方法：String getProtocol()
    7. 获取客户机的IP地址：

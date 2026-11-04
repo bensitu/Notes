@@ -23,7 +23,7 @@ npm run build
 npm start
 ```
 
-访问 http://127.0.0.1:3001。首页按请求渲染，/static 预渲染；构建日志会显示对应策略。演示没有开启 Cache Components，不能套用不同配置下的默认缓存结论。
+访问 <http://127.0.0.1:3001>。首页按请求渲染，/static 预渲染；构建日志会显示对应策略。演示没有开启 Cache Components，不能套用不同配置下的默认缓存结论。
 
 ## 构建 Nuxt
 
@@ -39,7 +39,7 @@ $env:NITRO_PORT = '3002'
 npm start
 ```
 
-访问 http://127.0.0.1:3002。Nuxt 的 useFetch 与 useState 传递服务端初始结果，Counter 在挂载后标记水合完成。
+访问 <http://127.0.0.1:3002>。Nuxt 的 useFetch 与 useState 传递服务端初始结果，Counter 在挂载后标记水合完成。
 
 ## 自动验证
 

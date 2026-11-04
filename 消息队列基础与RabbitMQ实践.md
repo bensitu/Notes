@@ -42,7 +42,7 @@ exchange 不等于 queue。生产者确认只说明 broker 对发送作出了相
 docker compose --env-file .env --profile tools up -d rabbit
 ```
 
-等待管理界面 http://127.0.0.1:15672 可登录。用户名与密码取自 .env，不使用仅允许本机连接的默认 guest 账户。
+等待管理界面 <http://127.0.0.1:15672> 可登录。用户名与密码取自 .env，不使用仅允许本机连接的默认 guest 账户。
 
 进入 Python 项目：
 

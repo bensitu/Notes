@@ -35,7 +35,7 @@ npm ci
 npm run dev
 ```
 
-访问 http://127.0.0.1:5174，用 admin 和后端的 APP_PASSWORD 登录。输入任务、提交、完成后观察界面。此处是 CSR 单页应用；SSR 另见对应文档，不把它们混为一种运行方式。
+访问 <http://127.0.0.1:5174>，用 admin 和后端的 APP_PASSWORD 登录。输入任务、提交、完成后观察界面。此处是 CSR 单页应用；SSR 另见对应文档，不把它们混为一种运行方式。
 
 <a id="section-3"></a>
 

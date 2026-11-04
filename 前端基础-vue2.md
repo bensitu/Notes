@@ -2338,7 +2338,7 @@ end
 
 5. 8080 可以通过 window.opener.postMessage 把 token 给 9527 的老窗口
 
-   * 发送端必须指定精确 targetOrigin，例如 http://localhost:9527；不能用 * 发送令牌。接收端同时检查 event.origin 是否为 http://localhost:8080、event.source 是否为刚打开的窗口，并检查消息结构。这里的端口仅用于本机演示，部署后换为实际 HTTPS 来源。见 [MDN postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage)。
+   * 发送端必须指定精确 targetOrigin，例如 <http://localhost:9527>；不能用 * 发送令牌。接收端同时检查 event.origin 是否为 <http://localhost:8080>、event.source 是否为刚打开的窗口，并检查消息结构。这里的端口仅用于本机演示，部署后换为实际 HTTPS 来源。见 [MDN postMessage](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage)。
 
 6. 9527 再走之前的逻辑就可以了，在 router 的 beforeEach 方法里，用 8080 token 换用户信息
 

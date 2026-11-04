@@ -47,7 +47,7 @@ $env:NITRO_PORT = '3002'
 npm start
 ```
 
-从仓库根目录进入项目，访问 http://127.0.0.1:3002。这个 Node server 构建输出在 .output，不能只取 .output/public 就认为已保留动态 SSR。
+从仓库根目录进入项目，访问 <http://127.0.0.1:3002>。这个 Node server 构建输出在 .output，不能只取 .output/public 就认为已保留动态 SSR。
 
 开发时使用 npm run dev，端口同样是 3002；不要与生产服务同时占用。服务端 API 只提供公共只读文章，没有真实用户或数据库。
 

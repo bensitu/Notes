@@ -34,7 +34,7 @@ uv sync --locked --all-extras
 uv run --locked uvicorn task_tools.app:create_app --factory --host 127.0.0.1 --port 8081
 ```
 
-打开 http://127.0.0.1:8081/docs，在交互文档中 POST /api/tasks：
+打开 <http://127.0.0.1:8081/docs>，在交互文档中 POST /api/tasks：
 
 ```json
 {"title": "Learn FastAPI"}

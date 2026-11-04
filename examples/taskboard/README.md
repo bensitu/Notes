@@ -45,7 +45,7 @@ npm ci
 npm run dev
 ```
 
-打开 http://127.0.0.1:5173，admin / local-demo-change-me 登录。新增、完成、退出后重新登录观察结果。默认 H2 内存库会随 Java 进程退出清空。
+打开 <http://127.0.0.1:5173>，admin / local-demo-change-me 登录。新增、完成、退出后重新登录观察结果。默认 H2 内存库会随 Java 进程退出清空。
 
 使用同一终端照抄两段 Set-Location 会改变相对路径；需要回到仓库根目录，或另开终端再开始。
 
@@ -60,7 +60,7 @@ docker compose ps
 docker compose logs --tail 100 backend
 ```
 
-已有 .env 时保留并检查，不直接覆盖。等待后端健康后打开 http://127.0.0.1:8088；使用 .env 的 APP_PASSWORD。示例文件中的值都是本机练习值，不能用作公网凭证。
+已有 .env 时保留并检查，不直接覆盖。等待后端健康后打开 <http://127.0.0.1:8088>；使用 .env 的 APP_PASSWORD。示例文件中的值都是本机练习值，不能用作公网凭证。
 
 数据存在 mysql-data 命名卷。stop / start 不清数据；down 默认保留卷；删除卷会删除练习数据。先核对项目名、卷名与备份。
 
@@ -80,7 +80,7 @@ uv run --locked pytest
 uv run --locked uvicorn task_tools.app:create_app --factory --host 127.0.0.1 --port 8081
 ```
 
-打开 http://127.0.0.1:8081/docs。FastAPI 使用当前目录 tasks.db，不和 Java H2 / MySQL 共享；这个 API 没有登录，仅绑定本机供练习。结束服务用终端 Ctrl+C。
+打开 <http://127.0.0.1:8081/docs>。FastAPI 使用当前目录 tasks.db，不和 Java H2 / MySQL 共享；这个 API 没有登录，仅绑定本机供练习。结束服务用终端 Ctrl+C。
 
 ## 中间件路线
 
