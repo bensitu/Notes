@@ -11,7 +11,8 @@ export async function validateSite(outDir) {
   const files = await listFiles(outDir, '');
   if (files.some(file => !/^[\x20-\x7e]+$/.test(file))) issues.push('Non-ASCII output filename');
   if (files.filter(file => file.endsWith('.html')).join() !== 'index.html') issues.push('The site must contain exactly one HTML entry');
-  const allDocuments = [...manifest.documents, ...(manifest.translations || [])];
+  const allDocuments = [...manifest.documents, ...(manifest.translations || []), ...(manifest.specialPages || [])];
+  for (const asset of manifest.playgroundAssets || []) if (!files.includes(asset)) issues.push(`Missing playground asset: ${asset}`);
   const routeFiles = new Map([['/', 'README.md'], ['/en/', 'en/README.md'], ['/ja/', 'ja/README.md'], ...allDocuments.map(doc => [doc.route, doc.file])]);
   const parsed = new Map();
   for (const file of ['README.md', '_sidebar.md', '_404.md', 'en/README.md', 'ja/README.md', 'en/_sidebar.md', 'ja/_sidebar.md', ...allDocuments.map(doc => doc.file)]) {

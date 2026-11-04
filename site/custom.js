@@ -8,6 +8,7 @@
   let navigation;
   let searchIndex;
   let observer;
+  let playgroundCleanup;
   const categoryState = new Map();
   const translations = {
     zh: { light: '浅色模式', dark: '深色模式', toLight: '切换到浅色模式', toDark: '切换到深色模式', search: '搜索笔记', title: '搜索全部笔记', close: '关闭', keyword: '关键词', hint: '输入关键词搜索文章标题与全文。', searching: '正在搜索…', noResults: '没有找到结果，请换一个关键词。', failed: '搜索暂时无法加载，请稍后重试。', matches: n => '找到 ' + n + ' 个章节，显示前 15 项。', toc: '本页目录', emptyToc: '本页没有子章节', copy: '复制', copied: '已复制', copyLabel: '复制此代码块', previous: '上一篇', next: '下一篇', source: '在 GitHub 查看源文档 ↗', missing: '尚无译文，可阅读中文版。', outdated: '此译文对应较早的原文，请参考最新中文版。', chinese: '最新中文版', reviewed: '已人工审校', machine: '机器翻译，尚未标记人工审校' },
@@ -54,6 +55,7 @@
     $('.brand-caption').textContent = { zh: '开发学习笔记', en: 'Developer notes', ja: '開発ノート' }[language()];
     $('.site-brand').href = config.basePath + '#' + (language() === 'zh' ? '/' : '/' + language() + '/');
     $('.site-brand').setAttribute('aria-label', 'Notes · ' + copy.title);
+    $('.playground-link').href = config.basePath + '#' + (language() === 'zh' ? '' : '/' + language()) + '/playground';
     applyTheme(document.documentElement.dataset.theme);
   }
   function translationNotice() {
@@ -244,6 +246,12 @@
   }
 
   function sitePlugin(hook) {
+    hook.beforeEach(content => {
+      playgroundCleanup?.();
+      playgroundCleanup = null;
+      document.body.classList.remove('playground-page');
+      return content;
+    });
     hook.doneEach(async () => {
       localize();
       revealAnchor();
@@ -254,7 +262,31 @@
         navigation ||= await loadJson('navigation.json');
         translationNotice();
         updatePagination();
-      } catch { announce('文章顺序暂时无法加载，请使用左侧导航'); }
+        const root = $('#playground-root');
+        if (root) {
+          document.body.classList.add('playground-page');
+          const { mountPlayground } = await import(asset('playground-host.js'));
+          if (root.isConnected) {
+            playgroundCleanup = await mountPlayground(root, { assetPath: config.assetPath, language: language() });
+            root.setAttribute('aria-busy', 'false');
+          }
+        } else {
+          const current = navigation.locales[language()].find(doc => doc.route === routePath());
+          if (current?.playground) {
+            const aside = document.createElement('aside');
+            aside.className = 'article-playground';
+            const link = document.createElement('a');
+            link.href = '#' + (language() === 'zh' ? '' : '/' + language()) + '/playground?demo=' + current.playground;
+            link.textContent = { zh: '在 Playground 中修改并运行示例 →', en: 'Edit and run an example in Playground →', ja: 'Playground でサンプルを編集・実行 →' }[language()];
+            aside.append(link);
+            $('#main h1')?.after(aside);
+          }
+        }
+      } catch {
+        const root = $('#playground-root');
+        if (root) { root.textContent = '示例加载失败，请刷新页面重试。'; root.setAttribute('aria-busy', 'false'); }
+        else announce('文章顺序暂时无法加载，请使用左侧导航');
+      }
     });
     hook.ready(updateSidebar);
   }
@@ -272,7 +304,7 @@
     skipLink: '跳到正文',
     requestHeaders: { 'Cache-Control': 'no-cache' },
     noCompileLinks: ['^' + config.basePath + 'assets/.*'],
-    alias: { '/en/_sidebar.md': resource('en/_sidebar.md'), '/ja/_sidebar.md': resource('ja/_sidebar.md'), '/.*/_sidebar.md': resource('_sidebar.md'), '/_sidebar.md': resource('_sidebar.md'), '/en/': resource('en/README.md'), '/ja/': resource('ja/README.md'), '/en/(.*)': resource('en/$1.md'), '/ja/(.*)': resource('ja/$1.md'), '/zh/(.*)': resource('zh/$1.md') },
+    alias: { '/playground': resource('playground.md'), '/en/_sidebar.md': resource('en/_sidebar.md'), '/ja/_sidebar.md': resource('ja/_sidebar.md'), '/.*/_sidebar.md': resource('_sidebar.md'), '/_sidebar.md': resource('_sidebar.md'), '/en/': resource('en/README.md'), '/ja/': resource('ja/README.md'), '/en/(.*)': resource('en/$1.md'), '/ja/(.*)': resource('ja/$1.md'), '/zh/(.*)': resource('zh/$1.md') },
     markdown(marked, renderer) {
       const originalImage = renderer.image;
       renderer.image = token => originalImage({ ...token, href: token.href.startsWith(config.basePath + 'assets/') ? new URL(token.href, location.origin).href : token.href });
@@ -286,6 +318,10 @@
     $('#language-select').addEventListener('change', async event => {
       navigation ||= await loadJson('navigation.json');
       const lang = event.target.value;
+      if (/^\/(?:en\/|ja\/)?playground$/.test(routePath())) {
+        location.hash = (lang === 'zh' ? '' : '/' + lang) + '/playground' + (location.hash.includes('?') ? '?' + location.hash.split('?')[1] : '');
+        return;
+      }
       const current = Object.values(navigation.locales).flat().find(doc => !doc.fallback && doc.route === routePath());
       const target = current && navigation.locales[lang].find(doc => doc.source === current.source);
       const id = new URLSearchParams(location.hash.split('?')[1]).get('id');

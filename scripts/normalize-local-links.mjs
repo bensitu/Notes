@@ -14,7 +14,7 @@ export function normalizeLocalLinks(source) {
     if (node.type === 'link' && !/^https?:\/\//.test(raw)) return;
     if (node.type === 'text' && !raw.includes('http')) return;
     // Explicit links, code and HTML attributes are handled by their own syntax.
-    for (const match of raw.matchAll(/https?:\/\/(?:127(?:\.\d{1,3}){3}|localhost|\[::1\])(?::\d+)?(?:[/?#][^\s<>`，。；！？、：]*)?/g)) {
+    for (const match of raw.matchAll(/https?:\/\/(?:127(?:\.\d{1,3}){3}|localhost|\[::1\])(?::\d+)?(?![a-zA-Z0-9_:-]|\.[a-zA-Z0-9])(?:[/?#][^\s<>`，。；！？、：]*)?/g)) {
       if (node.type === 'text') {
         const insideLink = treeContainsLink(tree, node);
         if (insideLink) continue;

@@ -5,6 +5,8 @@ import { createResolver, hash, listFiles, loadNotes, textOf, transformDocument, 
 import { generateNav } from './generate-nav.mjs';
 import { loadPublished } from './translation/published.mjs';
 import { locales } from './site-locales.mjs';
+import { buildPlayground, playgroundPages } from './build-playground.mjs';
+import { samples } from '../site/playground/samples.mjs';
 
 export function normalizeBase(value = '/Notes/') {
   if (!value.startsWith('/') || /[?#\\]/.test(value) || value.includes('..') || value.includes('//') || !/^\/[a-zA-Z\d/_-]*$/.test(value)) throw new Error(`Unsafe site base path: ${value}`);
@@ -25,6 +27,7 @@ export async function buildSite({ root, outDir, basePath = '/Notes/', revision =
   for (const language of ['en', 'ja']) for (const doc of published[language].values()) inputs.push(language + '\0' + doc.original + '\0' + JSON.stringify(doc.entry));
   for (const resource of resources) inputs.push(resource + '\0' + hash(await fs.readFile(path.join(root, resource)), 64));
   for (const relative of ['package-lock.json', 'site/index.html', 'site/custom.css', 'site/custom.js', 'scripts/site-lib.mjs', 'scripts/build-site.mjs', 'scripts/generate-nav.mjs', 'scripts/site-locales.mjs', 'scripts/translation/published.mjs']) inputs.push(await fs.readFile(path.join(toolingRoot, relative), 'utf8'));
+  for (const relative of ['scripts/build-playground.mjs', ...(await listFiles(toolingRoot, 'site/playground'))]) inputs.push(await fs.readFile(path.join(toolingRoot, relative), 'utf8'));
   const version = hash(inputs.join('\0'), 20);
   const resolver = createResolver(root, documents, { basePath, revision, version });
   const transformed = new Map();
@@ -66,6 +69,8 @@ export async function buildSite({ root, outDir, basePath = '/Notes/', revision =
   for (const doc of documents) if (doc !== readme) await destination(`zh/${doc.slug}.md`, transformed.get(doc.source));
   await destination('README.md', nav.index + '\n---\n\n<details class="source-readme">\n<summary>仓库 README：说明与原始目录</summary>\n\n' + transformed.get('README.md') + '\n</details>\n');
   await destination('_sidebar.md', nav.sidebar);
+  const specialPages = playgroundPages();
+  for (const page of specialPages) await destination(page.file, '# Playground :id=playground\n\n<div id="playground-root" aria-busy="true">Loading…</div>\n');
   for (const language of ['en', 'ja']) {
     await destination(`${language}/README.md`, localePages[language].nav.index);
     await destination(`${language}/_sidebar.md`, localePages[language].nav.sidebar);
@@ -89,9 +94,11 @@ export async function buildSite({ root, outDir, basePath = '/Notes/', revision =
   for (const lang of languages) vendor.push([`prismjs/components/prism-${lang}.min.js`, `prism-${lang}.min.js`]);
   for (const [source, target] of vendor) await destination(`${assets}/${target}`, await fs.readFile(path.join(toolingRoot, 'node_modules', source)));
   for (const filename of ['custom.css', 'custom.js']) await destination(`${assets}/${filename}`, await fs.readFile(path.join(toolingRoot, 'site', filename)));
+  const playgroundAssets = await buildPlayground({ toolingRoot, assets, destination, documents });
   const manifest = {
     version, basePath, repository: 'https://github.com/bensitu/Notes', revision,
-    documents: nav.ordered.map(doc => ({ source: doc.source, route: doc.route, title: doc.title, label: doc.label, category: doc.category, file: `zh/${doc.slug}.md`, headings: doc.headings.map(({ node, ...heading }) => heading), anchors: Object.fromEntries(doc.anchors), digest: hash(doc.original, 64) })),
+    specialPages, playgroundAssets,
+    documents: nav.ordered.map(doc => ({ source: doc.source, route: doc.route, title: doc.title, label: doc.label, category: doc.category, file: `zh/${doc.slug}.md`, headings: doc.headings.map(({ node, ...heading }) => heading), anchors: Object.fromEntries(doc.anchors), digest: hash(doc.original, 64), playground: samples.find(sample => sample.sources.includes(doc.source))?.id })),
     translations: ['en', 'ja'].flatMap(language => [...published[language].values()].map(doc => ({ source: doc.source, language, route: doc.route, file: `${language}/${doc.slug}.md`, title: doc.title, label: doc.label, category: doc.category, status: doc.status, anchors: Object.fromEntries(doc.anchors), headings: doc.headings.map(({ node, ...heading }) => heading) }))),
     translationWarnings: published.warnings,
     media: Object.fromEntries(resolver.media), checkedLinks: resolver.checked,

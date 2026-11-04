@@ -6,7 +6,7 @@ const baseURL = 'http://127.0.0.1:4173' + manifest.basePath;
 
 export default defineConfig({
   testDir: '.',
-  testMatch: 'browser.spec.mjs',
+  testMatch: ['browser.spec.mjs', 'playground.spec.mjs'],
   fullyParallel: false,
   workers: 1,
   use: { baseURL, headless: true, trace: 'retain-on-failure' },

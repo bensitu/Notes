@@ -77,8 +77,8 @@ button, summary { cursor: pointer; }
 .sidebar { top: 64px; padding: 20px 24px 32px; background: var(--page-surface); border-right: 0; }
 .sidebar .app-name { display: none; }
 .sidebar-nav { padding-top: 0; }
-.sidebar-nav .nav-home { display: block; margin: 0 0 20px; padding: 5px 8px; color: var(--color-text); text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 5px; }
-.sidebar-nav .nav-home.is-current { color: var(--theme-color); background: var(--brand-soft); }
+.sidebar-nav .nav-home, .sidebar-nav .nav-playground { display: block; margin: 0 0 20px; padding: 5px 8px; color: var(--color-text); text-decoration: none; font-size: 14px; font-weight: 600; border-radius: 5px; }
+.sidebar-nav .nav-home.is-current, .sidebar-nav .nav-playground.is-current { color: var(--theme-color); background: var(--brand-soft); }
 .sidebar-nav details { margin: 0 0 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
 .sidebar-nav details:last-child { border-bottom: 0; }
 .sidebar-nav summary { position: relative; padding: 6px 22px 8px 8px; list-style: none; color: var(--color-text); font-size: 13px; font-weight: 650; line-height: 22px; }
