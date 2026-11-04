@@ -28,9 +28,8 @@ export function generateNav(documents, { language = 'zh', translations = new Map
       const translated = translations.get(doc.source);
       const route = translated?.route || doc.route;
       const label = translated?.label || doc.label;
-      const fallback = language !== 'zh' && !translated ? ` · ${copy.only}` : '';
-      sidebar += `<li><a href="#${route}">${escapeHtml(label)}${fallback ? `<small class="translation-fallback">${copy.only}</small>` : ''}</a></li>\n`;
-      index += `- [${label.replaceAll('[', '\\[').replaceAll(']', '\\]')}](${route})${fallback}\n`;
+      sidebar += `<li><a href="#${route}">${escapeHtml(label)}</a></li>\n`;
+      index += `- [${label.replaceAll('[', '\\[').replaceAll(']', '\\]')}](${route})\n`;
     }
     sidebar += '</ul></details>\n\n';
     index += '\n';
