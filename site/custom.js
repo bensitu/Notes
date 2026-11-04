@@ -31,6 +31,17 @@
   const routePath = () => location.hash.slice(1).split('?')[0] || '/';
   const currentLink = id => '#' + routePath() + '?id=' + encodeURIComponent(id);
   function announce(message) { $('#site-status').textContent = message; }
+  function revealAnchor() {
+    const id = new URLSearchParams(location.hash.split('?')[1]).get('id');
+    let target = id && document.getElementById(id);
+    while (target) {
+      const details = target.closest('details');
+      if (!details) break;
+      details.open = true;
+      target = details.parentElement;
+    }
+  }
+  window.addEventListener('hashchange', revealAnchor);
 
   function decorateArticle() {
     const article = $('#main');
@@ -142,7 +153,12 @@
       if (item.top < bounds.top || item.bottom > bounds.bottom) aside.scrollTop += item.top - bounds.top - aside.clientHeight / 2;
     }
     const toggle = $('.sidebar-toggle-button');
-    if (toggle) toggle.setAttribute('aria-label', '展开或收起文章导航');
+    if (toggle) {
+      toggle.setAttribute('aria-label', '展开或收起文章导航');
+      toggle.setAttribute('aria-keyshortcuts', '\\');
+    }
+    const toggleButton = $('.sidebar-toggle');
+    if (toggleButton) toggleButton.title = '展开或收起导航（快捷键 \\）';
   }
 
   function updatePagination() {
@@ -173,7 +189,7 @@
     if (index >= 0) {
       const source = document.createElement('a');
       source.className = 'article-source';
-      source.href = config.repository + '/blob/main/' + docs[index].source.split('/').map(encodeURIComponent).join('/');
+      source.href = config.repository + '/blob/' + encodeURIComponent(config.revision) + '/' + docs[index].source.split('/').map(encodeURIComponent).join('/');
       source.target = '_blank';
       source.rel = 'noopener noreferrer';
       source.textContent = '在 GitHub 查看源文档 ↗';
@@ -184,6 +200,7 @@
 
   function sitePlugin(hook) {
     hook.doneEach(async () => {
+      revealAnchor();
       decorateArticle();
       updateToc();
       updateSidebar();

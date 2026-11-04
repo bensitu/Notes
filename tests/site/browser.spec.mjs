@@ -13,8 +13,8 @@ test('homepage, generated categories, search, theme and keyboard work under the 
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('./#/');
   await expect(page.locator('#main h1').first()).toContainText('开发学习');
-  await expect(page.locator('.nav-category')).toHaveCount(7);
-  await expect(page.locator('.nav-category li a')).toHaveCount(60);
+  await expect(page.locator('.nav-category')).toHaveCount(new Set(manifest.documents.map(item => item.category)).size);
+  await expect(page.locator('.nav-category li a')).toHaveCount(manifest.documents.length);
   await page.keyboard.press('/');
   await expect(page.getByRole('dialog')).toBeVisible();
   await page.getByLabel('关键词', { exact: true }).fill('murmur2');
@@ -54,13 +54,16 @@ test('local images and GitHub example links are served with the correct target',
   await page.goto('./#' + doc('MyBatis的使用.md').route);
   const image = page.locator('#main img').first();
   await image.scrollIntoViewIfNeeded();
-  await expect(image).toHaveAttribute('src', /^http:\/\/127\.0\.0\.1:4173\/Notes\/assets\/media\/[a-f\d]+\.png\?v=/);
+  const imageUrl = new URL(await image.getAttribute('src'));
+  expect(imageUrl.origin).toBe('http://127.0.0.1:4173');
+  expect(imageUrl.pathname.startsWith(manifest.basePath + 'assets/media/')).toBe(true);
+  expect(imageUrl.searchParams.get('v')).toBe(manifest.version);
   await expect.poll(() => image.evaluate(element => element.naturalWidth)).toBeGreaterThan(0);
   const rawHtmlImage = page.locator('#main img[style]').first();
   expect((await request.get(await rawHtmlImage.getAttribute('src'))).status()).toBe(200);
   await page.goto('./#' + doc('React基础与组件.md').route);
-  await expect(page.locator('#main a[href*="/blob/main/examples/react-taskboard/src/TaskForm.tsx"]')).toHaveCount(1);
-  await expect(page.locator('#main a[href*="/blob/main/examples/react-taskboard/README.md"]')).toHaveCount(1);
+  await expect(page.locator('#main a[href*="/blob/' + encodeURIComponent(manifest.revision) + '/examples/react-taskboard/src/TaskForm.tsx"]')).toHaveCount(1);
+  await expect(page.locator('#main a[href*="/blob/' + encodeURIComponent(manifest.revision) + '/examples/react-taskboard/README.md"]')).toHaveCount(1);
 });
 
 test('long Vue article remains usable on mobile and navigation can be toggled', async ({ page }) => {

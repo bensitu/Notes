@@ -83,7 +83,7 @@ export async function buildSite({ root, outDir, basePath = '/Notes/', revision =
     if (section.text.trim()) search.push(section);
   }
   await destination(`${assets}/search-index.json`, JSON.stringify(search));
-  const config = { basePath, version, assetPath: basePath + assets + '/', repository: manifest.repository, languages };
+  const config = { basePath, version, assetPath: basePath + assets + '/', repository: manifest.repository, revision, languages };
   const html = (await fs.readFile(path.join(toolingRoot, 'site/index.html'), 'utf8'))
     .replaceAll('@@BASE@@', basePath).replaceAll('@@ASSETS@@', basePath + assets + '/').replace('@@CONFIG@@', JSON.stringify(config).replaceAll('<', '\\u003c'))
     .replace('@@LANGUAGES@@', languages.map(lang => `<script defer src="${basePath}${assets}/prism-${lang}.min.js"></script>`).join('\n'));

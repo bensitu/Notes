@@ -104,7 +104,8 @@ button, summary { cursor: pointer; }
 .site-header nav a { text-decoration: none; }
 .sidebar .sidebar-nav li a { color: var(--muted); }
 .sidebar .sidebar-nav li a.is-current { color: var(--theme-color); }
-.sidebar-toggle { top: 78px; bottom: auto; z-index: 65; }
+.sidebar-toggle { top: 78px; bottom: auto; z-index: 65; width: 44px; height: 36px; }
+.sidebar-toggle-button { width: 36px; height: 36px; margin: 0 0 0 8px; border-radius: 7px; }
 @media (min-width: 769px) { .sidebar-toggle { display: none; } }
 @media (max-width: 1199px) { .page-toc { display: none; } .content { padding-right: 0; } }
 @media (max-width: 768px) {

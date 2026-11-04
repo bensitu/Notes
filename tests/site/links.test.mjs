@@ -8,10 +8,11 @@ import { fixture } from './helpers.mjs';
 test('encoded filenames, references, HTML media, anchors and examples resolve without touching code', async t => {
   const unusual = '中文 空格, &+%.md';
   const code = '```md\n[unchanged](missing.md)\n```';
-  const body = `# Start\n\n[encoded](${encodeURIComponent(unusual)}?mode=a%2Bb#${encodeURIComponent('你好-世界')})\n\n[reference][ref]\n\n[ref]: ${encodeURIComponent(unusual)}#section-1\n\n<img src="Resources/图%25.png" alt="test">\n\n[code](examples/demo/a.ts)\n\n${code}\n`;
+  const body = `# Start\n\n[encoded](${encodeURIComponent(unusual)}?mode=a%2Bb#${encodeURIComponent('你好-世界')})\n\n[reference][ref]\n\n[ref]: ${encodeURIComponent(unusual)}#section-1\n\n<img src="Resources/图%25.png" alt="test">\n\n<a href="${encodeURIComponent(unusual)}#section-1">HTML link</a>\n\n[percent](${encodeURIComponent('百分%20原名.md')})\n\n[code](examples/demo/a.ts)\n\n${code}\n`;
   const root = await fixture(t, {
     'README.md': body,
     [unusual]: '# 你好 世界\n\n<a id="section-1"></a>\n\n## Next\n',
+    '百分%20原名.md': '# Literal percent escape in a filename\n',
     'Resources/图%.png': 'fixture',
     'examples/demo/a.ts': 'export const value = 1;',
   });
@@ -23,6 +24,7 @@ test('encoded filenames, references, HTML media, anchors and examples resolve wi
   assert.match(link.url, /mode=a%2Bb&id=h-[a-f\d]+/);
   assert.match(published, /\?id=section-1/);
   assert.match(published, /src="\/assets\/media\/[a-f\d]+\.png"/);
+  assert.match(published, /<a href="#\/zh\/[a-z\d-]+\?id=section-1">HTML link<\/a>/);
   assert.match(published, /github\.com\/bensitu\/Notes\/blob\/main\/examples\/demo\/a\.ts/);
   assert.ok(published.includes(code));
   assert.equal(await fs.readFile(path.join(root, 'README.md'), 'utf8'), body);
