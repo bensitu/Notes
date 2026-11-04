@@ -1,0 +1,80 @@
+name: Review incremental translations
+
+on:
+  schedule:
+    - cron: '23 2 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: translation-f0
+  cancel-in-progress: false
+
+jobs:
+  propose:
+    if: github.repository == 'bensitu/Notes' && github.ref == 'refs/heads/main' && vars.TRANSLATION_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Check out the trusted default-branch snapshot
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.16.0
+          cache: npm
+      - name: Install locked tooling
+        run: npm ci --ignore-scripts --no-fund
+      - name: Check for an existing translation review
+        id: pending
+        run: node scripts/translation/github.mjs pending
+      - name: Restore the machine-only budget and cache branch
+        id: restore
+        if: steps.pending.outputs.blocked == 'false'
+        run: node scripts/translation/github.mjs restore
+      - name: Translate an explicitly enabled F0 pilot or small approved batch
+        if: steps.pending.outputs.blocked == 'false'
+        env:
+          TRANSLATION_ENABLED: ${{ vars.TRANSLATION_ENABLED }}
+          AZURE_TRANSLATOR_SKU: ${{ vars.AZURE_TRANSLATOR_SKU }}
+          TRANSLATION_F0_CONFIRMED: ${{ vars.TRANSLATION_F0_CONFIRMED }}
+          TRANSLATION_PILOT_APPROVED: ${{ vars.TRANSLATION_PILOT_APPROVED }}
+          BUDGET_CHARS: ${{ vars.BUDGET_CHARS || '1800000' }}
+          BILLING_CYCLE_DAY: ${{ vars.BILLING_CYCLE_DAY || '1' }}
+          BILLING_CYCLE_TIMEZONE: ${{ vars.BILLING_CYCLE_TIMEZONE || 'UTC' }}
+          TRANSLATION_BATCH_SIZE: ${{ vars.TRANSLATION_BATCH_SIZE || '3' }}
+          TRANSLATION_PERSIST_STATE: 'true'
+          AZURE_TRANSLATOR_KEY: ${{ secrets.AZURE_TRANSLATOR_KEY }}
+          AZURE_TRANSLATOR_REGION: ${{ vars.AZURE_TRANSLATOR_REGION }}
+          AZURE_TRANSLATOR_ENDPOINT: ${{ vars.AZURE_TRANSLATOR_ENDPOINT }}
+        run: npm run translate:run
+      - name: Persist the final conservative counter and cache
+        if: always() && steps.restore.outcome == 'success'
+        run: node scripts/translation/github.mjs persist
+      - name: Validate the proposed documents before creating a PR
+        if: success() && steps.pending.outputs.blocked == 'false'
+        run: |
+          npm run test:site
+          npm run test:translations
+          npm run validate:translations
+          npm run build:site
+          npm run validate:site
+      - name: Verify real browser behavior before review
+        if: success() && steps.pending.outputs.blocked == 'false'
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:site:browser
+          npm run test:translations:browser
+      - name: Open one review branch and PR without updating main
+        if: success() && steps.pending.outputs.blocked == 'false'
+        run: node scripts/translation/github.mjs pr

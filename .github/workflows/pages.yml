@@ -71,3 +71,29 @@ jobs:
       - name: Deploy the validated artifact
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+
+  translation-checks:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the proposed source without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24.16.0
+          cache: npm
+      - name: Install locked tooling
+        run: npm ci --ignore-scripts --no-fund
+      - name: Check translation structure and failure isolation without Azure
+        run: |
+          npm run test:translations
+          npm run validate:translations
+      - name: Verify localized pages against a mocked translation fixture
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:translations:browser
