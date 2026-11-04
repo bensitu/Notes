@@ -20,7 +20,8 @@
     "translate:run": "node scripts/translation/run.mjs",
     "translate:review": "node scripts/translation/review.mjs",
     "pretest:translations:browser": "node tests/translation/browser-fixture.mjs",
-    "test:translations:browser": "playwright test -c tests/translation/playwright.config.mjs"
+    "test:translations:browser": "playwright test -c tests/translation/playwright.config.mjs",
+    "test:translations:published": "playwright test -c tests/translation/published.config.mjs"
   },
   "dependencies": {
     "@babel/standalone": "8.1.1",

@@ -364,8 +364,9 @@
           const matches = searchIndex.map(section => {
             const title = (section.title + ' ' + section.heading).toLocaleLowerCase();
             const text = section.text.toLocaleLowerCase();
-            return { section, score: words.every(word => (title + ' ' + text).includes(word)) ? words.reduce((score, word) => score + (title.includes(word) ? 10 : 1), 0) : 0 };
-          }).filter(item => item.score).sort((a, b) => b.score - a.score);
+            const sectionLanguage = /^\/(en|ja)\//.exec(section.route)?.[1] || 'zh';
+            return { section, sameLanguage: sectionLanguage === language(), score: words.every(word => (title + ' ' + text).includes(word)) ? words.reduce((score, word) => score + (title.includes(word) ? 10 : 1), 0) : 0 };
+          }).filter(item => item.score).sort((a, b) => Number(b.sameLanguage) - Number(a.sameLanguage) || b.score - a.score);
           status.textContent = matches.length ? ui().matches(matches.length) : ui().noResults;
           for (const { section } of matches.slice(0, 15)) {
             const item = document.createElement('li');

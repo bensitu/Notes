@@ -11,6 +11,7 @@ test('language switching keeps explicit chapter IDs and uses localized navigatio
   await page.getByLabel('Language / 言語 / 语言').selectOption('en');
   await expect(page).toHaveURL(new RegExp(translated(name, 'en').route + '\\?id=section-1$'));
   await expect(page.locator('#main h1')).toHaveText('Lifecycle');
+  await expect(page.locator('.translation-notice')).toHaveCount(0);
   await expect(page.locator('.nav-home')).toHaveText('All notes');
   await page.getByLabel('Language / 言語 / 语言').selectOption('ja');
   await expect(page).toHaveURL(new RegExp(translated(name, 'ja').route + '\\?id=section-1$'));
@@ -49,6 +50,8 @@ test('mobile language controls, localized search and dark mode remain usable', a
   await page.getByRole('button', { name: 'Search', exact: true }).click();
   await page.getByLabel('Keywords', { exact: true }).fill('Component basics');
   await expect(page.locator('#search-results a').first()).toContainText('Component basics');
+  await page.getByLabel('Keywords', { exact: true }).fill('const');
+  await expect(page.locator('#search-results a').first()).toHaveAttribute('href', /^#\/en\//);
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Switch to dark mode' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
