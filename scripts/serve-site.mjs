@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { normalizeBase } from './build-site.mjs';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../.site-dist');
+const root = process.env.SITE_OUTPUT_DIR ? path.resolve(process.env.SITE_OUTPUT_DIR) : path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../.site-dist');
 const basePath = normalizeBase(process.env.SITE_BASE_PATH || '/Notes/');
 const port = Number(process.env.PORT || 4173);
 const types = { '.html': 'text/html; charset=utf-8', '.md': 'text/markdown; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.gif': 'image/gif', '.webp': 'image/webp', '.txt': 'text/plain; charset=utf-8' };

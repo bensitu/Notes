@@ -12,7 +12,14 @@
     "validate:site": "node scripts/validate-site.mjs",
     "test:site": "node --test tests/site/*.test.mjs",
     "test:site:browser": "playwright test -c tests/site/playwright.config.mjs",
-    "serve:site": "node scripts/serve-site.mjs"
+    "serve:site": "node scripts/serve-site.mjs",
+    "test:translations": "node --test tests/translation/*.test.mjs",
+    "validate:translations": "node scripts/translation/validate.mjs",
+    "translate:plan": "node scripts/translation/run.mjs --plan",
+    "translate:run": "node scripts/translation/run.mjs",
+    "translate:review": "node scripts/translation/review.mjs",
+    "pretest:translations:browser": "node tests/translation/browser-fixture.mjs",
+    "test:translations:browser": "playwright test -c tests/translation/playwright.config.mjs"
   },
   "dependencies": {
     "docsify": "5.1.0",

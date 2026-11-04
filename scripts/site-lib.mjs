@@ -13,7 +13,7 @@ import { slugify } from 'docsify/src/core/render/slugify.js';
 
 export const repositoryUrl = 'https://github.com/bensitu/Notes';
 export const parser = unified().use(remarkParse).use(remarkGfm);
-const printer = unified().use(remarkStringify, { bullet: '-', fences: true, listItemIndent: 'one' }).use(remarkGfm);
+export const printer = unified().use(remarkStringify, { bullet: '-', fences: true, listItemIndent: 'one' }).use(remarkGfm);
 export const hash = (text, length = 12) => createHash('sha256').update(text).digest('hex').slice(0, length);
 export const textOf = node => node.children ? node.children.map(textOf).join('') : node.type === 'html' ? '' : node.value || '';
 export const escapeHtml = text => String(text).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
@@ -94,12 +94,14 @@ export async function loadNotes(root) {
     slugify.clear();
     const counts = new Map();
     visit(tree, 'heading', node => {
-      const title = textOf(node).replace(/\s*\{docsify[^}]*\}\s*/g, '').trim();
+      const customId = textOf(node).match(/\s+:id=([\w%-]+)\s*$/)?.[1];
+      const title = textOf(node).replace(/\s+:id=[\w%-]+\s*$/, '').trim();
       const number = counts.get(title) || 0;
       counts.set(title, number + 1);
-      const id = `h-${hash(source + '\0' + title + '\0' + number)}`;
+      const actualSlug = slugify(customId || title);
+      const id = customId ? actualSlug : `h-${hash(source + '\0' + title + '\0' + number)}`;
       if (doc.explicitIds.has(id)) throw new Error(`Heading ID collision: ${source}`);
-      const aliases = [github.slug(title), slugify(title), id];
+      const aliases = [github.slug(title), actualSlug, id];
       for (const alias of aliases) if (!doc.anchors.has(alias)) doc.anchors.set(alias, id);
       doc.headings.push({ node, title, id, depth: node.depth });
     });
@@ -141,7 +143,7 @@ export async function listFiles(root, relative) {
   return result.sort();
 }
 
-export function createResolver(root, documents, { revision = 'main', basePath = '/', version = '' } = {}) {
+export function createResolver(root, documents, { revision = 'main', basePath = '/', version = '', language = 'zh', translations = new Map() } = {}) {
   const bySource = new Map(documents.map(doc => [doc.source, doc]));
   const issues = [];
   const media = new Map();
@@ -166,7 +168,7 @@ export function createResolver(root, documents, { revision = 'main', basePath = 
       const relative = path.relative(await fs.realpath(root), actual);
       if (relative.startsWith('..') || path.isAbsolute(relative) || stat.isSymbolicLink()) return fail('unsafe symbolic link');
       let parent = root;
-      for (const segment of source.split('/')) {
+      for (const segment of source.split('/').filter(Boolean)) {
         if (!directoryEntries.has(parent)) directoryEntries.set(parent, await fs.readdir(parent));
         if (!directoryEntries.get(parent).includes(segment)) return fail('path case mismatch');
         parent = path.join(parent, segment);
@@ -176,18 +178,21 @@ export function createResolver(root, documents, { revision = 'main', basePath = 
     if (target && !image) {
       const query = new URLSearchParams(parts.query);
       const inputId = parts.anchor || query.get('id');
+      let translated = translations.get(target.source);
       if (inputId) {
         let anchor;
-        try { anchor = decodeOnce(inputId); } catch { return fail('invalid anchor encoding'); }
-        const id = target.anchors.get(anchor);
+        try { anchor = parts.anchor ? decodeOnce(inputId) : inputId; } catch { return fail('invalid anchor encoding'); }
+        if (translated && !translated.anchors.has(anchor)) translated = null;
+        const id = translated?.anchors.get(anchor) || target.anchors.get(anchor);
         if (!id) return fail(`missing anchor: ${anchor}`);
         query.set('id', id);
       }
-      const result = target.route + (query.size ? '?' + query.toString() : '');
+      const route = translated?.route || (target.source === 'README.md' && language !== 'zh' && !inputId ? `/${language}/` : target.route);
+      const result = route + (query.size ? '?' + query.toString() : '');
       checked.push({ source: doc.source, url, target: source, result, kind: 'document' });
       return result;
     }
-    if (source.startsWith('Resources/') || (image && !source.startsWith('examples/'))) {
+    if ((source.startsWith('Resources/') && stat.isFile()) || (image && !source.startsWith('examples/'))) {
       if (!stat.isFile()) return fail('media target is not a file');
       const extension = path.posix.extname(source).toLowerCase();
       if (!/^\.[a-z\d]{1,10}$/.test(extension)) return fail('unsafe media extension');
@@ -219,7 +224,7 @@ export async function transformDocument(doc, resolver) {
       const replacements = new Map();
       for (const [value, image] of values) {
         let result = await resolver.rewrite(value, doc, { image });
-        if (!image && (result === '/' || result.startsWith('/?') || result.startsWith('/zh/'))) result = '#' + result;
+        if (!image && (result === '/' || result.startsWith('/?') || /^\/(?:zh|en|ja)\//.test(result))) result = '#' + result;
         replacements.set(value, result);
       }
       node.value = htmlAttributes(node.value, (tag, name, value) => {
@@ -231,6 +236,8 @@ export async function transformDocument(doc, resolver) {
   let heading = 0;
   visit(tree, 'heading', node => {
     const info = doc.headings[heading++];
+    const last = node.children.at(-1);
+    if (last?.type === 'text') last.value = last.value.replace(/\s+:id=[\w%-]+\s*$/, '');
     node.children.push({ type: 'text', value: ` :id=${info.id}` });
   });
   return printer.stringify(tree);

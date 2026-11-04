@@ -9,6 +9,13 @@
   let searchIndex;
   let observer;
   const categoryState = new Map();
+  const translations = {
+    zh: { light: '浅色模式', dark: '深色模式', toLight: '切换到浅色模式', toDark: '切换到深色模式', search: '搜索笔记', title: '搜索全部笔记', close: '关闭', keyword: '关键词', hint: '输入关键词搜索文章标题与全文。', searching: '正在搜索…', noResults: '没有找到结果，请换一个关键词。', failed: '搜索暂时无法加载，请稍后重试。', matches: n => '找到 ' + n + ' 个章节，显示前 15 项。', toc: '本页目录', emptyToc: '本页没有子章节', copy: '复制', copied: '已复制', copyLabel: '复制此代码块', previous: '上一篇', next: '下一篇', source: '在 GitHub 查看源文档 ↗', missing: '尚无译文，可阅读中文版。', outdated: '此译文对应较早的原文，请参考最新中文版。', chinese: '最新中文版', reviewed: '已人工审校', machine: '机器翻译，尚未标记人工审校' },
+    en: { light: 'Light mode', dark: 'Dark mode', toLight: 'Switch to light mode', toDark: 'Switch to dark mode', search: 'Search', title: 'Search all notes', close: 'Close', keyword: 'Keywords', hint: 'Search article titles and full text.', searching: 'Searching…', noResults: 'No results. Try another keyword.', failed: 'Search is unavailable. Please try again.', matches: n => n + ' matching sections; showing up to 15.', toc: 'On this page', emptyToc: 'No subsections', copy: 'Copy', copied: 'Copied', copyLabel: 'Copy this code block', previous: 'Previous', next: 'Next', source: 'View Chinese source on GitHub ↗', missing: 'This translation is not available. Read the Chinese article.', outdated: 'This translation reflects an earlier source. Check the latest Chinese article.', chinese: 'Latest Chinese source', reviewed: 'Human reviewed', machine: 'Machine translation; not marked as human reviewed' },
+    ja: { light: 'ライトモード', dark: 'ダークモード', toLight: 'ライトモードに切替', toDark: 'ダークモードに切替', search: '検索', title: 'すべてのノートを検索', close: '閉じる', keyword: 'キーワード', hint: '記事のタイトルと本文を検索します。', searching: '検索中…', noResults: '見つかりません。別のキーワードをお試しください。', failed: '検索を読み込めません。再度お試しください。', matches: n => n + ' 件の節が一致しました。先頭 15 件を表示します。', toc: 'このページの目次', emptyToc: '小見出しはありません', copy: 'コピー', copied: 'コピー済み', copyLabel: 'コードをコピー', previous: '前の記事', next: '次の記事', source: 'GitHub で中国語原文を表示 ↗', missing: 'この翻訳はまだありません。中国語の記事をご覧ください。', outdated: 'この翻訳は以前の原文に対応しています。最新の中国語版も確認してください。', chinese: '最新の中国語原文', reviewed: '人による校閲済み', machine: '機械翻訳・人による校閲は未登録' },
+  };
+  function language() { return /^#\/(en|ja)(?:\/|$)/.exec(location.hash)?.[1] || 'zh'; }
+  function ui() { return translations[language()]; }
   const systemTheme = matchMedia('(prefers-color-scheme: dark)');
   const storedTheme = () => { try { return localStorage.getItem('notes-theme'); } catch { return null; } };
   function applyTheme(mode) {
@@ -16,8 +23,8 @@
     document.documentElement.dataset.theme = mode;
     const button = $('#theme-toggle');
     if (button) {
-      button.textContent = dark ? '浅色模式' : '深色模式';
-      button.setAttribute('aria-label', dark ? '切换到浅色模式' : '切换到深色模式');
+      button.textContent = dark ? ui().light : ui().dark;
+      button.setAttribute('aria-label', dark ? ui().toLight : ui().toDark);
     }
   }
   applyTheme(storedTheme() || (systemTheme.matches ? 'dark' : 'light'));
@@ -31,6 +38,44 @@
   const routePath = () => location.hash.slice(1).split('?')[0] || '/';
   const currentLink = id => '#' + routePath() + '?id=' + encodeURIComponent(id);
   function announce(message) { $('#site-status').textContent = message; }
+  function localize() {
+    const copy = ui();
+    document.documentElement.lang = { zh: 'zh-CN', en: 'en', ja: 'ja' }[language()];
+    $('#language-select').value = language();
+    $('.search-button-label').textContent = copy.search;
+    $('#search-open').setAttribute('aria-label', copy.search);
+    $('#search-title').textContent = copy.title;
+    $('#search-close').textContent = copy.close;
+    $('#search-close').setAttribute('aria-label', copy.close);
+    $('label[for="search-input"]').textContent = copy.keyword;
+    $('#search-input').placeholder = copy.keyword;
+    if (!$('#search-input').value) $('#search-status').textContent = copy.hint;
+    $('.toc-title').textContent = copy.toc;
+    $('.brand-caption').textContent = { zh: '开发学习笔记', en: 'Developer notes', ja: '開発ノート' }[language()];
+    $('.site-brand').href = config.basePath + '#' + (language() === 'zh' ? '/' : '/' + language() + '/');
+    $('.site-brand').setAttribute('aria-label', 'Notes · ' + copy.title);
+    applyTheme(document.documentElement.dataset.theme);
+  }
+  function translationNotice() {
+    const article = $('#main');
+    article.querySelector('.translation-notice')?.remove();
+    const lang = language();
+    if (lang === 'zh') return;
+    const item = navigation.locales[lang].find(doc => doc.route === routePath() && !doc.fallback);
+    const missing = new URLSearchParams(location.hash.split('?')[1]).get('source');
+    const source = item ? navigation.documents.find(doc => doc.source === item.source) : navigation.documents.find(doc => doc.file === 'zh/' + missing + '.md');
+    if (!item && !source) return;
+    const notice = document.createElement('aside');
+    notice.className = 'translation-notice' + (item?.status === 'outdated' ? ' is-outdated' : '');
+    notice.setAttribute('role', 'note');
+    const text = document.createElement('p');
+    text.textContent = !item ? ui().missing : item.status === 'outdated' ? ui().outdated : item.status === 'human_reviewed' ? ui().reviewed : ui().machine;
+    const link = document.createElement('a');
+    link.href = '#' + source.route;
+    link.textContent = ui().chinese;
+    notice.append(text, link);
+    article.querySelector('h1')?.after(notice);
+  }
   function revealAnchor() {
     const id = new URLSearchParams(location.hash.split('?')[1]).get('id');
     let target = id && document.getElementById(id);
@@ -62,8 +107,8 @@
       const button = document.createElement('button');
       button.className = 'copy-code';
       button.type = 'button';
-      button.textContent = '复制';
-      button.setAttribute('aria-label', '复制此代码块');
+      button.textContent = ui().copy;
+      button.setAttribute('aria-label', ui().copyLabel);
       button.addEventListener('click', async () => {
         try {
           if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(code.textContent);
@@ -78,13 +123,13 @@
             button.focus();
             if (!copied) throw new Error('Clipboard unavailable');
           }
-          button.textContent = '已复制';
-          announce('代码已复制');
+          button.textContent = ui().copied;
+          announce(ui().copied);
         } catch {
           button.textContent = '请选中后复制';
           announce('复制未完成，请选中代码手动复制');
         }
-        setTimeout(() => { if (button.isConnected) button.textContent = '复制'; }, 2000);
+        setTimeout(() => { if (button.isConnected) button.textContent = ui().copy; }, 2000);
       });
       pre.append(button);
     }
@@ -106,7 +151,7 @@
       container.append(link);
       links.set(heading.id, link);
     }
-    if (!headings.length) container.textContent = '本页没有子章节';
+    if (!headings.length) container.textContent = ui().emptyToc;
     const activate = id => {
       for (const [key, link] of links) {
         link.classList.toggle('is-active', key === id);
@@ -164,15 +209,15 @@
   function updatePagination() {
     const article = $('#main');
     article.querySelector('.article-navigation')?.remove();
-    const docs = navigation.documents;
+    const docs = navigation.locales[language()];
     const index = docs.findIndex(doc => doc.route === routePath());
-    if (index < 0 && routePath() !== '/') return;
+    if (index < 0 && routePath() !== '/' && routePath() !== '/' + language() + '/') return;
     const nav = document.createElement('nav');
     nav.className = 'article-navigation';
     nav.setAttribute('aria-label', '相邻文章');
     const previous = index > 0 ? docs[index - 1] : null;
     const next = index < 0 ? docs[0] : docs[index + 1];
-    for (const [doc, caption] of [[previous, '上一篇'], [next, '下一篇']]) {
+    for (const [doc, caption] of [[previous, ui().previous], [next, ui().next]]) {
       const item = document.createElement('div');
       if (doc) {
         const link = document.createElement('a');
@@ -192,7 +237,7 @@
       source.href = config.repository + '/blob/' + encodeURIComponent(config.revision) + '/' + docs[index].source.split('/').map(encodeURIComponent).join('/');
       source.target = '_blank';
       source.rel = 'noopener noreferrer';
-      source.textContent = '在 GitHub 查看源文档 ↗';
+      source.textContent = ui().source;
       article.append(source);
     }
     article.append(nav);
@@ -200,12 +245,14 @@
 
   function sitePlugin(hook) {
     hook.doneEach(async () => {
+      localize();
       revealAnchor();
       decorateArticle();
       updateToc();
       updateSidebar();
       try {
         navigation ||= await loadJson('navigation.json');
+        translationNotice();
         updatePagination();
       } catch { announce('文章顺序暂时无法加载，请使用左侧导航'); }
     });
@@ -225,7 +272,7 @@
     skipLink: '跳到正文',
     requestHeaders: { 'Cache-Control': 'no-cache' },
     noCompileLinks: ['^' + config.basePath + 'assets/.*'],
-    alias: { '/.*/_sidebar.md': resource('_sidebar.md'), '/_sidebar.md': resource('_sidebar.md'), '/zh/(.*)': resource('zh/$1.md') },
+    alias: { '/en/_sidebar.md': resource('en/_sidebar.md'), '/ja/_sidebar.md': resource('ja/_sidebar.md'), '/.*/_sidebar.md': resource('_sidebar.md'), '/_sidebar.md': resource('_sidebar.md'), '/en/': resource('en/README.md'), '/ja/': resource('ja/README.md'), '/en/(.*)': resource('en/$1.md'), '/ja/(.*)': resource('ja/$1.md'), '/zh/(.*)': resource('zh/$1.md') },
     markdown(marked, renderer) {
       const originalImage = renderer.image;
       renderer.image = token => originalImage({ ...token, href: token.href.startsWith(config.basePath + 'assets/') ? new URL(token.href, location.origin).href : token.href });
@@ -236,6 +283,15 @@
   };
 
   document.addEventListener('DOMContentLoaded', () => {
+    $('#language-select').addEventListener('change', async event => {
+      navigation ||= await loadJson('navigation.json');
+      const lang = event.target.value;
+      const current = Object.values(navigation.locales).flat().find(doc => !doc.fallback && doc.route === routePath());
+      const target = current && navigation.locales[lang].find(doc => doc.source === current.source);
+      const id = new URLSearchParams(location.hash.split('?')[1]).get('id');
+      const anchor = id && target && Object.values(target.anchors || {}).includes(id) ? '?id=' + encodeURIComponent(id) : '';
+      location.hash = target && !target.fallback ? target.route + anchor : (lang === 'zh' ? '/' : '/' + lang + '/') + (current ? '?source=' + current.file.split('/').at(-1).replace(/\.md$/, '') : '');
+    });
     applyTheme(document.documentElement.dataset.theme);
     $('#theme-toggle').addEventListener('click', () => {
       const theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
@@ -249,6 +305,7 @@
     const open = () => { if (!dialog.open) dialog.showModal(); input.focus(); };
     $('#search-open').addEventListener('click', open);
     $('#search-close').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); dialog.close(); } }, true);
     dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
     document.addEventListener('keydown', event => {
       if (event.key === '/' && !event.ctrlKey && !event.metaKey && !event.altKey && !event.target.closest('input,textarea,select,[contenteditable]')) { event.preventDefault(); open(); }
@@ -261,8 +318,8 @@
       const current = ++request;
       const query = input.value.trim().toLocaleLowerCase();
       results.replaceChildren();
-      if (!query) { status.textContent = '输入关键词搜索文章标题与全文。'; return; }
-      status.textContent = '正在搜索…';
+      if (!query) { status.textContent = ui().hint; return; }
+      status.textContent = ui().searching;
       debounce = setTimeout(async () => {
         try {
           searchIndex ||= await loadJson('search-index.json');
@@ -273,7 +330,7 @@
             const text = section.text.toLocaleLowerCase();
             return { section, score: words.every(word => (title + ' ' + text).includes(word)) ? words.reduce((score, word) => score + (title.includes(word) ? 10 : 1), 0) : 0 };
           }).filter(item => item.score).sort((a, b) => b.score - a.score);
-          status.textContent = matches.length ? '找到 ' + matches.length + ' 个章节，显示前 15 项。' : '没有找到结果，请换一个关键词。';
+          status.textContent = matches.length ? ui().matches(matches.length) : ui().noResults;
           for (const { section } of matches.slice(0, 15)) {
             const item = document.createElement('li');
             const link = document.createElement('a');
@@ -289,7 +346,7 @@
             item.append(link);
             results.append(item);
           }
-        } catch { if (current === request) status.textContent = '搜索暂时无法加载，请稍后重试。'; }
+        } catch { if (current === request) status.textContent = ui().failed; }
       }, 120);
     });
   });

@@ -1,6 +1,9 @@
 import { escapeHtml, hash } from './site-lib.mjs';
+import { locales } from './site-locales.mjs';
 
-export function generateNav(documents) {
+export function generateNav(documents, { language = 'zh', translations = new Map() } = {}) {
+  const copy = locales[language];
+  const home = language === 'zh' ? '/' : `/${language}/`;
   const categories = new Map();
   for (const doc of documents.filter(doc => doc.source !== 'README.md')) {
     if (!categories.has(doc.category)) categories.set(doc.category, []);
@@ -12,17 +15,22 @@ export function generateNav(documents) {
     return order(a) - order(b) || a.localeCompare(b, 'zh-CN');
   });
   const ordered = [];
-  let sidebar = '<a class="nav-home" href="#/">全部笔记</a>\n\n';
-  let index = '# 开发学习与工程实践笔记\n\n从概念入门，也可在开发时查阅配置、示例和常见问题。选择左侧分类，或搜索全文。\n\n';
-  index += `共 **${documents.length - 1}** 篇文章，按技术领域自动整理。\n\n`;
+  let sidebar = `<a class="nav-home" href="#${home}">${copy.home}</a>\n\n`;
+  let index = `# ${copy.title}\n\n${copy.intro}\n\n`;
+  index += language === 'zh' ? `共 **${documents.length - 1}** 篇文章，按技术领域自动整理。\n\n` : `${translations.size} / ${documents.length - 1} ${language === 'ja' ? '記事に翻訳があります。' : 'articles have a translation.'}\n\n`;
   for (const name of names) {
     const docs = categories.get(name).sort((a, b) => a.order - b.order || a.source.localeCompare(b.source, 'zh-CN'));
     ordered.push(...docs);
-    sidebar += `<details class="nav-category" open><summary>${escapeHtml(name)} <span>${docs.length}</span></summary><ul>\n`;
-    index += `## ${name} :id=category-${hash(name)}\n\n`;
+    const category = copy.categories[name] || name;
+    sidebar += `<details class="nav-category" open><summary>${escapeHtml(category)} <span>${docs.length}</span></summary><ul>\n`;
+    index += `## ${category} :id=category-${hash(name)}\n\n`;
     for (const doc of docs) {
-      sidebar += `<li><a href="#${doc.route}">${escapeHtml(doc.label)}</a></li>\n`;
-      index += `- [${doc.label.replaceAll('[', '\\[').replaceAll(']', '\\]')}](${doc.route})\n`;
+      const translated = translations.get(doc.source);
+      const route = translated?.route || doc.route;
+      const label = translated?.label || doc.label;
+      const fallback = language !== 'zh' && !translated ? ` · ${copy.only}` : '';
+      sidebar += `<li><a href="#${route}">${escapeHtml(label)}${fallback ? `<small class="translation-fallback">${copy.only}</small>` : ''}</a></li>\n`;
+      index += `- [${label.replaceAll('[', '\\[').replaceAll(']', '\\]')}](${route})${fallback}\n`;
     }
     sidebar += '</ul></details>\n\n';
     index += '\n';

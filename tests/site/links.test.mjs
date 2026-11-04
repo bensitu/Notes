@@ -11,7 +11,7 @@ test('encoded filenames, references, HTML media, anchors and examples resolve wi
   const body = `# Start\n\n[encoded](${encodeURIComponent(unusual)}?mode=a%2Bb#${encodeURIComponent('你好-世界')})\n\n[reference][ref]\n\n[ref]: ${encodeURIComponent(unusual)}#section-1\n\n<img src="Resources/图%25.png" alt="test">\n\n<a href="${encodeURIComponent(unusual)}#section-1">HTML link</a>\n\n[percent](${encodeURIComponent('百分%20原名.md')})\n\n[code](examples/demo/a.ts)\n\n${code}\n`;
   const root = await fixture(t, {
     'README.md': body,
-    [unusual]: '# 你好 世界\n\n<a id="section-1"></a>\n\n## Next\n',
+    [unusual]: '# 你好 世界\n\n<a id="section-1"></a>\n\n<a id="literal%20"></a>\n\n## Next\n',
     '百分%20原名.md': '# Literal percent escape in a filename\n',
     'Resources/图%.png': 'fixture',
     'examples/demo/a.ts': 'export const value = 1;',
@@ -30,6 +30,8 @@ test('encoded filenames, references, HTML media, anchors and examples resolve wi
   assert.equal(await fs.readFile(path.join(root, 'README.md'), 'utf8'), body);
   assert.match(publicSlug(unusual), /^[a-z\d-]+$/);
   assert.equal(publicSlug(unusual), publicSlug(unusual));
+  assert.ok((await resolver.rewrite(encodeURIComponent(unusual) + '?id=literal%2520', readme)).endsWith('?id=literal%2520'));
+  assert.equal(await resolver.rewrite('examples/demo/', readme), 'https://github.com/bensitu/Notes/tree/main/examples/demo/');
 });
 
 test('bad links and repository escapes fail explicitly', async t => {

@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "terms": [
+    { "source": "Spring Boot", "en": "Spring Boot", "ja": "Spring Boot" },
+    { "source": "MyBatis", "en": "MyBatis", "ja": "MyBatis" },
+    { "source": "JavaServer Faces", "en": "JavaServer Faces", "ja": "JavaServer Faces" },
+    { "source": "JavaScript", "en": "JavaScript", "ja": "JavaScript" },
+    { "source": "TypeScript", "en": "TypeScript", "ja": "TypeScript" },
+    { "source": "Next.js", "en": "Next.js", "ja": "Next.js" },
+    { "source": "Nuxt", "en": "Nuxt", "ja": "Nuxt" },
+    { "source": "React", "en": "React", "ja": "React" },
+    { "source": "Vue", "en": "Vue", "ja": "Vue" },
+    { "source": "JSF", "en": "JSF", "ja": "JSF" },
+    { "source": "API", "en": "API", "ja": "API" },
+    { "source": "Java", "en": "Java", "ja": "Java" },
+    { "source": "Docker", "en": "Docker", "ja": "Docker" },
+    { "source": "GitHub", "en": "GitHub", "ja": "GitHub" },
+    { "source": "SQLite", "en": "SQLite", "ja": "SQLite" },
+    { "source": "MySQL", "en": "MySQL", "ja": "MySQL" },
+    { "source": "props", "en": "props", "ja": "props" },
+    { "source": "state", "en": "state", "ja": "state" },
+    { "source": "Hooks", "en": "Hooks", "ja": "Hooks" },
+    { "source": "水合", "en": "hydration", "ja": "ハイドレーション" },
+    { "source": "依赖注入", "en": "dependency injection", "ja": "依存性の注入" },
+    { "source": "服务端渲染", "en": "server-side rendering", "ja": "サーバーサイドレンダリング" },
+    { "source": "事务", "en": "transaction", "ja": "トランザクション" }
+  ]
+}

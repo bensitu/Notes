@@ -3,3 +3,6 @@
 /.site-dist/
 /playwright-report/
 /test-results/
+/.translation-state/
+/.translation-run/
+/.translation-browser/

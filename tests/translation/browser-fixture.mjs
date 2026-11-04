@@ -1,0 +1,36 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { buildSite } from '../../scripts/build-site.mjs';
+import { TranslationState } from '../../scripts/translation/state.mjs';
+import { runTranslation, readManifest } from '../../scripts/translation/pipeline.mjs';
+import { createAzureTranslator } from '../../scripts/translation/azure.mjs';
+
+const workspace = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+const root = path.join(workspace, '.translation-browser');
+await fs.mkdir(root, { recursive: true });
+assert.equal(await fs.realpath(root), path.join(await fs.realpath(workspace), '.translation-browser'));
+assert.equal((await fs.lstat(root)).isSymbolicLink(), false);
+await fs.rm(root, { recursive: true, force: true });
+await fs.mkdir(path.join(root, 'Resources'), { recursive: true });
+await fs.mkdir(path.join(root, 'examples/demo'), { recursive: true });
+await fs.writeFile(path.join(root, 'README.md'), '# Fixture home\n');
+await fs.writeFile(path.join(root, 'JSF 基础.md'), '# 生命周期\n\n<a id="section-1"></a>\n\n## 组件基础\n\n说明段落。\n');
+await fs.writeFile(path.join(root, 'React基础与组件.md'), '# 组件基础\n\n[生命周期](JSF%20基础.md#section-1)\n\n[未翻译](%E4%B8%AD%E6%96%87%20%26%2B%25.md)\n\n[源码](examples/demo/a.ts)\n\n![图片](Resources/示意图.png)\n\n\u0060\u0060\u0060js\n// Keep this comment.\nconst value = "中文";\n\u0060\u0060\u0060\n');
+await fs.writeFile(path.join(root, '中文 &+%.md'), '# 仅中文文章\n\n正文。\n');
+await fs.writeFile(path.join(root, 'examples/demo/a.ts'), 'export const x = 1;');
+await fs.writeFile(path.join(root, 'Resources/示意图.png'), Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jN1sAAAAASUVORK5CYII=', 'base64'));
+const glossary = JSON.parse(await fs.readFile(path.join(workspace, 'scripts/translation/glossary.json'), 'utf8'));
+const state = await new TranslationState(path.join(root, 'state')).load();
+const translator = createAzureTranslator({ env: { TRANSLATION_ENABLED: 'true', AZURE_TRANSLATOR_SKU: 'F0', TRANSLATION_F0_CONFIRMED: 'true', AZURE_TRANSLATOR_KEY: 'mock', AZURE_TRANSLATOR_REGION: 'mock' }, state, sleep: async () => {}, fetchImpl: async (url, request) => {
+  const language = new URL(url).searchParams.get('to');
+  return new Response(JSON.stringify(JSON.parse(request.body).map(item => ({ translations: [{ to: language, text: item.Text.replaceAll('组件基础', language === 'ja' ? 'コンポーネントの基礎' : 'Component basics').replaceAll('生命周期', language === 'ja' ? 'ライフサイクル' : 'Lifecycle').replaceAll('说明段落', language === 'ja' ? '説明の段落' : 'Explanation paragraph') }] }))));
+} });
+const report = await runTranslation({ root, state, translator, glossary });
+assert.equal(report.completed.length, 4);
+const manifest = await readManifest(root);
+manifest.entries.find(entry => entry.source === 'React基础与组件.md' && entry.language === 'ja').human_reviewed = true;
+await fs.writeFile(path.join(root, 'i18n/manifest.json'), JSON.stringify(manifest));
+await fs.appendFile(path.join(root, 'React基础与组件.md'), '\n新增段落。\n');
+await buildSite({ root });

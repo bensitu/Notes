@@ -3,6 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createResolver, hash, listFiles, loadNotes, textOf, transformDocument, uniqueIssues } from './site-lib.mjs';
 import { generateNav } from './generate-nav.mjs';
+import { loadPublished } from './translation/published.mjs';
+import { locales } from './site-locales.mjs';
 
 export function normalizeBase(value = '/Notes/') {
   if (!value.startsWith('/') || /[?#\\]/.test(value) || value.includes('..') || value.includes('//') || !/^\/[a-zA-Z\d/_-]*$/.test(value)) throw new Error(`Unsafe site base path: ${value}`);
@@ -16,11 +18,13 @@ export async function buildSite({ root, outDir, basePath = '/Notes/', revision =
   if (!relativeOut || relativeOut.startsWith('..') || path.isAbsolute(relativeOut) || path.basename(outDir) !== '.site-dist') throw new Error('Output must be a .site-dist directory within the source workspace');
   basePath = normalizeBase(basePath);
   const { documents, readme } = await loadNotes(root);
+  const published = await loadPublished(root, documents);
   const resources = await listFiles(root, 'Resources');
   const toolingRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   const inputs = [...documents.map(doc => doc.source + '\0' + doc.original), basePath, revision];
+  for (const language of ['en', 'ja']) for (const doc of published[language].values()) inputs.push(language + '\0' + doc.original + '\0' + JSON.stringify(doc.entry));
   for (const resource of resources) inputs.push(resource + '\0' + hash(await fs.readFile(path.join(root, resource)), 64));
-  for (const relative of ['package-lock.json', 'site/index.html', 'site/custom.css', 'site/custom.js', 'scripts/site-lib.mjs', 'scripts/build-site.mjs', 'scripts/generate-nav.mjs']) inputs.push(await fs.readFile(path.join(toolingRoot, relative), 'utf8'));
+  for (const relative of ['package-lock.json', 'site/index.html', 'site/custom.css', 'site/custom.js', 'scripts/site-lib.mjs', 'scripts/build-site.mjs', 'scripts/generate-nav.mjs', 'scripts/site-locales.mjs', 'scripts/translation/published.mjs']) inputs.push(await fs.readFile(path.join(toolingRoot, relative), 'utf8'));
   const version = hash(inputs.join('\0'), 20);
   const resolver = createResolver(root, documents, { basePath, revision, version });
   const transformed = new Map();
@@ -28,6 +32,24 @@ export async function buildSite({ root, outDir, basePath = '/Notes/', revision =
   const issues = uniqueIssues(resolver.issues);
   if (issues.length) throw new Error('Invalid source links:\n' + JSON.stringify(issues, null, 2));
   const nav = generateNav(documents);
+  const localePages = {};
+  for (const language of ['en', 'ja']) {
+    let converted;
+    let localResolver;
+    do {
+      converted = new Map();
+      localResolver = createResolver(root, documents, { basePath, revision, version, language, translations: published[language] });
+      for (const [source, doc] of published[language]) converted.set(source, await transformDocument(doc, localResolver));
+      for (const issue of localResolver.issues) {
+        published.warnings.push(`${language}/${issue.source}: invalid_translation_link`);
+        published[language].delete(issue.source);
+      }
+    } while (localResolver.issues.length);
+    for (const [source, target] of localResolver.media) resolver.media.set(source, target);
+    resolver.checked.push(...localResolver.checked);
+    localePages[language] = { converted, nav: generateNav(documents, { language, translations: published[language] }) };
+  }
+  for (const warning of published.warnings) console.warn(warning);
   const assets = `assets/app/${version}`;
   const destination = async (name, content) => {
     const filename = path.join(outDir, name);
@@ -44,6 +66,11 @@ export async function buildSite({ root, outDir, basePath = '/Notes/', revision =
   for (const doc of documents) if (doc !== readme) await destination(`zh/${doc.slug}.md`, transformed.get(doc.source));
   await destination('README.md', nav.index + '\n---\n\n<details class="source-readme">\n<summary>仓库 README：说明与原始目录</summary>\n\n' + transformed.get('README.md') + '\n</details>\n');
   await destination('_sidebar.md', nav.sidebar);
+  for (const language of ['en', 'ja']) {
+    await destination(`${language}/README.md`, localePages[language].nav.index);
+    await destination(`${language}/_sidebar.md`, localePages[language].nav.sidebar);
+    for (const doc of published[language].values()) await destination(`${language}/${doc.slug}.md`, localePages[language].converted.get(doc.source));
+  }
   await destination('_404.md', '# 未找到这篇笔记\n\n地址可能有误，或文章已从源仓库移除。请使用全文搜索，或[返回全部笔记](/)。\n');
   await destination('.nojekyll', '');
   for (const source of resources) {
@@ -65,10 +92,14 @@ export async function buildSite({ root, outDir, basePath = '/Notes/', revision =
   const manifest = {
     version, basePath, repository: 'https://github.com/bensitu/Notes', revision,
     documents: nav.ordered.map(doc => ({ source: doc.source, route: doc.route, title: doc.title, label: doc.label, category: doc.category, file: `zh/${doc.slug}.md`, headings: doc.headings.map(({ node, ...heading }) => heading), anchors: Object.fromEntries(doc.anchors), digest: hash(doc.original, 64) })),
+    translations: ['en', 'ja'].flatMap(language => [...published[language].values()].map(doc => ({ source: doc.source, language, route: doc.route, file: `${language}/${doc.slug}.md`, title: doc.title, label: doc.label, category: doc.category, status: doc.status, anchors: Object.fromEntries(doc.anchors), headings: doc.headings.map(({ node, ...heading }) => heading) }))),
+    translationWarnings: published.warnings,
     media: Object.fromEntries(resolver.media), checkedLinks: resolver.checked,
   };
   await destination('site-manifest.json', JSON.stringify(manifest, null, 2) + '\n');
-  await destination(`${assets}/navigation.json`, JSON.stringify({ version, documents: manifest.documents.map(({ source, route, label, category }) => ({ source, route, label, category })) }));
+  const navigation = { version, documents: manifest.documents, locales: { zh: manifest.documents } };
+  for (const language of ['en', 'ja']) navigation.locales[language] = manifest.documents.map(doc => ({ ...doc, ...(manifest.translations.find(item => item.source === doc.source && item.language === language) || { fallback: true }), category: locales[language].categories[doc.category] || doc.category }));
+  await destination(`${assets}/navigation.json`, JSON.stringify(navigation));
   const search = [];
   for (const doc of [readme, ...nav.ordered]) {
     let section = { route: doc.route, title: doc.label, category: doc === readme ? '首页说明' : doc.category, heading: '', text: '' };
@@ -78,6 +109,18 @@ export async function buildSite({ root, outDir, basePath = '/Notes/', revision =
         if (section.text.trim()) search.push(section);
         const heading = doc.headings[headingIndex++];
         section = { route: `${doc.route}?id=${heading.id}`, title: doc.label, category: doc === readme ? '首页说明' : doc.category, heading: heading.title, text: '' };
+      } else section.text += textOf(node) + '\n';
+    }
+    if (section.text.trim()) search.push(section);
+  }
+  for (const language of ['en', 'ja']) for (const doc of published[language].values()) {
+    let section = { route: doc.route, title: doc.title, category: locales[language].categories[doc.category] || doc.category, heading: '', text: '' };
+    let headingIndex = 0;
+    for (const node of doc.tree.children) {
+      if (node.type === 'heading') {
+        if (section.text.trim()) search.push(section);
+        const heading = doc.headings[headingIndex++];
+        section = { ...section, route: `${doc.route}?id=${heading.id}`, heading: heading.title, text: '' };
       } else section.text += textOf(node) + '\n';
     }
     if (section.text.trim()) search.push(section);

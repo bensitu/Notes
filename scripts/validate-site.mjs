@@ -11,15 +11,16 @@ export async function validateSite(outDir) {
   const files = await listFiles(outDir, '');
   if (files.some(file => !/^[\x20-\x7e]+$/.test(file))) issues.push('Non-ASCII output filename');
   if (files.filter(file => file.endsWith('.html')).join() !== 'index.html') issues.push('The site must contain exactly one HTML entry');
-  const routeFiles = new Map([['/', 'README.md'], ...manifest.documents.map(doc => [doc.route, doc.file])]);
+  const allDocuments = [...manifest.documents, ...(manifest.translations || [])];
+  const routeFiles = new Map([['/', 'README.md'], ['/en/', 'en/README.md'], ['/ja/', 'ja/README.md'], ...allDocuments.map(doc => [doc.route, doc.file])]);
   const parsed = new Map();
-  for (const file of ['README.md', '_sidebar.md', '_404.md', ...manifest.documents.map(doc => doc.file)]) {
+  for (const file of ['README.md', '_sidebar.md', '_404.md', 'en/README.md', 'ja/README.md', 'en/_sidebar.md', 'ja/_sidebar.md', ...allDocuments.map(doc => doc.file)]) {
     const tree = parser.parse(await fs.readFile(path.join(outDir, file), 'utf8'));
     const ids = new Set();
     const addId = id => { if (ids.has(id)) issues.push(`Duplicate ID ${id}: ${file}`); ids.add(id); };
     visit(tree, 'heading', node => {
       const value = node.children.map(child => child.value || '').join('');
-      const match = value.match(/ :id=([a-z\d-]+)\s*$/);
+      const match = value.match(/ :id=([\w%-]+)\s*$/);
       if (match) addId(match[1]);
     });
     visit(tree, 'html', node => htmlAttributes(node.value, (_tag, name, value) => { if (name === 'id' || name === 'name') addId(value); }));
