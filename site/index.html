@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="面向基础入门开发者的中文技术笔记与工程实践参考。">
+  <meta name="color-scheme" content="light dark">
+  <title>Notes · 开发学习与工程实践</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="@@ASSETS@@core.min.css">
+  <link rel="stylesheet" href="@@ASSETS@@custom.css">
+  <script>window.NOTES_SITE = @@CONFIG@@;</script>
+  <script defer src="@@ASSETS@@custom.js"></script>
+  <script defer src="@@ASSETS@@docsify.min.js"></script>
+  @@LANGUAGES@@
+</head>
+<body>
+  <header class="site-header">
+    <a class="site-brand" href="@@BASE@@#/" aria-label="Notes 全部笔记"><span class="brand-mark" aria-hidden="true">N</span>Notes <span class="brand-caption">开发学习笔记</span></a>
+    <nav aria-label="顶部导航">
+      <button id="search-open" type="button" aria-haspopup="dialog">搜索笔记 <kbd>/</kbd></button>
+      <a href="https://github.com/bensitu/Notes" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+      <button id="theme-toggle" type="button" aria-label="切换到深色模式">深色模式</button>
+    </nav>
+  </header>
+  <div id="app">正在加载中文笔记…</div>
+  <aside class="page-toc" aria-label="本页目录"><p class="toc-title">本页目录</p><nav id="page-toc-links"></nav></aside>
+  <dialog id="search-dialog" aria-labelledby="search-title">
+    <div class="search-heading"><h2 id="search-title">搜索全部笔记</h2><button id="search-close" type="button" aria-label="关闭搜索">关闭</button></div>
+    <label for="search-input">关键词</label>
+    <input id="search-input" type="search" placeholder="例如：事务、React、Kafka" autocomplete="off">
+    <p id="search-status" role="status" aria-live="polite">输入关键词搜索文章标题与全文。</p>
+    <ol id="search-results"></ol>
+  </dialog>
+  <div id="site-status" class="sr-only" role="status" aria-live="polite"></div>
+  <noscript>本站需要 JavaScript 来加载 Markdown。也可以前往 <a href="https://github.com/bensitu/Notes">GitHub 阅读源文档</a>。</noscript>
+</body>
+</html>

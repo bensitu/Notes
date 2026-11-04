@@ -1,22 +1,9 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { createResolver, loadNotes, parser, publicSlug, transformDocument } from '../../scripts/site-lib.mjs';
-
-export async function fixture(t, files) {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'notes-site-test-'));
-  t.after(async () => {
-    assert.ok(path.resolve(root).startsWith(path.join(os.tmpdir(), 'notes-site-test-')));
-    await fs.rm(root, { recursive: true, force: true });
-  });
-  for (const [name, body] of Object.entries(files)) {
-    await fs.mkdir(path.dirname(path.join(root, name)), { recursive: true });
-    await fs.writeFile(path.join(root, name), body);
-  }
-  return root;
-}
+import { fixture } from './helpers.mjs';
 
 test('encoded filenames, references, HTML media, anchors and examples resolve without touching code', async t => {
   const unusual = '中文 空格, &+%.md';

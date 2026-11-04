@@ -141,11 +141,12 @@ export async function listFiles(root, relative) {
   return result.sort();
 }
 
-export function createResolver(root, documents, { revision = 'main' } = {}) {
+export function createResolver(root, documents, { revision = 'main', basePath = '/', version = '' } = {}) {
   const bySource = new Map(documents.map(doc => [doc.source, doc]));
   const issues = [];
   const media = new Map();
   const checked = [];
+  const directoryEntries = new Map();
   const github = (source, directory, query, anchor) => `${repositoryUrl}/${directory ? 'tree' : 'blob'}/${encodeURIComponent(revision)}/${source.split('/').map(encodeURIComponent).join('/')}${query ? '?' + query : ''}${anchor ? '#' + anchor : ''}`;
   async function rewrite(url, doc, { image = false } = {}) {
     if (/^(?:https?:|mailto:|tel:|\/\/)/i.test(url)) return url;
@@ -164,8 +165,12 @@ export function createResolver(root, documents, { revision = 'main' } = {}) {
       const actual = await fs.realpath(absolute);
       const relative = path.relative(await fs.realpath(root), actual);
       if (relative.startsWith('..') || path.isAbsolute(relative) || stat.isSymbolicLink()) return fail('unsafe symbolic link');
-      const parent = await fs.readdir(path.dirname(absolute));
-      if (!parent.includes(path.basename(absolute))) return fail('path case mismatch');
+      let parent = root;
+      for (const segment of source.split('/')) {
+        if (!directoryEntries.has(parent)) directoryEntries.set(parent, await fs.readdir(parent));
+        if (!directoryEntries.get(parent).includes(segment)) return fail('path case mismatch');
+        parent = path.join(parent, segment);
+      }
     } catch { return fail('missing local target'); }
     const target = bySource.get(source);
     if (target && !image) {
@@ -188,7 +193,9 @@ export function createResolver(root, documents, { revision = 'main' } = {}) {
       if (!/^\.[a-z\d]{1,10}$/.test(extension)) return fail('unsafe media extension');
       const published = `assets/media/${hash(source, 24)}${extension}`;
       media.set(source, published);
-      const result = '/' + published + (parts.query ? '?' + parts.query : '') + (parts.anchor ? '#' + parts.anchor : '');
+      const query = new URLSearchParams(parts.query);
+      if (version) query.set('v', version);
+      const result = basePath + published + (query.size ? '?' + query.toString() : '') + (parts.anchor ? '#' + parts.anchor : '');
       checked.push({ source: doc.source, url, target: source, result, kind: 'media' });
       return result;
     }
@@ -210,7 +217,11 @@ export async function transformDocument(doc, resolver) {
         if ((tag === 'a' && name === 'href') || (['img', 'source', 'video', 'audio'].includes(tag) && ['src', 'poster'].includes(name))) values.set(value, name !== 'href');
       });
       const replacements = new Map();
-      for (const [value, image] of values) replacements.set(value, await resolver.rewrite(value, doc, { image }));
+      for (const [value, image] of values) {
+        let result = await resolver.rewrite(value, doc, { image });
+        if (!image && (result === '/' || result.startsWith('/?') || result.startsWith('/zh/'))) result = '#' + result;
+        replacements.set(value, result);
+      }
       node.value = htmlAttributes(node.value, (tag, name, value) => {
         if ((tag === 'a' && name === 'href') || (['img', 'source', 'video', 'audio'].includes(tag) && ['src', 'poster'].includes(name))) return replacements.get(value);
       });
@@ -220,7 +231,7 @@ export async function transformDocument(doc, resolver) {
   let heading = 0;
   visit(tree, 'heading', node => {
     const info = doc.headings[heading++];
-    node.children.push({ type: 'text', value: ` {docsify :id=${info.id}}` });
+    node.children.push({ type: 'text', value: ` :id=${info.id}` });
   });
   return printer.stringify(tree);
 }

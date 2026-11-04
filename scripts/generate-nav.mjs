@@ -19,7 +19,7 @@ export function generateNav(documents) {
     const docs = categories.get(name).sort((a, b) => a.order - b.order || a.source.localeCompare(b.source, 'zh-CN'));
     ordered.push(...docs);
     sidebar += `<details class="nav-category" open><summary>${escapeHtml(name)} <span>${docs.length}</span></summary><ul>\n`;
-    index += `## ${name} {docsify :id=category-${hash(name)}}\n\n`;
+    index += `## ${name} :id=category-${hash(name)}\n\n`;
     for (const doc of docs) {
       sidebar += `<li><a href="#${doc.route}">${escapeHtml(doc.label)}</a></li>\n`;
       index += `- [${doc.label.replaceAll('[', '\\[').replaceAll(']', '\\]')}](${doc.route})\n`;
