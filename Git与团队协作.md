@@ -40,7 +40,7 @@ git status
 git fetch origin
 git switch main
 git pull --ff-only
-git switch -c codex/update-taskboard-guide
+git switch -c feature/update-taskboard-guide
 ```
 
 编辑本项目的说明后，只暂存目标文件：
@@ -51,7 +51,7 @@ git add -- examples/taskboard/README.md
 git diff --cached --check
 git diff --cached
 git commit -m "docs: clarify taskboard startup"
-git push -u origin codex/update-taskboard-guide
+git push -u origin feature/update-taskboard-guide
 ```
 
 此处文件是练习对象，不要为了练习制造无意义修改。提交内容要能用一句话说明原因；推送后通过 Pull Request 让同伴审阅。
