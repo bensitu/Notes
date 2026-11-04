@@ -11,7 +11,7 @@ Learning objectives: provide verifiable HTTP APIs with Python, and understand sy
 - [What FastAPI does in the project](#section-1)
 - [Minimal run instructions](#section-2)
 - [Data models and database sessions](#section-3)
-- [Synchronous, asynchronous, and transaction](#section-4)
+- [Synchronous and asynchronous code, and transactions](#section-4)
 - [Testing and verification](#section-5)
 - [Common errors and development quick reference](#section-6)
 - [Official references](#section-7)
@@ -60,7 +60,7 @@ The startup lifecycle creates missing tables and releases the engine on shutdown
 
 <a id="section-4"></a>
 
-## Synchronous, asynchronous, and transaction :id=h-7cbc25d3e4a2
+## Synchronous and asynchronous code, and transactions :id=h-7cbc25d3e4a2
 
 This example uses synchronous SQLAlchemy, so routes use ordinary def to avoid blocking the event loop directly in async def. An asynchronous switch requires compatible asynchronous drivers, engines, and sessions together, not just adding async to functions.
 

@@ -119,7 +119,7 @@ Production processing usually needs bounded retries, backoff, failure topics, st
 
 Business deduplication must also distinguish processing responsibilities. Changing groups here replays the same business effect. Two independent business processors need separate deduplication namespaces; sharing a single global eventId record can incorrectly skip a different business operation.
 
-Producer idempotency mainly reduces duplicates from protocol retries; it does not recognize every duplicate business request. Kafka transaction and read_committed provide applicable guarantees within suitable Kafka read/write flows, but do not automatically make SQLite, payments, or email globally exactly-once.
+Producer idempotency mainly reduces duplicates from protocol retries; it does not recognize every duplicate business request. Kafka transactions and read_committed provide applicable guarantees within suitable Kafka read/write flows, but do not automatically make SQLite, payments, or email globally exactly-once.
 
 The effect in this example is only an event record in SQLite; external calls need their own idempotency and recovery design. For publishing across a database boundary, consider outbox / CDC and define how business commits connect to event publication.
 
