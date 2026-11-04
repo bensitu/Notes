@@ -5797,7 +5797,7 @@ button {
 
 2. 修改```store.js```
 
-   ```javascript
+```javascript
 const countAbout = {
   namespaced: true, // See note 1 below.
   state: { sum: 0, school: '尚硅谷', subject: '前端' },
@@ -5840,7 +5840,7 @@ const personAbout = {
 const store = new Vuex.Store({
   modules: { countAbout, personAbout }
 });
-   ```
+```
 
 示例说明：
 
