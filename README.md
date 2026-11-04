@@ -4,6 +4,8 @@
 
 [任务管理示例](examples/taskboard/README.md) · [React 示例](examples/react-taskboard/README.md) · [SSR 示例与验证](examples/ssr/README.md) · [任务管理验证记录](examples/taskboard/验证记录.md)
 
+[站内 Playground 使用说明](site/playground.md)：可以在浏览器中修改并运行 HTML/CSS/JavaScript、React 和 Vue 示例，并逐步观察 CSR、SSR 与水合的区别。
+
 ## 目录
 
 - [Java 与后端开发](#java-与后端开发)
