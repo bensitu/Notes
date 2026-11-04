@@ -17,7 +17,7 @@ await fs.mkdir(path.join(root, 'Resources'), { recursive: true });
 await fs.mkdir(path.join(root, 'examples/demo'), { recursive: true });
 await fs.writeFile(path.join(root, 'README.md'), '# Fixture home\n');
 await fs.writeFile(path.join(root, 'JSF 基础.md'), '# 生命周期\n\n<a id="section-1"></a>\n\n## 组件基础\n\n说明段落。\n');
-await fs.writeFile(path.join(root, 'React基础与组件.md'), '# 组件基础\n\n[生命周期](JSF%20基础.md#section-1)\n\n[未翻译](%E4%B8%AD%E6%96%87%20%26%2B%25.md)\n\n[源码](examples/demo/a.ts)\n\n![图片](Resources/示意图.png)\n\n\u0060\u0060\u0060js\n// Keep this comment.\nconst value = "中文";\n\u0060\u0060\u0060\n');
+await fs.writeFile(path.join(root, 'React基础与组件.md'), '# 组件基础\n\n[生命周期](JSF%20基础.md#section-1)\n\n[原文链接](%E4%B8%AD%E6%96%87%20%26%2B%25.md)\n\n[源码](examples/demo/a.ts)\n\n![图片](Resources/示意图.png)\n\n\u0060\u0060\u0060js\n// Keep this comment.\nconst value = "中文";\n\u0060\u0060\u0060\n');
 await fs.writeFile(path.join(root, '中文 &+%.md'), '# 仅中文文章\n\n正文。\n');
 await fs.writeFile(path.join(root, 'examples/demo/a.ts'), 'export const x = 1;');
 await fs.writeFile(path.join(root, 'Resources/示意图.png'), Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jN1sAAAAASUVORK5CYII=', 'base64'));

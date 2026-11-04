@@ -36,7 +36,7 @@ test('outdated reviewed translations remain readable, with working same-language
   await expect(page.locator('#main h1')).toHaveText('仅中文文章');
   await page.getByLabel('Language / 言語 / 语言').selectOption('ja');
   await expect(page).toHaveURL(/#\/ja\/\?source=/);
-  await expect(page.locator('.translation-notice')).toContainText('まだありません');
+  await expect(page.locator('.translation-notice')).toContainText('中国語の原文');
   await page.locator('.translation-notice a').click();
   await expect(page.locator('#main h1')).toHaveText('仅中文文章');
 });

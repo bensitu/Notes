@@ -20,7 +20,7 @@ export function generateNav(documents, { language = 'zh', translations = new Map
   sidebar += `<a class="nav-playground" href="#${playground}">Playground</a>\n\n`;
   let index = `# ${copy.title}\n\n${copy.intro}\n\n`;
   index += `[Playground](${playground})\n\n`;
-  index += language === 'zh' ? `共 **${documents.length - 1}** 篇文章，按技术领域自动整理。\n\n` : `${translations.size} / ${documents.length - 1} ${language === 'ja' ? '記事に翻訳があります。' : 'articles have a translation.'}\n\n`;
+  index += language === 'zh' ? `共 **${documents.length - 1}** 篇文章，按技术领域自动整理。\n\n` : language === 'ja' ? `全 **${documents.length - 1}** 記事を技術分野ごとに整理しています。\n\n` : `**${documents.length - 1}** articles, organized by topic.\n\n`;
   for (const name of names) {
     const docs = categories.get(name).sort((a, b) => a.order - b.order || a.source.localeCompare(b.source, 'zh-CN'));
     ordered.push(...docs);

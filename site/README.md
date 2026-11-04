@@ -1,6 +1,6 @@
-# 中文站点维护与发布
+# 站点维护与发布
 
-本目录是网站外壳与维护说明，中文原文仍位于仓库顶层。中文、英文和日文入口共用同一站点；没有译文的文章提供中文回退。根 README、Resources 和 examples 保留原路径，翻译机制见 [英文与日文增量翻译](translation.md)。
+本目录是网站外壳与维护说明，中文原文位于仓库顶层，英文和日文译文保存在 i18n 目录。三种语言共用同一站点，阅读和发布不需要连接翻译服务。根 README、Resources 和 examples 保留原路径，翻译维护方式见 [英文与日文翻译](translation.md)。
 
 ## 第一次本地运行
 
@@ -69,29 +69,6 @@ test:site 使用 Node 自带的测试运行器验证新增单文件自动导航�
 Playground、SSR 原理演示与本地链接范围的结果见 [交互示例验收记录](playground-validation.md)。
 
 validate:site 检查发布路径、内部文档路由、目标 ID、图片、侧栏和入口依赖。它不批量访问外部网站；远程图片、GitHub 权限和外部资料仍需按实际访问情况排查。
-
-## GitHub Pages 首次设置
-
-由仓库所有者打开 GitHub 仓库的 Settings → Pages → Build and deployment，将 Source 设置为 **GitHub Actions**。若组织策略限制 Actions 或 github-pages 环境，按仓库实际规则启用这些官方 Actions，并允许 main 部署。
-
-然后由所有者将本地提交推送到 main。工作流执行安装锁定依赖、测试、构建、产物校验和真实浏览器测试，全部成功后上传并部署。工作流不会自动推送源码，不需要手工创建 gh-pages 分支，也不需要配置 Azure 或第三方服务密钥。
-
-PR 事件只构建和测试，不上传生产 Pages artifact、不运行生产部署；使用 pull_request 而不是 pull_request_target。只有部署 job 拥有 pages:write 与 id-token:write；源码检出不保留 Git 凭证。
-
-预期默认网址是 <https://bensitu.github.io/Notes/>，**实际地址以 configure-pages 读取的配置和部署输出 page_url 为准**。构建会使用 Pages 的 base_path；自定义域名的根路径也能使用。PR 本地测试使用 /Notes/，不要求事先启用 Pages。
-
-手工测试域名根路径时，可以使用：
-
-```powershell
-$env:SITE_BASE_PATH = '/'
-npm run build:site
-npm run validate:site
-npm run test:site:browser
-Remove-Item Env:SITE_BASE_PATH
-npm run build:site
-```
-
-没有执行推送、没有运行远程工作流时，只能报告“已本地验证 / 未上线验证”。如果 configure-pages 提示 Pages 未启用，先完成上面的 Source 设置后重新运行工作流；不要把它当成中文站点需要翻译服务。
 
 ## 版本与缓存
 

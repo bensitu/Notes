@@ -1,8 +1,33 @@
 # 英文与日文增量翻译
 
-中文文章仍是唯一日常维护的原文。网站继续从仓库顶层发现文章，译文放在 i18n/en 和 i18n/ja，元信息集中保存在 i18n/manifest.json。不要在发布目录修改译文，也不需要维护第二份文章目录。
+中文文章是内容原文。网站继续从仓库顶层发现文章，译文放在 i18n/en 和 i18n/ja，元信息集中保存在 i18n/manifest.json。不要在发布目录修改译文，也不需要维护第二份文章目录。
 
-当前默认关闭真实翻译调用。英文和日文入口已可用；未翻译文章保留原有标题，点击后阅读中文，不额外附加逐项语言标识，也不生成空白文章。中文发布不需要 Azure，也不等待翻译 PR。
+英文和日文采用已写入仓库的静态译文，阅读和发布都不需要 Azure、翻译密钥或模型运行环境。中文、英文、日文共用文章目录和章节 ID，新增语言不改变原文地址。
+
+目前使用一次性文件导入的方式准备译文。Azure 的定时工作流已关闭；原有 Azure 客户端和手动工作流作为可选工具保留，不参与这次翻译，也不是站点构建的前置条件。
+
+## 不使用 Azure 的文件翻译流程
+
+以下命令在仓库根目录执行。导出的 JSON 是翻译材料，不是网站产物；其中的 text 保留原文，翻译结果写入同一条目新增加的 translated 字符串字段。
+
+```powershell
+node scripts/translation/batch.mjs export .translation-run/manual-input.json
+```
+
+可以使用自己的翻译工具或人工处理这个文件。保留 source、slug、language、source_hash、每个文本块的 id 和 text。正文中的 `[[NT0000]]` 等占位符用于保护代码、链接和格式，需要原样保留数量、内容和成对嵌套关系。protected 字段仅说明部分占位符的含义，不能用其内容替换占位符。
+
+完成后，将包含 translated 字段的结果保存为 .translation-run/manual-output.json，再执行：
+
+```powershell
+node scripts/translation/batch.mjs import .translation-run/manual-output.json file-import
+node scripts/translation/validate.mjs --complete
+npm run build:site
+npm run validate:site
+```
+
+导入会先校验整个批次，再写入译文和 manifest。原文已经变化、块数不匹配、保护标记丢失、代码或链接结构改变时，会拒绝导入。元信息中的 source_revision 记录原文提交，translation_method 记录生成方式；不会自动将 human_reviewed 设置为 true。人工锁定的译文也不能被批次导入覆盖。
+
+`--complete` 额外检查每篇原文都有英文和日文版本，且没有对应旧原文的译文。普通 validate:translations 保留局部发布检查，便于以后新增文章时逐步补齐语言版本。网站不在每篇文章上添加完成度标识；需要对照时可用文末的中文原文链接。
 
 ## 本地查看与验证
 
@@ -23,9 +48,9 @@ npm run serve:site
 
 translate:plan 只读取原文、元信息和已有缓存，输出候选文章与保守字符估算，不调用 API，也不写译文。test:translations 使用模拟 API；浏览器语言测试在被 Git 忽略的独立夹具中生成模拟译文，绝不会把这些测试文本加入正式 i18n 目录。
 
-入口为 `#/`、`#/en/`、`#/ja/`。同一文章沿用中文的 ASCII slug，只替换语言前缀。切换语言时保留目标版本存在的章节 ID；未翻译时显示中文回退入口。过期译文继续展示，并提示参考最新中文。
+入口为 `#/`、`#/en/`、`#/ja/`。同一文章沿用中文的 ASCII slug，只替换语言前缀。切换语言时保留目标版本存在的章节 ID。如果以后新增文章暂时只有中文，仍可通过原文入口阅读；过期译文继续展示，并提示参考最新中文。
 
-## 首次启用：所有者只需配置一次
+## 可选：将来启用 Azure 时的配置
 
 在 Azure 门户创建或选择**专用于此仓库的 Translator F0 资源**，检查其定价层、Region、Endpoint、实际配额周期和使用量。官方 F0 当前每月提供 2,000,000 字符免费额度，本项目将英文与日文合计软预算限制在 1,800,000 字符以内。[Azure 官方定价](https://azure.microsoft.com/en-us/pricing/details/translator/)
 
@@ -49,7 +74,7 @@ translate:plan 只读取原文、元信息和已有缓存，输出候选文章�
 
 再在 Settings → Actions → General → Workflow permissions 中允许 **Allow GitHub Actions to create and approve pull requests**。这里仅用于允许创建 PR；程序不会批准或合并 PR，不需要 PAT，也不降低 main 的分支保护。生产 Pages 仍保持原来的 GitHub Actions Source 设置。
 
-由所有者自行推送本地开发分支并通过正常 PR 合并本阶段实现。翻译工作流只在受信任的 main 上运行，不接收 PR、fork 或 pull_request_target 的脚本。启用后每周一日本时间 11:23（02:23 UTC）自动尝试，也可以在 Actions 中手动运行 Review incremental translations，无需每月重新启用。
+如果以后决定启用 Azure，由所有者推送相关配置，在 Actions 中手动运行 Review incremental translations。工作流只在受信任的 main 上运行，不接收 PR、fork 或 pull_request_target 的脚本；当前没有定时触发器。
 
 ## 首轮试点与日语验收
 
@@ -104,7 +129,7 @@ usage.json 保存周期、estimated_used、paused_for_quota 和用于识别新�
 
 403001 会暂停当前周期；429 有限退避，最多三次尝试，不会一概标记为月额度耗尽。认证错误直接停止，服务错误、超时和占位符错误有限重试；程序不输出密钥或完整服务错误正文。[官方错误码](https://learn.microsoft.com/en-us/azure/ai-services/translator/text-translation/reference/status-response-codes)
 
-翻译阶段每轮约 20 分钟的内部时间上限，完整工作流另有 45 分钟上限。遇到预算或时间限制时，未完成文章保留在缓存里，后续定时运行继续。无法保证所有文章在首月完成，但不需要逐月手工续翻。
+Azure 翻译阶段每轮约 20 分钟的内部时间上限，完整手动工作流另有 45 分钟上限。遇到预算或时间限制时，待处理文章保留在缓存里，下次手动运行继续；预算周期变化会自动恢复周期计数。这些限制不影响已经导入的静态译文。
 
 ## 技术边界
 
