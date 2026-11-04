@@ -1,0 +1,5 @@
+# Generated site and local tooling
+/node_modules/
+/.site-dist/
+/playwright-report/
+/test-results/
