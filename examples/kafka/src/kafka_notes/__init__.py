@@ -1,0 +1,1 @@
+"""Local Kafka learning examples."""

@@ -84,6 +84,7 @@
 | 文档 | 内容 |
 | --- | --- |
 | [Redis 缓存](Redis缓存实践.md) | TTL、淘汰、回源、竞争、一致性与故障 |
+| [Apache Kafka](ApacheKafka基础与实践.md) | 事件日志、分区、消费组、位移、重放与幂等 |
 | [消息队列与 RabbitMQ](消息队列基础与RabbitMQ实践.md) | 确认、重投、幂等、死信与业务事务 |
 | [Nginx 与 HTTPS](Nginx反向代理与HTTPS.md) | 反向代理、路径、缓存、转发头与证书 |
 
