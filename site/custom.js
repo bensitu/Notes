@@ -4,17 +4,37 @@
   const config = window.NOTES_SITE;
   const asset = filename => config.assetPath + filename;
   const resource = filename => new URL(config.basePath + filename + '?v=' + config.version, location.origin).href;
+  const notFoundPages = { '/en/': resource('en/_404.md'), '/ja/': resource('ja/_404.md'), '/': resource('_404.md') };
+  // Docsify matches resolved file URLs rather than route paths for 404 pages.
+  for (const route of Object.keys(notFoundPages)) {
+    const prefix = new URL(config.basePath + route.slice(1), location.origin).href.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    notFoundPages[prefix] = notFoundPages[route];
+  }
   const $ = selector => document.querySelector(selector);
   let navigation;
   let searchIndex;
   let observer;
   let playgroundCleanup;
+  let sidebarToggleObserver;
+  let observedSidebarToggle;
   const categoryState = new Map();
   const translations = {
     zh: { light: '浅色模式', dark: '深色模式', toLight: '切换到浅色模式', toDark: '切换到深色模式', search: '搜索笔记', title: '搜索全部笔记', close: '关闭', keyword: '关键词', hint: '输入关键词搜索文章标题与全文。', searching: '正在搜索…', noResults: '没有找到结果，请换一个关键词。', failed: '搜索暂时无法加载，请稍后重试。', matches: n => '找到 ' + n + ' 个章节，显示前 15 项。', toc: '本页目录', emptyToc: '本页没有子章节', copy: '复制', copied: '已复制', copyLabel: '复制此代码块', previous: '上一篇', next: '下一篇', source: '在 GitHub 查看源文档 ↗', missing: '可在下方打开中文原文。', outdated: '此译文对应较早的原文，请参考最新中文版。', chinese: '最新中文版', reviewed: '已人工审校', machine: '机器翻译，尚未标记人工审校' },
     en: { light: 'Light mode', dark: 'Dark mode', toLight: 'Switch to light mode', toDark: 'Switch to dark mode', search: 'Search', title: 'Search all notes', close: 'Close', keyword: 'Keywords', hint: 'Search article titles and full text.', searching: 'Searching…', noResults: 'No results. Try another keyword.', failed: 'Search is unavailable. Please try again.', matches: n => n + ' matching sections; showing up to 15.', toc: 'On this page', emptyToc: 'No subsections', copy: 'Copy', copied: 'Copied', copyLabel: 'Copy this code block', previous: 'Previous', next: 'Next', source: 'View Chinese source on GitHub ↗', missing: 'Open the Chinese source using the link below.', outdated: 'This translation reflects an earlier source. Check the latest Chinese article.', chinese: 'Latest Chinese source', reviewed: 'Human reviewed', machine: 'Machine translation; not marked as human reviewed' },
     ja: { light: 'ライトモード', dark: 'ダークモード', toLight: 'ライトモードに切替', toDark: 'ダークモードに切替', search: '検索', title: 'すべてのノートを検索', close: '閉じる', keyword: 'キーワード', hint: '記事のタイトルと本文を検索します。', searching: '検索中…', noResults: '見つかりません。別のキーワードをお試しください。', failed: '検索を読み込めません。再度お試しください。', matches: n => n + ' 件の節が一致しました。先頭 15 件を表示します。', toc: 'このページの目次', emptyToc: '小見出しはありません', copy: 'コピー', copied: 'コピー済み', copyLabel: 'コードをコピー', previous: '前の記事', next: '次の記事', source: 'GitHub で中国語原文を表示 ↗', missing: '下のリンクから中国語の原文を開けます。', outdated: 'この翻訳は以前の原文に対応しています。最新の中国語版も確認してください。', chinese: '最新の中国語原文', reviewed: '人による校閲済み', machine: '機械翻訳・人による校閲は未登録' },
   };
+  Object.assign(translations.zh, {
+    playgroundLoading: '正在加载示例…',
+    notesTitle: '技术笔记', brandCaption: '开发学习笔记', brandLabel: 'Notes 全部笔记', description: '面向基础入门开发者的技术笔记与工程实践参考。', loading: '正在加载笔记…', topNavigation: '顶部导航', language: '语言', skipLink: '跳到正文', table: '表格，可横向滚动', sidebar: '文章分类导航', toggleSidebar: '展开或收起文章导航', toggleSidebarHint: '展开或收起导航（快捷键 \\）', adjacentArticles: '相邻文章', copyFallback: '请选中后复制', copyFailed: '复制未完成，请选中代码手动复制', playgroundFailed: '示例加载失败，请刷新页面重试。', navigationFailed: '文章顺序暂时无法加载，请使用左侧导航', playgroundExample: '在 Playground 中修改并运行示例 →',
+  });
+  Object.assign(translations.en, {
+    playgroundLoading: 'Loading example…',
+    notesTitle: 'Technical notes', brandCaption: 'Developer notes', brandLabel: 'Notes · All notes', description: 'Technical notes and engineering practice for developers learning the basics.', loading: 'Loading notes…', topNavigation: 'Main navigation', language: 'Language', skipLink: 'Skip to main content', table: 'Table; scroll horizontally', sidebar: 'Articles by category', toggleSidebar: 'Show or hide article navigation', toggleSidebarHint: 'Show or hide navigation (shortcut: \\)', adjacentArticles: 'Adjacent articles', copyFallback: 'Select and copy', copyFailed: 'Copy failed. Select the code and copy it manually.', playgroundFailed: 'The example could not load. Refresh the page to try again.', navigationFailed: 'Article order could not load. Use the sidebar navigation.', playgroundExample: 'Edit and run an example in Playground →',
+  });
+  Object.assign(translations.ja, {
+    playgroundLoading: 'サンプルを読み込み中…',
+    notesTitle: '技術ノート', brandCaption: '開発ノート', brandLabel: 'Notes · すべてのノート', description: '開発の基礎を学ぶ人のための技術ノートと実践的な参考資料。', loading: 'ノートを読み込み中…', topNavigation: 'メインナビゲーション', language: '言語', skipLink: '本文へ移動', table: '表（横にスクロールできます）', sidebar: 'カテゴリー別の記事ナビゲーション', toggleSidebar: '記事ナビゲーションを開閉', toggleSidebarHint: 'ナビゲーションを開閉（ショートカット：\\）', adjacentArticles: '前後の記事', copyFallback: '選択してコピー', copyFailed: 'コピーできませんでした。コードを選択して手動でコピーしてください。', playgroundFailed: 'サンプルを読み込めませんでした。ページを再読み込みしてください。', navigationFailed: '記事の順序を読み込めませんでした。サイドバーを使ってください。', playgroundExample: 'Playground でサンプルを編集・実行 →',
+  });
   function language() { return /^#\/(en|ja)(?:\/|$)/.exec(location.hash)?.[1] || 'zh'; }
   function ui() { return translations[language()]; }
   const systemTheme = matchMedia('(prefers-color-scheme: dark)');
@@ -43,6 +63,18 @@
     const copy = ui();
     document.documentElement.lang = { zh: 'zh-CN', en: 'en', ja: 'ja' }[language()];
     $('#language-select').value = language();
+    $('#language-select').setAttribute('aria-label', copy.language);
+    $('.site-header nav').setAttribute('aria-label', copy.topNavigation);
+    $('.page-toc').setAttribute('aria-label', copy.toc);
+    $('#page-toc-links').setAttribute('aria-label', copy.toc);
+    document.querySelector('meta[name="description"]').content = copy.description;
+    if ($('#app')) { $('#app').textContent = copy.loading; document.title = copy.notesTitle + ' · Notes'; }
+    announce('');
+    if ($('#skip-to-content')) $('#skip-to-content').textContent = copy.skipLink;
+    const playground = $('#playground-root');
+    if (playground?.getAttribute('aria-busy') === 'true') playground.textContent = copy.playgroundLoading;
+    const appName = $('.app-name-link');
+    if (appName) { appName.textContent = copy.notesTitle; appName.href = config.basePath + '#' + (language() === 'zh' ? '/' : '/' + language() + '/'); }
     $('.search-button-label').textContent = copy.search;
     $('#search-open').setAttribute('aria-label', copy.search);
     $('#search-title').textContent = copy.title;
@@ -50,11 +82,12 @@
     $('#search-close').setAttribute('aria-label', copy.close);
     $('label[for="search-input"]').textContent = copy.keyword;
     $('#search-input').placeholder = copy.keyword;
-    if (!$('#search-input').value) $('#search-status').textContent = copy.hint;
+    if ($('#search-input').value) $('#search-input').dispatchEvent(new Event('input'));
+    else $('#search-status').textContent = copy.hint;
     $('.toc-title').textContent = copy.toc;
-    $('.brand-caption').textContent = { zh: '开发学习笔记', en: 'Developer notes', ja: '開発ノート' }[language()];
+    $('.brand-caption').textContent = copy.brandCaption;
     $('.site-brand').href = config.basePath + '#' + (language() === 'zh' ? '/' : '/' + language() + '/');
-    $('.site-brand').setAttribute('aria-label', 'Notes · ' + copy.title);
+    $('.site-brand').setAttribute('aria-label', copy.brandLabel);
     $('.playground-link').href = config.basePath + '#' + (language() === 'zh' ? '' : '/' + language()) + '/playground';
     applyTheme(document.documentElement.dataset.theme);
   }
@@ -98,7 +131,7 @@
       container.className = 'table-scroll';
       container.tabIndex = 0;
       container.setAttribute('role', 'region');
-      container.setAttribute('aria-label', '表格，可横向滚动');
+      container.setAttribute('aria-label', ui().table);
       table.before(container);
       container.append(table);
     }
@@ -120,22 +153,22 @@
             input.className = 'clipboard-fallback';
             document.body.append(input);
             input.select();
-            const copied = document.execCommand('copy');
-            input.remove();
-            button.focus();
+            let copied;
+            try { copied = document.execCommand('copy'); }
+            finally { input.remove(); button.focus(); }
             if (!copied) throw new Error('Clipboard unavailable');
           }
           button.textContent = ui().copied;
           announce(ui().copied);
         } catch {
-          button.textContent = '请选中后复制';
-          announce('复制未完成，请选中代码手动复制');
+          button.textContent = ui().copyFallback;
+          announce(ui().copyFailed);
         }
         setTimeout(() => { if (button.isConnected) button.textContent = ui().copy; }, 2000);
       });
       pre.append(button);
     }
-    const title = article.querySelector('h1')?.textContent || '中文笔记';
+    const title = article.querySelector('h1')?.textContent || ui().notesTitle;
     document.title = title + ' · Notes';
   }
 
@@ -191,7 +224,7 @@
       }
     }
     const sidebar = $('.sidebar-nav');
-    sidebar?.setAttribute('aria-label', '文章分类导航');
+    sidebar?.setAttribute('aria-label', ui().sidebar);
     const aside = $('.sidebar');
     const selected = sidebar?.querySelector('a.is-current');
     if (aside && selected && aside.classList.contains('show')) {
@@ -199,13 +232,24 @@
       const bounds = aside.getBoundingClientRect();
       if (item.top < bounds.top || item.bottom > bounds.bottom) aside.scrollTop += item.top - bounds.top - aside.clientHeight / 2;
     }
-    const toggle = $('.sidebar-toggle-button');
-    if (toggle) {
-      toggle.setAttribute('aria-label', '展开或收起文章导航');
-      toggle.setAttribute('aria-keyshortcuts', '\\');
+    localizeSidebarToggle();
+  }
+
+  function localizeSidebarToggle() {
+    const button = $('.sidebar-toggle');
+    if (!button) return;
+    for (const toggle of [button, button.querySelector('.sidebar-toggle-button')].filter(Boolean)) {
+      if (toggle.getAttribute('aria-label') !== ui().toggleSidebar) toggle.setAttribute('aria-label', ui().toggleSidebar);
     }
-    const toggleButton = $('.sidebar-toggle');
-    if (toggleButton) toggleButton.title = '展开或收起导航（快捷键 \\）';
+    button.querySelector('.sidebar-toggle-button')?.setAttribute('aria-keyshortcuts', '\\');
+    button.title = ui().toggleSidebarHint;
+    if (observedSidebarToggle !== button) {
+      sidebarToggleObserver?.disconnect();
+      // Docsify rewrites this label when the sidebar toggles or the viewport changes.
+      sidebarToggleObserver = new MutationObserver(localizeSidebarToggle);
+      sidebarToggleObserver.observe(button, { attributes: true, subtree: true, attributeFilter: ['aria-label', 'aria-expanded'] });
+      observedSidebarToggle = button;
+    }
   }
 
   function updatePagination() {
@@ -216,7 +260,7 @@
     if (index < 0 && routePath() !== '/' && routePath() !== '/' + language() + '/') return;
     const nav = document.createElement('nav');
     nav.className = 'article-navigation';
-    nav.setAttribute('aria-label', '相邻文章');
+    nav.setAttribute('aria-label', ui().adjacentArticles);
     const previous = index > 0 ? docs[index - 1] : null;
     const next = index < 0 ? docs[0] : docs[index + 1];
     for (const [doc, caption] of [[previous, ui().previous], [next, ui().next]]) {
@@ -277,22 +321,22 @@
             aside.className = 'article-playground';
             const link = document.createElement('a');
             link.href = '#' + (language() === 'zh' ? '' : '/' + language()) + '/playground?demo=' + current.playground;
-            link.textContent = { zh: '在 Playground 中修改并运行示例 →', en: 'Edit and run an example in Playground →', ja: 'Playground でサンプルを編集・実行 →' }[language()];
+            link.textContent = ui().playgroundExample;
             aside.append(link);
             $('#main h1')?.after(aside);
           }
         }
       } catch {
         const root = $('#playground-root');
-        if (root) { root.textContent = '示例加载失败，请刷新页面重试。'; root.setAttribute('aria-busy', 'false'); }
-        else announce('文章顺序暂时无法加载，请使用左侧导航');
+        if (root) { root.textContent = ui().playgroundFailed; root.setAttribute('role', 'alert'); root.setAttribute('aria-busy', 'false'); }
+        else announce(ui().navigationFailed);
       }
     });
-    hook.ready(updateSidebar);
+    hook.ready(() => { localize(); updateSidebar(); });
   }
 
   window.$docsify = {
-    name: '技术笔记',
+    name: ui().notesTitle,
     nameLink: config.basePath + '#/',
     basePath: config.basePath,
     homepage: resource('README.md'),
@@ -300,8 +344,8 @@
     auto2top: true,
     subMaxLevel: 0,
     routerMode: 'hash',
-    notFoundPage: resource('_404.md'),
-    skipLink: '跳到正文',
+    notFoundPage: notFoundPages,
+    skipLink: { '/en': translations.en.skipLink, '/ja': translations.ja.skipLink, '/': translations.zh.skipLink },
     requestHeaders: { 'Cache-Control': 'no-cache' },
     noCompileLinks: ['^' + config.basePath + 'assets/.*'],
     alias: { '/playground': resource('playground.md'), '/en/_sidebar.md': resource('en/_sidebar.md'), '/ja/_sidebar.md': resource('ja/_sidebar.md'), '/.*/_sidebar.md': resource('_sidebar.md'), '/_sidebar.md': resource('_sidebar.md'), '/en/': resource('en/README.md'), '/ja/': resource('ja/README.md'), '/en/(.*)': resource('en/$1.md'), '/ja/(.*)': resource('ja/$1.md'), '/zh/(.*)': resource('zh/$1.md') },
@@ -315,8 +359,10 @@
   };
 
   document.addEventListener('DOMContentLoaded', () => {
+    localize();
     $('#language-select').addEventListener('change', async event => {
-      navigation ||= await loadJson('navigation.json');
+      try { navigation ||= await loadJson('navigation.json'); }
+      catch { event.target.value = language(); announce(ui().navigationFailed); return; }
       const lang = event.target.value;
       if (/^\/(?:en\/|ja\/)?playground$/.test(routePath())) {
         location.hash = (lang === 'zh' ? '' : '/' + lang) + '/playground' + (location.hash.includes('?') ? '?' + location.hash.split('?')[1] : '');

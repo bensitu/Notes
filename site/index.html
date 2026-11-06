@@ -22,11 +22,11 @@
     <nav aria-label="顶部导航">
       <a class="playground-link" href="@@BASE@@#/playground">Playground</a>
       <a href="https://github.com/bensitu/Notes" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
-      <select id="language-select" aria-label="Language / 言語 / 语言"><option value="zh">中文</option><option value="en">English</option><option value="ja">日本語</option></select>
+      <select id="language-select" aria-label="语言"><option value="zh" lang="zh-CN">中文</option><option value="en" lang="en">English</option><option value="ja" lang="ja">日本語</option></select>
       <button id="theme-toggle" type="button" aria-label="切换到深色模式">深色模式</button>
     </nav>
   </header>
-  <div id="app">正在加载中文笔记…</div>
+  <div id="app" role="status" aria-live="polite">正在加载笔记…</div>
   <aside class="page-toc" aria-label="本页目录"><p class="toc-title">本页目录</p><nav id="page-toc-links"></nav></aside>
   <dialog id="search-dialog" aria-labelledby="search-title">
     <div class="search-heading"><h2 id="search-title">搜索全部笔记</h2><button id="search-close" type="button" aria-label="关闭搜索">关闭</button></div>
@@ -36,6 +36,6 @@
     <ol id="search-results"></ol>
   </dialog>
   <div id="site-status" class="sr-only" role="status" aria-live="polite"></div>
-  <noscript>本站需要 JavaScript 来加载 Markdown。也可以前往 <a href="https://github.com/bensitu/Notes">GitHub 阅读源文档</a>。</noscript>
+  <noscript><p lang="zh-CN">本站需要 JavaScript 来加载 Markdown。也可以前往 <a href="https://github.com/bensitu/Notes">GitHub 阅读源文档</a>。</p><p lang="en">JavaScript is required to load Markdown. You can also <a href="https://github.com/bensitu/Notes">read the source documents on GitHub</a>.</p><p lang="ja">Markdown の読み込みには JavaScript が必要です。<a href="https://github.com/bensitu/Notes">GitHub で原文を読む</a>こともできます。</p></noscript>
 </body>
 </html>
