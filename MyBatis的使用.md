@@ -3158,7 +3158,7 @@ SqlSessionFactory 提供缓存管理，但默认二级缓存按 namespace 划分
 </configuration>
 ```
 ### 创建逆向工程的配置文件
-- Maven 插件默认读取 generatorConfig.xml，也可通过插件的 configurationFile 指定其他文件。
+- Maven 插件默认读取 generatorConfig.xml，也可通过插件的 configurationFile 指定其他文件。下方的 replace-with-your-local-password 是占位值，运行前替换为自己的本机数据库密码；不要把真实密码提交到仓库。
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE generatorConfiguration
@@ -3171,7 +3171,7 @@ SqlSessionFactory 提供缓存管理，但默认二级缓存按 namespace 划分
         <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
                         connectionURL="jdbc:mysql://localhost:3306/mybatis"
                         userId="root"
-                        password="123456">
+                        password="replace-with-your-local-password">
         </jdbcConnection>
         <!-- See note 3 below. -->
         <javaModelGenerator targetPackage="com.atguigu.mybatis.pojo" targetProject=".\src\main\java">
