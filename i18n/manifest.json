@@ -8561,8 +8561,8 @@
       "source": "VUE基础.md",
       "slug": "vue-15dc757fff6d",
       "language": "en",
-      "source_hash": "0b6270fcb27dadc897ade1da9fa774583d07f64ed20f46008d398563fba8c4f4",
-      "source_revision": "7801e10a3712525fe6b43bcf65fda3cebdc5eef6",
+      "source_hash": "2938f98507780a98354769640e9453767a7b6ef14564fee7abb613f1cca52796",
+      "source_revision": "f1c2888eea369a61cde224714d9f29e1e5a09b1b",
       "human_reviewed": false,
       "translation_method": "editorial-file-import",
       "heading_ids": [
@@ -8952,14 +8952,14 @@
         "_413-路由器的两种工作模式": "h-97de4f68c7f0",
         "h-97de4f68c7f0": "h-97de4f68c7f0"
       },
-      "structure_hash": "40f5f3f74cc23b2d8dc960adfdf93aa9e2c5fea7848614e652f125f2b23fdd93"
+      "structure_hash": "aeca473983deec4e3e2e692368dd8e51a417159b69a2414af9542d5289c1120d"
     },
     {
       "source": "VUE基础.md",
       "slug": "vue-15dc757fff6d",
       "language": "ja",
-      "source_hash": "0b6270fcb27dadc897ade1da9fa774583d07f64ed20f46008d398563fba8c4f4",
-      "source_revision": "7801e10a3712525fe6b43bcf65fda3cebdc5eef6",
+      "source_hash": "2938f98507780a98354769640e9453767a7b6ef14564fee7abb613f1cca52796",
+      "source_revision": "f1c2888eea369a61cde224714d9f29e1e5a09b1b",
       "human_reviewed": false,
       "translation_method": "editorial-file-import",
       "heading_ids": [
@@ -9349,7 +9349,7 @@
         "_413-路由器的两种工作模式": "h-97de4f68c7f0",
         "h-97de4f68c7f0": "h-97de4f68c7f0"
       },
-      "structure_hash": "40f5f3f74cc23b2d8dc960adfdf93aa9e2c5fea7848614e652f125f2b23fdd93"
+      "structure_hash": "aeca473983deec4e3e2e692368dd8e51a417159b69a2414af9542d5289c1120d"
     },
     {
       "source": "前端基础_HTML&CSS.md",

@@ -323,7 +323,7 @@ Example explanations:
 
 > Printed result
 
-![Example illustration](https://img-blog.csdnimg.cn/09b4bf67bb7843388fecd7da1572901f.png)
+![Example illustration](Resources/vue2/09b4bf67bb7843388fecd7da1572901f.png)
 
 **Object.defineProperty**(obj, prop, descriptor)
 
@@ -509,7 +509,7 @@ Example explanations:
 
 Print the newly created vm in the console.
 
-![Example illustration](https://img-blog.csdnimg.cn/ea14682958924e37bf950f3960ee998e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/ea14682958924e37bf950f3960ee998e.png)
 
 The configured data is bound to vm. To state the result first: Vue proxies name and address from \_data onto vm itself.
 
@@ -517,7 +517,7 @@ The configured data is bound to vm. To state the result first: Vue proxies name 
 
 First, \_data is the property on vm shown below.
 
-![Example illustration](https://img-blog.csdnimg.cn/bc4efbf50f414b1a9c1db2ff3581d228.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/bc4efbf50f414b1a9c1db2ff3581d228.png)
 
 Where does \_data come from?
 
@@ -561,13 +561,13 @@ Example explanations:
 
 1. We defined data in the Vue initialization options.
 
-![Example illustration](https://img-blog.csdnimg.cn/e0051173ac224b408d037fda33de6410.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_18,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/e0051173ac224b408d037fda33de6410.png)
 
 > It prints true, showing they are the same object.
 
 Back to proxies: values in **vm.\_data** are proxied onto vm itself, letting vm.name replace **vm.\_data.name**. This is Vue data proxying.
 
-![Example illustration](https://img-blog.csdnimg.cn/66b4020fbc5143aa8ddf3f6fd86af0ea.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_19,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/66b4020fbc5143aa8ddf3f6fd86af0ea.png)
 
 All this uses Object.defineProperty(). Let us simulate the process.
 
@@ -590,7 +590,7 @@ In interpolation, {{ name }} corresponds to {{ vm.name }}. Without the proxy, in
 
 Here is a diagram by Zhang Tianyu of Shangguigu (I highly recommend his clear lessons).
 
-![Example illustration](https://img-blog.csdnimg.cn/8ccad88c5e40497587dadb3db07e1821.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/8ccad88c5e40497587dadb3db07e1821.png)
 
 <a id="section-8"></a>
 
@@ -780,7 +780,7 @@ Example explanations:
 4. When is set called? When fullName is modified.
 5. Modify fullName in the console to observe this.
 
-![Example illustration](https://img-blog.csdnimg.cn/0acfc64ee54d44418ff0a2750a6c4ffd.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_17,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/0acfc64ee54d44418ff0a2750a6c4ffd.png)
 
 > Computed-property shorthand
 
@@ -967,7 +967,7 @@ Example explanations:
 4. 'numbers.a': {; handler() {; console.log('a changed'); } }
 5. Watch all properties in a nested structure
 
-![Example illustration](https://img-blog.csdnimg.cn/b5a0d88990404a5e90bea2788788ec39.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_14,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/b5a0d88990404a5e90bea2788788ec39.png)
 
 > Watcher shorthand
 
@@ -1430,11 +1430,11 @@ Reference from user Superhero: [https://juejin.cn/post/6844903895467032589](http
 
 `webkit` rendering engine workflow
 
-![img](https://img-blog.csdnimg.cn/img_convert/b32d88931ee775d57b382d7585de3ad8.png)
+![img](Resources/vue2/b32d88931ee775d57b382d7585de3ad8.png)
 
 > Chinese version
 
-![img](https://img-blog.csdnimg.cn/img_convert/cd1757feee540ef20c50b81af16d75ca.png)
+![img](Resources/vue2/cd1757feee540ef20c50b81af16d75ca.jpg)
 
 Browser rendering engines broadly follow five steps: build the `DOM` tree -> create `Style Rules` -> build the `Render` tree -> `Layout` -> `Painting`.
 
@@ -1498,7 +1498,7 @@ Example explanations:
 2. Real DOM operations
 3. Virtual DOM operations
 
-![Example illustration](https://img-blog.csdnimg.cn/0740cb16f1354358bed6ef638b90ebfe.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_19,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/0740cb16f1354358bed6ef638b90ebfe.png)
 
 > The results show poor performance for real DOM manipulation, so maximize reuse and reduce DOM operations.
 
@@ -1575,7 +1575,7 @@ let ul = el('div', { id: 'Virtual DOM' }, [
 
 `ul` now represents a `DOM` structure with `JavaScript` objects. Printing `ul` shows this structure:
 
-![Example illustration](https://img-blog.csdnimg.cn/9fb2a6336a61477c8ea39677716d1f52.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/9fb2a6336a61477c8ea39677716d1f52.png)
 
 \*\*(2)\*\* Convert the object-based virtual DOM into real DOM, using native JavaScript DOM methods.
 
@@ -1624,7 +1624,7 @@ document.body.appendChild(ulRoot);
 
 The page's `body` now contains a real `DOM` structure, as shown below:
 
-![Example illustration](https://img-blog.csdnimg.cn/41bf566f214f4c1f943b9a3dddfc6f19.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_19,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/41bf566f214f4c1f943b9a3dddfc6f19.png)
 
 > Now that we know virtual DOM's benefits and virtual DOM implementation, we can discuss key.
 >
@@ -1780,7 +1780,7 @@ Initial virtual DOM
 
 **Convert virtual DOM into real DOM**
 
-![Example illustration](https://img-blog.csdnimg.cn/ac320c177da8496785f7b94e54dd938a.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_13,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/ac320c177da8496785f7b94e54dd938a.png)
 
 `this.persons.unshift({ id: '004', name: '老刘', age: 40 })`
 
@@ -1813,13 +1813,13 @@ New virtual DOM
 
 **Convert virtual DOM into real DOM**
 
-![Example illustration](https://img-blog.csdnimg.cn/2ec092bf1dca430c9d9b7bf932587501.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_15,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/2ec092bf1dca430c9d9b7bf932587501.png)
 
 With index as key, Vue reuses nodes by position, updates content, and adds/removes nodes as needed; it does not recreate every node. After reordering, input and child-component state may follow positions rather than original data. Prefer a stable, unique business ID.
 
 > A diagram from Shangguigu
 
-![Example illustration](https://img-blog.csdnimg.cn/ec80a7ae139642d09d70e77ca37e0a52.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/ec80a7ae139642d09d70e77ca37e0a52.png)
 
 **If the structure also contains input DOM elements:**
 
@@ -1827,7 +1827,7 @@ Incorrect DOM updates can cause display problems.
 
 > This causes actual page errors, not merely wasted performance.
 
-![Example illustration](https://img-blog.csdnimg.cn/c89eb1802c7a4698ba5b14ab0ab654d8.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_16,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/c89eb1802c7a4698ba5b14ab0ab654d8.png)
 
 ### Conclusion: :id=h-2898bf117fd4
 
@@ -1836,7 +1836,7 @@ Incorrect DOM updates can cause display problems.
 
 > A Shangguigu diagram showing proper key usage
 
-![Example illustration](https://img-blog.csdnimg.cn/e5b3f8a66d7441e5bcff0a2525266759.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/e5b3f8a66d7441e5bcff0a2525266759.png)
 
 <a id="section-15"></a>
 
@@ -1894,10 +1894,10 @@ Example explanations:
 
 Clicking to update Ma Dongmei's information does not change the displayed data.
 
-![Example illustration](https://img-blog.csdnimg.cn/6f16b316d8824ca897e55c70884463de.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/6f16b316d8824ca897e55c70884463de.png)
 
 Look at the console:
-![Insert image description here](https://img-blog.csdnimg.cn/145a2298bba942c78f8d23f03fb21bdf.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Insert image description here](Resources/vue2/145a2298bba942c78f8d23f03fb21bdf.png)
 
 The console data changed, showing Vue did not observe this change.
 
@@ -1942,7 +1942,7 @@ Example explanations:
 1. Prepare a container
 2. Disable Vue's production tip at startup.
 
-![Example illustration](https://img-blog.csdnimg.cn/024cbd8a706c451e9a1f6cc3916e426e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/024cbd8a706c451e9a1f6cc3916e426e.png)
 
 > After template processing: calling set triggers template processing -> new virtual DOM -> comparison of old/new DOM -> page update.
 
@@ -1990,7 +1990,7 @@ Example explanations:
 3. Collect all object properties into an array
 4. Iterate
 
-![Example illustration](https://img-blog.csdnimg.cn/250a6e7fa0da45608997f2688e143d45.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/250a6e7fa0da45608997f2688e143d45.png)
 
 **Using Vue.set**
 
@@ -2045,7 +2045,7 @@ Example explanations:
 
 Vue.set() and vm.$set have a limitation:
 
-![Example illustration](https://img-blog.csdnimg.cn/954f0312289748c189bac545b4463c63.png)
+![Example illustration](Resources/vue2/954f0312289748c189bac545b4463c63.png)
 
 > Namely, vm and \_data
 
@@ -2101,13 +2101,13 @@ Example explanations:
 1. Prepare a container
 2. Disable Vue's production tip at startup.
 
-![Example illustration](https://img-blog.csdnimg.cn/b2f270e6fed4408fb6709e960aea7953.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/b2f270e6fed4408fb6709e960aea7953.png)
 
 > Thus vm.\_data.student.hobby\[0] = 'aaa' // Does not work
 >
 > Vue arrays do not have getters/setters for these indexes, so the change is not detected and the page does not update.
 
-![Example illustration](https://img-blog.csdnimg.cn/0e4c3d70f3e3492baaa2f391b0c26ec0.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/0e4c3d70f3e3492baaa2f391b0c26ec0.png)
 
 If Vue cannot observe array changes through getters and setters, how does it observe them?
 
@@ -2115,7 +2115,7 @@ Vue wraps common array-mutating methods to observe arrays.
 
 Explanation from Vue's official site:
 
-![Example illustration](https://img-blog.csdnimg.cn/b003a83d94dd44e0ae93a87da8ab43d9.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/b003a83d94dd44e0ae93a87da8ab43d9.png)
 
 **Review:**
 
@@ -2284,7 +2284,7 @@ Example explanations:
 
 1. Prepare a container
 
-![Example illustration](https://img-blog.csdnimg.cn/74583240fa094967b19441921634b304.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/74583240fa094967b19441921634b304.png)
 
 > Three v-model modifiers:
 >
@@ -2703,7 +2703,7 @@ A Vue instance has a complete lifecycle: new Vue(), event (.once) and lifecycle 
 
 First, a diagram from Shangguigu:
 
-![Example illustration](https://img-blog.csdnimg.cn/e4a8169c832443f2a78c6a1ae42a87b3.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/e4a8169c832443f2a78c6a1ae42a87b3.png)
 
 1. **beforeCreate (before creation)**: data observation (getters/setters) and event initialization have not started. Reactive data tracking and event/watcher are not set up; data, computed, watch, and methods are unavailable.
 2. **created (after creation)**: the instance and its data, computed, watch, methods, and other options are initialized. Rendered nodes are not mounted in the DOM, so `$el` is unavailable.
@@ -2716,17 +2716,17 @@ First, a diagram from Shangguigu:
 
 > Now examine the large box in the diagram's center.
 
-![Example illustration](https://img-blog.csdnimg.cn/bf970362485848798ab093430b4162b8.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/bf970362485848798ab093430b4162b8.png)
 
 First check for the **el** option. Without it, call vm.$mount(el); without either, mounting waits and the original container remains visible. With **el**, check for template. If absent, compile the el container as the Vue template. Compare the following images.
 
 Before compilation:
 
-![Example illustration](https://img-blog.csdnimg.cn/d2242a275b1c4abe98fbcf9623ff8152.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/d2242a275b1c4abe98fbcf9623ff8152.png)
 
 After compilation:
 
-![Example illustration](https://img-blog.csdnimg.cn/2c59b4bb3820404f87adf366e8582f91.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/2c59b4bb3820404f87adf366e8582f91.png)
 
 What is template for?
 
@@ -2734,9 +2734,9 @@ What is template for?
 
 If the el container is empty but the Vue instance provides template, that template is compiled into virtual DOM, then virtual DOM becomes real DOM inserted into the page. Think of template as replacing the el container's content.
 
-![Example illustration](https://img-blog.csdnimg.cn/b6de87cd2e44480a8cbe1ec82b867ca3.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/b6de87cd2e44480a8cbe1ec82b867ca3.png)
 
-![Example illustration](https://img-blog.csdnimg.cn/23762cb8feb340449fb0033abcff0a6d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/23762cb8feb340449fb0033abcff0a6d.png)
 
 **Case 2: no template**
 
@@ -3087,14 +3087,14 @@ Example explanations:
 
 Where Vue manages VueComponent
 
-![Example illustration](https://img-blog.csdnimg.cn/4039bc27eaff4463be9dd5c037993b77.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/4039bc27eaff4463be9dd5c037993b77.png)
 
 ### An important built-in relationship :id=h-6d9bb4f71112
 
 - An important built-in relationship: VueComponent.prototype.**proto** === Vue.prototype
 - This lets component instances (vc) access properties and methods on the Vue prototype.
 
-![Example illustration](https://img-blog.csdnimg.cn/9f3398cb2cfb4b169951adb53236ad60.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/9f3398cb2cfb4b169951adb53236ad60.png)
 
 <a id="section-22"></a>
 
@@ -3357,7 +3357,7 @@ from 'vue' needs no `'./'` because third-party resolution in node_modules is alr
 
 When importing a third-party library, its package.json determines which file is loaded.
 
-![Example illustration](https://img-blog.csdnimg.cn/de478c338b1643d4898b8eddbf489197.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/de478c338b1643d4898b8eddbf489197.png)
 
 module determines the imported file.
 
@@ -3377,7 +3377,7 @@ new Vue({
 
 Running this produces the following error:
 
-![Example illustration](https://img-blog.csdnimg.cn/b2b8ecbfb1784360a12057d3c019a726.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/b2b8ecbfb1784360a12057d3c019a726.png)
 
 The error says the runtime-only Vue build has no template compiler.
 
@@ -3410,7 +3410,7 @@ Example explanations:
 5. render solves the lack of template compilation in runtime-only Vue.
 6. createElement creates concrete elements.
 
-![Example illustration](https://img-blog.csdnimg.cn/4c32e5e48f2d493a94976a4810abc5fd.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Example illustration](Resources/vue2/4c32e5e48f2d493a94976a4810abc5fd.png)
 
 Since render does not use this, it can be shortened to an arrow function.
 
@@ -4035,7 +4035,7 @@ On a client's first request, the server sends an authentication cookie in a resp
 
 On subsequent server requests, the browser automatically sends authentication cookies in request headers so the server can identify the client.
 
-![Insert image description here](https://img-blog.csdnimg.cn/e29b7e0bef784bc5b6b8ed50b0d8a509.png)
+![Insert image description here](Resources/vue2/e29b7e0bef784bc5b6b8ed50b0d8a509.png)
 
 **Cookies are not secure**
 
@@ -4053,13 +4053,13 @@ A session is another mechanism for tracking client state. Cookies reside in the 
 
 > Diagram:
 
-![Insert image description here](https://img-blog.csdnimg.cn/18768cbd3ece4e73b98c8e3be8cec422.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Insert image description here](Resources/vue2/18768cbd3ece4e73b98c8e3be8cec422.png)
 
 > A simple way to understand a session is as a table whose contents are looked up using the value passed in a cookie.
 
 **Standard session workflow**
 
-![Insert image description here](https://img-blog.csdnimg.cn/10472e8e03924340a452523ae678de02.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAaGFuZ2FvMjMz,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Insert image description here](Resources/vue2/10472e8e03924340a452523ae678de02.png)
 
 I demonstrated session usage in detail in node.js; see another blog post: [https://blog.csdn.net/hangao233/article/details/123089029](https://blog.csdn.net/hangao233/article/details/123089029)
 
@@ -4612,9 +4612,9 @@ Student.vue
 
 ```
 
-![Insert image description here](https://img-blog.csdnimg.cn/86238df578224c798ab772db2798b85c.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Insert image description here](Resources/vue2/86238df578224c798ab772db2798b85c.png)
 
-![Insert image description here](https://img-blog.csdnimg.cn/5aeffb62c4f3462ea9b5fb7b98a1b0da.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Insert image description here](Resources/vue2/5aeffb62c4f3462ea9b5fb7b98a1b0da.png)
 
 <a id="section-29"></a>
 
@@ -4770,7 +4770,7 @@ this.$nextTick(() => {
 
 1. Purpose: add style classes at appropriate times when inserting, updating, or removing DOM elements.
 
-2. Diagram: ![Insert image description here](https://img-blog.csdnimg.cn/9ce811248ee34fb8aa96fa0d1e6e2747.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+2. Diagram: ![Insert image description here](Resources/vue2/9ce811248ee34fb8aa96fa0d1e6e2747.png)
 
 3. Syntax:
 
@@ -4978,7 +4978,7 @@ Example explanations:
 
 ## 2.9 Configure a proxy in Vue CLI :id=h-e1b1613463f0
 
-This can solve cross-origin issues. ![Insert image description here](https://img-blog.csdnimg.cn/01ae5e73323a4c83b097ea9705c90dbf.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+This can solve cross-origin issues. ![Insert image description here](Resources/vue2/01ae5e73323a4c83b097ea9705c90dbf.png)
 
 > AJAX is a frontend technology: it needs a browser, hence window and XHR, to send requests. Communication between servers can use ordinary HTTP requests.
 
@@ -5155,7 +5155,7 @@ Example explanations:
 
 Principle diagram:
 
-![Insert image description here](https://img-blog.csdnimg.cn/b892bbf299b94d1db68bf657b5e0746a.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Insert image description here](Resources/vue2/b892bbf299b94d1db68bf657b5e0746a.png)
 
 <a id="section-35"></a>
 
@@ -6616,7 +6616,7 @@ Example explanations:
 
 1. Determine whether the current route requires access control
 
-![Insert image description here](https://img-blog.csdnimg.cn/d8b1f996e81a48a2a33a41fce71c25d5.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Insert image description here](Resources/vue2/d8b1f996e81a48a2a33a41fce71c25d5.png)
 
 5. In-component guards:
 
@@ -6638,7 +6638,7 @@ Example explanations:
 1. Enter guard: called when routing rules navigate into this component
 2. Leave guard: called when routing rules navigate away from this component
 
-![Insert image description here](https://img-blog.csdnimg.cn/a1180709cc80417c9266343e7ec1637e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Insert image description here](Resources/vue2/a1180709cc80417c9266343e7ec1637e.png)
 
 <a id="section-55"></a>
 
@@ -6660,7 +6660,7 @@ Example explanations:
    2. Slightly worse compatibility than hash mode.
    3. Production deployment requires backend support to avoid server 404 errors on page refresh.
 
-![Insert image description here](https://img-blog.csdnimg.cn/f0f05b4791944844a8ea9d496e2710f9.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![Insert image description here](Resources/vue2/f0f05b4791944844a8ea9d496e2710f9.png)
 
 Reference articles:
 

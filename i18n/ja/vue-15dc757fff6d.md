@@ -323,7 +323,7 @@ console.log(descriptor)
 
 > 出力結果
 
-![参考画像](https://img-blog.csdnimg.cn/09b4bf67bb7843388fecd7da1572901f.png)
+![参考画像](Resources/vue2/09b4bf67bb7843388fecd7da1572901f.png)
 
 **Object.defineProperty**(obj, prop, descriptor)
 
@@ -509,7 +509,7 @@ Object.defineProperty(obj2, 'x', {
 
 new で作った vm をコンソールに出力します。
 
-![参考画像](https://img-blog.csdnimg.cn/ea14682958924e37bf950f3960ee998e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/ea14682958924e37bf950f3960ee998e.png)
 
 設定した data が vm にバインドされています。先に結果を言うと、Vue が \_data の name と address を vm 自体へプロキシしています。
 
@@ -517,7 +517,7 @@ new で作った vm をコンソールに出力します。
 
 まず \_data とは vm の \_data プロパティで、次の画像の部分です。
 
-![参考画像](https://img-blog.csdnimg.cn/bc4efbf50f414b1a9c1db2ff3581d228.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/bc4efbf50f414b1a9c1db2ff3581d228.png)
 
 この \_data はどこから来たのでしょうか。
 
@@ -561,13 +561,13 @@ new Vue の際、Vue は設定の data を処理して \_data に関連付け、
 
 1. Vue の初期化オプションに data プロパティを記述しました。
 
-![参考画像](https://img-blog.csdnimg.cn/e0051173ac224b408d037fda33de6410.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_18,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/e0051173ac224b408d037fda33de6410.png)
 
 > 出力は true で、両方が同じオブジェクトと分かります。
 
 データプロキシに戻ると、**vm.\_data** の値を vm 自体へプロキシし、**vm.\_data.name** の代わりに vm.name を使えます。これが Vue のデータプロキシです。
 
-![参考画像](https://img-blog.csdnimg.cn/66b4020fbc5143aa8ddf3f6fd86af0ea.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_19,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/66b4020fbc5143aa8ddf3f6fd86af0ea.png)
 
 すべて Object.defineProperty() で実現しています。この過程を再現してみます。
 
@@ -590,7 +590,7 @@ Object.defineProperty(vm, 'name', {
 
 尚硅谷の張天禹先生による図です（説明が分かりやすいので、授業を強く勧めます）。
 
-![参考画像](https://img-blog.csdnimg.cn/8ccad88c5e40497587dadb3db07e1821.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/8ccad88c5e40497587dadb3db07e1821.png)
 
 <a id="section-8"></a>
 
@@ -780,7 +780,7 @@ Vue でよく使うキーの別名：
 4. set の呼び出し時点：fullName が変更されたとき。
 5. コンソールで fullName を変更して確認できます。
 
-![参考画像](https://img-blog.csdnimg.cn/0acfc64ee54d44418ff0a2750a6c4ffd.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_17,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/0acfc64ee54d44418ff0a2750a6c4ffd.png)
 
 > 算出プロパティの省略形
 
@@ -967,7 +967,7 @@ Vue でよく使うキーの別名：
 4. 'numbers.a': {; handler() {; console.log('a が変わった'); } }
 5. 多階層の構造の全プロパティを監視する
 
-![参考画像](https://img-blog.csdnimg.cn/b5a0d88990404a5e90bea2788788ec39.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_14,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/b5a0d88990404a5e90bea2788788ec39.png)
 
 > watch の省略形
 
@@ -1430,11 +1430,11 @@ key は仮想 DOM の識別子です。
 
 `webkit` レンダリングエンジンの処理の流れ
 
-![img](https://img-blog.csdnimg.cn/img_convert/b32d88931ee775d57b382d7585de3ad8.png)
+![img](Resources/vue2/b32d88931ee775d57b382d7585de3ad8.png)
 
 > 中国語版
 
-![img](https://img-blog.csdnimg.cn/img_convert/cd1757feee540ef20c50b81af16d75ca.png)
+![img](Resources/vue2/cd1757feee540ef20c50b81af16d75ca.jpg)
 
 ブラウザーの描画エンジンは大きく 5 段階で動きます。`DOM` ツリー作成 -> `Style Rules` 作成 -> `Render` ツリー構築 -> レイアウト（`Layout`）-> 描画（`Painting`）。
 
@@ -1498,7 +1498,7 @@ key は仮想 DOM の識別子です。
 2. 実 DOM の操作
 3. 仮想 DOM の操作
 
-![参考画像](https://img-blog.csdnimg.cn/0740cb16f1354358bed6ef638b90ebfe.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_19,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/0740cb16f1354358bed6ef638b90ebfe.png)
 
 > 結果から実 DOM の操作は性能が低いと分かるため、なるべく再利用して DOM 操作を減らします。
 
@@ -1575,7 +1575,7 @@ let ul = el('div', { id: 'Virtual DOM' }, [
 
 これで `ul` は `JavaScript` オブジェクトで表した `DOM` 構造になります。`ul` を出力すると次の構造です。
 
-![参考画像](https://img-blog.csdnimg.cn/9fb2a6336a61477c8ea39677716d1f52.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/9fb2a6336a61477c8ea39677716d1f52.png)
 
 \*\*（2）\*\* JavaScript オブジェクトの仮想 DOM を実 DOM に変換します。標準の DOM 操作メソッドが必要です。
 
@@ -1624,7 +1624,7 @@ document.body.appendChild(ulRoot);
 
 これでページの `body` に実際の `DOM` 構造ができ、次のように表示されます。
 
-![参考画像](https://img-blog.csdnimg.cn/41bf566f214f4c1f943b9a3dddfc6f19.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_19,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/41bf566f214f4c1f943b9a3dddfc6f19.png)
 
 > 仮想 DOM の利点と仮想 DOM の実装を理解したので、key の役割に進みます。
 >
@@ -1780,7 +1780,7 @@ persons: \[
 
 **仮想 DOM を実 DOM に変換する**
 
-![参考画像](https://img-blog.csdnimg.cn/ac320c177da8496785f7b94e54dd938a.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_13,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/ac320c177da8496785f7b94e54dd938a.png)
 
 `this.persons.unshift({ id: '004', name: '老刘', age: 40 })`
 
@@ -1813,13 +1813,13 @@ persons: \[
 
 **仮想 DOM を実 DOM に変換する**
 
-![参考画像](https://img-blog.csdnimg.cn/2ec092bf1dca430c9d9b7bf932587501.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_15,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/2ec092bf1dca430c9d9b7bf932587501.png)
 
 index を key にすると、Vue は位置に基づいてノードを再利用し、内容を更新し、必要に応じて追加・削除します。全ノードを作り直す意味ではありません。並べ替え後は入力欄や子コンポーネントの状態が元データではなく位置に対応することがあるため、安定した一意の業務 ID を優先します。
 
 > 尚硅谷の図
 
-![参考画像](https://img-blog.csdnimg.cn/ec80a7ae139642d09d70e77ca37e0a52.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/ec80a7ae139642d09d70e77ca37e0a52.png)
 
 **構造に入力用 DOM も含まれる場合：**
 
@@ -1827,7 +1827,7 @@ index を key にすると、Vue は位置に基づいてノードを再利用�
 
 > この場合は性能の無駄だけでなく、ページの誤動作に直接つながります。
 
-![参考画像](https://img-blog.csdnimg.cn/c89eb1802c7a4698ba5b14ab0ab654d8.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_16,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/c89eb1802c7a4698ba5b14ab0ab654d8.png)
 
 ### 結論： :id=h-2898bf117fd4
 
@@ -1836,7 +1836,7 @@ index を key にすると、Vue は位置に基づいてノードを再利用�
 
 > key の適切な使い方を示す尚硅谷の図
 
-![参考画像](https://img-blog.csdnimg.cn/e5b3f8a66d7441e5bcff0a2525266759.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/e5b3f8a66d7441e5bcff0a2525266759.png)
 
 <a id="section-15"></a>
 
@@ -1894,10 +1894,10 @@ index を key にすると、Vue は位置に基づいてノードを再利用�
 
 馬冬梅の情報更新をクリックしても、表示されるデータは変わりません。
 
-![参考画像](https://img-blog.csdnimg.cn/6f16b316d8824ca897e55c70884463de.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/6f16b316d8824ca897e55c70884463de.png)
 
 コンソールを確認します。
-![ここに画像の説明を挿入](https://img-blog.csdnimg.cn/145a2298bba942c78f8d23f03fb21bdf.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![ここに画像の説明を挿入](Resources/vue2/145a2298bba942c78f8d23f03fb21bdf.png)
 
 コンソールのデータは変わっているため、この変更を Vue が検知していないと分かります。
 
@@ -1942,7 +1942,7 @@ index を key にすると、Vue は位置に基づいてノードを再利用�
 1. コンテナーを用意する
 2. Vue の起動時の本番環境に関する案内を無効にする。
 
-![参考画像](https://img-blog.csdnimg.cn/024cbd8a706c451e9a1f6cc3916e426e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/024cbd8a706c451e9a1f6cc3916e426e.png)
 
 > テンプレート処理後の流れ：set の呼び出し -> テンプレート処理 -> 新しい仮想 DOM の生成 -> 新旧 DOM の比較 -> ページ更新。
 
@@ -1990,7 +1990,7 @@ Vue のデータ監視を再現する
 3. オブジェクトの全プロパティを配列にまとめる
 4. 走査する
 
-![参考画像](https://img-blog.csdnimg.cn/250a6e7fa0da45608997f2688e143d45.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/250a6e7fa0da45608997f2688e143d45.png)
 
 **Vue.set の使用**
 
@@ -2045,7 +2045,7 @@ vm.$set(target，propertyName/index，value)
 
 Vue.set() と vm.$set には制限があります。
 
-![参考画像](https://img-blog.csdnimg.cn/954f0312289748c189bac545b4463c63.png)
+![参考画像](Resources/vue2/954f0312289748c189bac545b4463c63.png)
 
 > つまり vm と \_data
 
@@ -2101,13 +2101,13 @@ Vue.set() と vm.$set には制限があります。
 1. コンテナーを用意する
 2. Vue の起動時の本番環境に関する案内を無効にする。
 
-![参考画像](https://img-blog.csdnimg.cn/b2f270e6fed4408fb6709e960aea7953.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/b2f270e6fed4408fb6709e960aea7953.png)
 
 > そのため vm.\_data.student.hobby\[0] = 'aaa' // Does not work
 >
 > Vue の配列ではこの位置に getter と setter がなく、変更を検知できないため、ページも更新されません。
 
-![参考画像](https://img-blog.csdnimg.cn/0e4c3d70f3e3492baaa2f391b0c26ec0.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/0e4c3d70f3e3492baaa2f391b0c26ec0.png)
 
 配列を getter と setter で監視できないなら、Vue はどのように配列の変更を検知するのでしょうか。
 
@@ -2115,7 +2115,7 @@ Vue は配列を変更する一般的なメソッドをラップして監視し�
 
 Vue 公式サイトの説明：
 
-![参考画像](https://img-blog.csdnimg.cn/b003a83d94dd44e0ae93a87da8ab43d9.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/b003a83d94dd44e0ae93a87da8ab43d9.png)
 
 **要点の確認：**
 
@@ -2284,7 +2284,7 @@ Vue のデータ監視の仕組み：
 
 1. コンテナーを用意する
 
-![参考画像](https://img-blog.csdnimg.cn/74583240fa094967b19441921634b304.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/74583240fa094967b19441921634b304.png)
 
 > v-model の 3 つの修飾子：
 >
@@ -2703,7 +2703,7 @@ Vue インスタンスには完全なライフサイクルがあります。new 
 
 まず尚硅谷の図を見ます。
 
-![参考画像](https://img-blog.csdnimg.cn/e4a8169c832443f2a78c6a1ae42a87b3.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/e4a8169c832443f2a78c6a1ae42a87b3.png)
 
 1. **beforeCreate（作成前）**：データ監視（getter・setter）とイベント初期化はまだ始まっていません。data のリアクティブ追跡や event/watcher が設定されておらず、data、computed、watch、methods のデータやメソッドにはアクセスできません。
 2. **created（作成後）**：インスタンスが作成され、data、computed、watch、methods などの設定が完了しています。ただし描画ノードは DOM に未マウントで、`$el` は参照できません。
@@ -2716,17 +2716,17 @@ Vue インスタンスには完全なライフサイクルがあります。new 
 
 > 次に図の中央の大きな枠を説明します。
 
-![参考画像](https://img-blog.csdnimg.cn/bf970362485848798ab093430b4162b8.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/bf970362485848798ab093430b4162b8.png)
 
 まず **el** の設定を確認し、なければ vm.$mount(el) を呼びます。両方なければ処理は待機し、元のコンテナーが表示されます。**el** があれば template を確認し、なければ el のコンテナーを Vue テンプレートとしてコンパイルします。次の図で比較します。
 
 コンパイル前：
 
-![参考画像](https://img-blog.csdnimg.cn/d2242a275b1c4abe98fbcf9623ff8152.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/d2242a275b1c4abe98fbcf9623ff8152.png)
 
 コンパイル後：
 
-![参考画像](https://img-blog.csdnimg.cn/2c59b4bb3820404f87adf366e8582f91.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/2c59b4bb3820404f87adf366e8582f91.png)
 
 template は何のためにあるのでしょうか。
 
@@ -2734,9 +2734,9 @@ template は何のためにあるのでしょうか。
 
 el のコンテナーが空でも、Vue インスタンスに template があれば、その内容をコンパイルして仮想 DOM を作り、仮想 DOM を実 DOM に変換して挿入します。template が el のコンテナーの内容を置き換えると考えられます。
 
-![参考画像](https://img-blog.csdnimg.cn/b6de87cd2e44480a8cbe1ec82b867ca3.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/b6de87cd2e44480a8cbe1ec82b867ca3.png)
 
-![参考画像](https://img-blog.csdnimg.cn/23762cb8feb340449fb0033abcff0a6d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/23762cb8feb340449fb0033abcff0a6d.png)
 
 **2 つ目：template がない場合**
 
@@ -3087,14 +3087,14 @@ const school = Vue.extend(options) は const school = options と省略できま
 
 Vue が VueComponent を管理する場所
 
-![参考画像](https://img-blog.csdnimg.cn/4039bc27eaff4463be9dd5c037993b77.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/4039bc27eaff4463be9dd5c037993b77.png)
 
 ### 重要な組み込みの関係 :id=h-6d9bb4f71112
 
 - 重要な組み込みの関係：VueComponent.prototype.**proto** === Vue.prototype
 - この関係により、コンポーネントインスタンス（vc）は Vue のプロトタイプ上のプロパティやメソッドにアクセスできます。
 
-![参考画像](https://img-blog.csdnimg.cn/9f3398cb2cfb4b169951adb53236ad60.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/9f3398cb2cfb4b169951adb53236ad60.png)
 
 <a id="section-22"></a>
 
@@ -3357,7 +3357,7 @@ from 'vue' に `'./'` が不要なのは、外部ライブラリの node_modules
 
 import で外部ライブラリを取り込むとき、どのファイルを読むかはその package.json で決まります。
 
-![参考画像](https://img-blog.csdnimg.cn/de478c338b1643d4898b8eddbf489197.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/de478c338b1643d4898b8eddbf489197.png)
 
 module で取り込むファイルを指定しています。
 
@@ -3377,7 +3377,7 @@ new Vue({
 
 この書き方で実行すると、次のエラーが出ます。
 
-![参考画像](https://img-blog.csdnimg.cn/b2b8ecbfb1784360a12057d3c019a726.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/b2b8ecbfb1784360a12057d3c019a726.png)
 
 実行時専用の Vue を使っており、テンプレートコンパイラーがないというエラーです。
 
@@ -3410,7 +3410,7 @@ new Vue({
 5. 実行時専用 Vue は template を解析できないため、render がその問題を解決します。
 6. createElement は具体的な要素を作成できます。
 
-![参考画像](https://img-blog.csdnimg.cn/4c32e5e48f2d493a94976a4810abc5fd.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![参考画像](Resources/vue2/4c32e5e48f2d493a94976a4810abc5fd.png)
 
 render 内で this を使わないため、アロー関数に省略できます。
 
@@ -4035,7 +4035,7 @@ Cookieは最初に提案されたローカル保存の方式です。それ以�
 
 その後サーバーを要求するたびに、ブラウザーは認証用Cookieをリクエストヘッダーで自動送信し、サーバーがクライアントを識別します。
 
-![ここに画像の説明を挿入](https://img-blog.csdnimg.cn/e29b7e0bef784bc5b6b8ed50b0d8a509.png)
+![ここに画像の説明を挿入](Resources/vue2/e29b7e0bef784bc5b6b8ed50b0d8a509.png)
 
 **Cookieには安全性がない**
 
@@ -4053,13 +4053,13 @@ Sessionはクライアントの状態を記録する別の仕組みです。Cook
 
 > 図：
 
-![ここに画像の説明を挿入](https://img-blog.csdnimg.cn/18768cbd3ece4e73b98c8e3be8cec422.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![ここに画像の説明を挿入](Resources/vue2/18768cbd3ece4e73b98c8e3be8cec422.png)
 
 > Sessionは、Cookieで渡された値を使って内容を検索するテーブルと考えると分かりやすいと思います。
 
 **Sessionの標準的な処理フロー**
 
-![ここに画像の説明を挿入](https://img-blog.csdnimg.cn/10472e8e03924340a452523ae678de02.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAaGFuZ2FvMjMz,size_20,color_FFFFFF,t_70,g_se,x_16)
+![ここに画像の説明を挿入](Resources/vue2/10472e8e03924340a452523ae678de02.png)
 
 node.jsでSessionの使い方を詳しく実演しました。別の記事を参照してください：[https://blog.csdn.net/hangao233/article/details/123089029](https://blog.csdn.net/hangao233/article/details/123089029)
 
@@ -4612,9 +4612,9 @@ Student.vue
 
 ```
 
-![ここに画像の説明を挿入](https://img-blog.csdnimg.cn/86238df578224c798ab772db2798b85c.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![ここに画像の説明を挿入](Resources/vue2/86238df578224c798ab772db2798b85c.png)
 
-![ここに画像の説明を挿入](https://img-blog.csdnimg.cn/5aeffb62c4f3462ea9b5fb7b98a1b0da.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![ここに画像の説明を挿入](Resources/vue2/5aeffb62c4f3462ea9b5fb7b98a1b0da.png)
 
 <a id="section-29"></a>
 
@@ -4770,7 +4770,7 @@ this.$nextTick(() => {
 
 1. 役割：DOM要素の挿入、更新、削除時に、適切なタイミングでスタイルのクラスを付けます。
 
-2. 図：![ここに画像の説明を挿入](https://img-blog.csdnimg.cn/9ce811248ee34fb8aa96fa0d1e6e2747.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+2. 図：![ここに画像の説明を挿入](Resources/vue2/9ce811248ee34fb8aa96fa0d1e6e2747.png)
 
 3. 記法：
 
@@ -4978,7 +4978,7 @@ this.$nextTick(() => {
 
 ## 2.9 Vue CLIのプロキシ設定 :id=h-e1b1613463f0
 
-クロスオリジンの問題を解決できます。![ここに画像の説明を挿入](https://img-blog.csdnimg.cn/01ae5e73323a4c83b097ea9705c90dbf.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+クロスオリジンの問題を解決できます。![ここに画像の説明を挿入](Resources/vue2/01ae5e73323a4c83b097ea9705c90dbf.png)
 
 > AJAXはフロントエンドの技術で、ブラウザーがあって初めてwindowとXHRが存在し、AJAXリクエストを送れます。サーバー間の通信には通常のHTTPリクエストを使えばよいです。
 
@@ -5155,7 +5155,7 @@ module.exports = {
 
 仕組みの図：
 
-![ここに画像の説明を挿入](https://img-blog.csdnimg.cn/b892bbf299b94d1db68bf657b5e0746a.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![ここに画像の説明を挿入](Resources/vue2/b892bbf299b94d1db68bf657b5e0746a.png)
 
 <a id="section-35"></a>
 
@@ -6616,7 +6616,7 @@ beforeEnter(to,from,next){
 
 1. 現在のルートにアクセス制御が必要か判断
 
-![ここに画像の説明を挿入](https://img-blog.csdnimg.cn/d8b1f996e81a48a2a33a41fce71c25d5.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![ここに画像の説明を挿入](Resources/vue2/d8b1f996e81a48a2a33a41fce71c25d5.png)
 
 5. コンポーネント内のガード：
 
@@ -6638,7 +6638,7 @@ beforeRouteLeave (to, from, next) {
 1. 進入ガード：ルーティング規則によりコンポーネントへ入るときに呼び出す
 2. 離脱ガード：ルーティング規則によりコンポーネントを離れるときに呼び出す
 
-![ここに画像の説明を挿入](https://img-blog.csdnimg.cn/a1180709cc80417c9266343e7ec1637e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![ここに画像の説明を挿入](Resources/vue2/a1180709cc80417c9266343e7ec1637e.png)
 
 <a id="section-55"></a>
 
@@ -6660,7 +6660,7 @@ beforeRouteLeave (to, from, next) {
    2. hashモードより互換性がやや劣ります。
    3. 本番へのデプロイには、ページ再読み込み時のサーバー404を解決するためバックエンド側の対応が必要です。
 
-![ここに画像の説明を挿入](https://img-blog.csdnimg.cn/f0f05b4791944844a8ea9d496e2710f9.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![ここに画像の説明を挿入](Resources/vue2/f0f05b4791944844a8ea9d496e2710f9.png)
 
 参考記事：
 
