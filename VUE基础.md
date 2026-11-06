@@ -336,7 +336,7 @@ console.log(descriptor)
 
 > 打印结果
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/09b4bf67bb7843388fecd7da1572901f.png)
+![在这里插入图片描述](Resources/vue2/09b4bf67bb7843388fecd7da1572901f.png)
 
 
 **Object.defineProperty**(obj, prop, descriptor)
@@ -530,7 +530,7 @@ Object.defineProperty(obj2, 'x', {
 
 我们在控制台打印 new 出来的 vm
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/ea14682958924e37bf950f3960ee998e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/ea14682958924e37bf950f3960ee998e.png)
 
 
 可以看到，写在配置项中的 data 数据被 绑定到了 vm 对象上，我先来讲结果，是 Vue 将 _data 中的 name，address 数据 代理到 vm 本身上。
@@ -539,7 +539,7 @@ Object.defineProperty(obj2, 'x', {
 
 先来解释下_data 是啥， _data 就是 vm 身上的 _data 属性，就是下图那个
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/bc4efbf50f414b1a9c1db2ff3581d228.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/bc4efbf50f414b1a9c1db2ff3581d228.png)
 
 
 这个 _data 是从哪来的？
@@ -586,7 +586,7 @@ new Vue 时， Vue 通过一系列处理， 将匹配项上的 data 数据绑定
 1. 我们在Vue 初始化的配置项中写了 data 属性。
 
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/e0051173ac224b408d037fda33de6410.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_18,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/e0051173ac224b408d037fda33de6410.png)
 
 
 > 打印结果为true，说明两者就是同一个
@@ -594,7 +594,7 @@ new Vue 时， Vue 通过一系列处理， 将匹配项上的 data 数据绑定
 
 好了，再回到数据代理上来，将 **vm._data** 中的值，再代理到 vm 本身上来，用vm.name 代替 **vm._data.name**。这就是 Vue 的数据代理
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/66b4020fbc5143aa8ddf3f6fd86af0ea.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_19,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/66b4020fbc5143aa8ddf3f6fd86af0ea.png)
 
 
 这一切都是通过 Object.defineProperty() 来完成的，我来模拟一下这个过程
@@ -618,7 +618,7 @@ Object.defineProperty(vm, 'name', {
 
 来个尚硅谷张天禹老师做的图（非常推荐去看他的课，讲的非常好）
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/8ccad88c5e40497587dadb3db07e1821.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/8ccad88c5e40497587dadb3db07e1821.png)
 
 
 <a id="section-8"></a>
@@ -817,7 +817,7 @@ Vue中常用的按键别名：
 5. 可以主动在控制台修改fullName来查看情况
 
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/0acfc64ee54d44418ff0a2750a6c4ffd.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_17,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/0acfc64ee54d44418ff0a2750a6c4ffd.png)
 
 
 > 计算属性简写
@@ -1012,7 +1012,7 @@ Vue中常用的按键别名：
 5. 监视多级结构中所有属性的变化
 
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/b5a0d88990404a5e90bea2788788ec39.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_14,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/b5a0d88990404a5e90bea2788788ec39.png)
 
 
 > 监视属性简写
@@ -1494,11 +1494,11 @@ key是虚拟dom的标识。
 
 `webkit` 渲染引擎工作流程图
 
-![img](https://img-blog.csdnimg.cn/img_convert/b32d88931ee775d57b382d7585de3ad8.png)
+![img](Resources/vue2/b32d88931ee775d57b382d7585de3ad8.png)
 
 > 中文版
 
-![img](https://img-blog.csdnimg.cn/img_convert/cd1757feee540ef20c50b81af16d75ca.png)
+![img](Resources/vue2/cd1757feee540ef20c50b81af16d75ca.jpg)
 
 
  所有的浏览器渲染引擎工作流程大致分为5步：创建 `DOM` 树 —> 创建 `Style Rules` -> 构建 `Render` 树 —> 布局 `Layout` -—> 绘制 `Painting`。
@@ -1564,7 +1564,7 @@ key是虚拟dom的标识。
 3. 虚拟 DOM 操作
 
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/0740cb16f1354358bed6ef638b90ebfe.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_19,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/0740cb16f1354358bed6ef638b90ebfe.png)
 
 
 >从结果中可以看出，操作真实 DOM 的性能是非常差的，所以我们要尽可能的复用，减少 DOM 操作。
@@ -1643,7 +1643,7 @@ let ul = el('div', { id: 'Virtual DOM' }, [
 
 现在 `ul` 就是我们用 `JavaScript` 对象表示的 `DOM` 结构，我们输出查看 `ul` 对应的数据结构如下：
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/9fb2a6336a61477c8ea39677716d1f52.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/9fb2a6336a61477c8ea39677716d1f52.png)
 
 
 **（2）**将用 js 对象表示的虚拟 DOM 转换成真实 DOM：需要用到 js 原生操作 DOM 的方法。
@@ -1694,7 +1694,7 @@ document.body.appendChild(ulRoot);
 
 这样，页面 `body` 里面就有真正的 `DOM` 结构，效果如下图所示：
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/41bf566f214f4c1f943b9a3dddfc6f19.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_19,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/41bf566f214f4c1f943b9a3dddfc6f19.png)
 
 
 > 我们知道虚拟 DOM 的好处和虚拟 DOM 的实现后就要讲讲 key 的作用了。
@@ -1856,7 +1856,7 @@ persons: [
 
 **将虚拟 DOM 转为 真实 DOM**
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/ac320c177da8496785f7b94e54dd938a.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_13,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/ac320c177da8496785f7b94e54dd938a.png)
 
 
 `this.persons.unshift({ id: '004', name: '老刘', age: 40 })`
@@ -1887,14 +1887,14 @@ persons: [
 
 **将虚拟 DOM 转为 真实 DOM**
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/2ec092bf1dca430c9d9b7bf932587501.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_15,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/2ec092bf1dca430c9d9b7bf932587501.png)
 
 
 使用 index 作为 key 时，Vue 会按位置复用已有节点，更新其内容，并在需要时增加或删除节点；不等于所有节点重新创建。重新排序后，输入框状态和子组件内部状态可能跟随位置，而不是跟随原数据，因此优先使用稳定且唯一的业务 ID。
 
 > 来张尚硅谷的图
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/ec80a7ae139642d09d70e77ca37e0a52.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/ec80a7ae139642d09d70e77ca37e0a52.png)
 
 
 **如果结构中还包含输入类的DOM：**
@@ -1903,7 +1903,7 @@ persons: [
 
 > 这回造成的就不是性能浪费了，会直接导致页面的错误
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/c89eb1802c7a4698ba5b14ab0ab654d8.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_16,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/c89eb1802c7a4698ba5b14ab0ab654d8.png)
 
 
 ### 结论：
@@ -1914,7 +1914,7 @@ persons: [
 
 > 来张尚硅谷的图，正经使用 key
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/e5b3f8a66d7441e5bcff0a2525266759.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/e5b3f8a66d7441e5bcff0a2525266759.png)
 
 
 <a id="section-15"></a>
@@ -1974,11 +1974,11 @@ persons: [
 
 点击更新马冬梅的信息，马冬梅的数据并没有发生改变。
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/6f16b316d8824ca897e55c70884463de.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/6f16b316d8824ca897e55c70884463de.png)
 
 
 我们来看看控制台：
-![在这里插入图片描述](https://img-blog.csdnimg.cn/145a2298bba942c78f8d23f03fb21bdf.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/145a2298bba942c78f8d23f03fb21bdf.png)
 
 
 控制台上的数据发生了改变，说明，这个更改的数据并没有被 vue 监测到。
@@ -2025,7 +2025,7 @@ persons: [
 2. 阻止 vue 在启动时生成生产提示。
 
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/024cbd8a706c451e9a1f6cc3916e426e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/024cbd8a706c451e9a1f6cc3916e426e.png)
 
 
 > 讲一下解析模板后面的操作---》调用 set 方法时，就会去解析模板----->生成新的虚拟 DOM----->新旧DOM 对比 -----> 更新页面
@@ -2075,7 +2075,7 @@ persons: [
 4. 遍历
 
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/250a6e7fa0da45608997f2688e143d45.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/250a6e7fa0da45608997f2688e143d45.png)
 
 
 **Vue.set 的使用**
@@ -2132,7 +2132,7 @@ vm.$set(target，propertyName/index，value)
 
 Vue.set() 或 vm.$set 有缺陷：
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/954f0312289748c189bac545b4463c63.png)
+![在这里插入图片描述](Resources/vue2/954f0312289748c189bac545b4463c63.png)
 
 
 > 就是 vm 和 _data
@@ -2191,14 +2191,14 @@ Vue.set() 或 vm.$set 有缺陷：
 2. 阻止 vue 在启动时生成生产提示。
 
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/b2f270e6fed4408fb6709e960aea7953.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/b2f270e6fed4408fb6709e960aea7953.png)
 
 
 > 所以我们通过 vm._data.student.hobby[0] = 'aaa' // 不奏效
 >
 > vue 监测在数组那没有 getter 和 setter，所以监测不到数据的更改，也不会引起页面的更新
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/0e4c3d70f3e3492baaa2f391b0c26ec0.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/0e4c3d70f3e3492baaa2f391b0c26ec0.png)
 
 既然 vue 在对数组无法通过 getter 和 setter 进行数据监视，那 vue 到底如何监视数组数据的变化呢？
 
@@ -2206,7 +2206,7 @@ vue对数组的监测是通过 包装数组上常用的用于修改数组的方�
 
 vue官网的解释：
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/b003a83d94dd44e0ae93a87da8ab43d9.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/b003a83d94dd44e0ae93a87da8ab43d9.png)
 
 
  **总结：**
@@ -2382,7 +2382,7 @@ Vue监视数据的原理：
 1. 准备好一个容器
 
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/74583240fa094967b19441921634b304.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/74583240fa094967b19441921634b304.png)
 
 
 > 备注：v-model的三个修饰符：
@@ -2815,7 +2815,7 @@ Vue 实例有⼀个完整的⽣命周期，也就是从new Vue()、初始化事�
 
 先来一张尚硅谷的图：
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/e4a8169c832443f2a78c6a1ae42a87b3.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/e4a8169c832443f2a78c6a1ae42a87b3.png)
 
 
 1. **beforeCreate（创建前）**：数据监测(getter和setter)和初始化事件还未开始，此时 data 的响应式追踪、event/watcher 都还没有被设置，也就是说不能访问到data、computed、watch、methods上的方法和数据。
@@ -2830,19 +2830,19 @@ Vue 实例有⼀个完整的⽣命周期，也就是从new Vue()、初始化事�
 
 > 来讲一下图中间大框框的内容
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/bf970362485848798ab093430b4162b8.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/bf970362485848798ab093430b4162b8.png)
 
 
 先判断有没有 **el** 这个配置项，没有就调用 vm.$mount(el)，如果两个都没有就一直卡着，显示的界面就是最原始的容器的界面。有 **el** 这个配置项，就进行判断有没有 template 这个配置项，没有 template 就将 el 绑定的容器编译为 vue 模板，来个对比图。
 
 没编译前的：
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/d2242a275b1c4abe98fbcf9623ff8152.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/d2242a275b1c4abe98fbcf9623ff8152.png)
 
 
 编译后：
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/2c59b4bb3820404f87adf366e8582f91.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/2c59b4bb3820404f87adf366e8582f91.png)
 
 
 这个 template 有啥用咧？
@@ -2851,10 +2851,10 @@ Vue 实例有⼀个完整的⽣命周期，也就是从new Vue()、初始化事�
 
 如果 el 绑定的容器没有任何内容，就一个空壳子，但在 Vue 实例中写了 template，就会编译解析这个 template 里的内容，生成虚拟 DOM，最后将 虚拟 DOM 转为 真实 DOM 插入页面（其实就可以理解为 template 替代了 el 绑定的容器的内容）。
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/b6de87cd2e44480a8cbe1ec82b867ca3.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/b6de87cd2e44480a8cbe1ec82b867ca3.png)
 
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/23762cb8feb340449fb0033abcff0a6d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/23762cb8feb340449fb0033abcff0a6d.png)
 
 
 **第二种情况，没有 template：**
@@ -3218,7 +3218,7 @@ const school = Vue.extend(options) 可简写为：const school = options
 
 Vue 在哪管理 VueComponent
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/4039bc27eaff4463be9dd5c037993b77.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/4039bc27eaff4463be9dd5c037993b77.png)
 
 
 ### 一个重要的内置关系
@@ -3226,7 +3226,7 @@ Vue 在哪管理 VueComponent
 * 一个重要的内置关系：VueComponent.prototype.__proto__ === Vue.prototype
 * 为什么要有这个关系：让组件实例对象（vc）可以访问到 Vue原型上的属性、方法。
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/9f3398cb2cfb4b169951adb53236ad60.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/9f3398cb2cfb4b169951adb53236ad60.png)
 
 
 <a id="section-22"></a>
@@ -3493,7 +3493,7 @@ import Vue from 'vue'
 
 我们通过 import 导入第三方库，在第三方库的 package.json 文件中确定了我们引入的是哪个文件
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/de478c338b1643d4898b8eddbf489197.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/de478c338b1643d4898b8eddbf489197.png)
 
 
 通过 module 确定了我们要引入的文件。
@@ -3514,7 +3514,7 @@ new Vue({
 
 如果这样子写，运行的话会引发如下的报错
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/b2b8ecbfb1784360a12057d3c019a726.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/b2b8ecbfb1784360a12057d3c019a726.png)
 
 
 报错的意思是，是在使用运行版本的 vue ，没有模板解析器。
@@ -3549,7 +3549,7 @@ new Vue({
 6. createElement 能创建具体的元素
 
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/4c32e5e48f2d493a94976a4810abc5fd.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/4c32e5e48f2d493a94976a4810abc5fd.png)
 
 
 因为 render 函数内并没有用到 this，所以可以简写成箭头函数。
@@ -4185,7 +4185,7 @@ Cookie是最早被提出来的本地存储方式，在此之前，服务端是�
 随后，当客户端浏览器每次请求服务器的时候，浏览器会自动将身份认证相关的 Cookie，通过请求头的形式发送给 服务器，服务器即可验明客户端的身份。
 
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/e29b7e0bef784bc5b6b8ed50b0d8a509.png)
+![在这里插入图片描述](Resources/vue2/e29b7e0bef784bc5b6b8ed50b0d8a509.png)
 
 
 **Cookie 不具有安全性**
@@ -4206,12 +4206,12 @@ Session是另一种记录客户状态的机制，不同的是Cookie保存在客�
 当客户端第一次请求服务器的时候，服务器生成一份session保存在服务端，将该数据(session)的id以cookie的形式传递给客户端；以后的每次请求，浏览器都会自动的携带cookie来访问服务器(session数据id)。
 >图示：
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/18768cbd3ece4e73b98c8e3be8cec422.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/18768cbd3ece4e73b98c8e3be8cec422.png)
 >session我觉得可以简单理解为一个表，根据cookie传来的值查询表中的内容
 
 **session 标准工作流程**
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/10472e8e03924340a452523ae678de02.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAaGFuZ2FvMjMz,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/10472e8e03924340a452523ae678de02.png)
 
 
 我在 node.js 中详细演示了一遍 session 的使用，具体看了另一篇博客：https://blog.csdn.net/hangao233/article/details/123089029
@@ -4785,10 +4785,10 @@ Student.vue
 
 ```
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/86238df578224c798ab772db2798b85c.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/86238df578224c798ab772db2798b85c.png)
 
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/5aeffb62c4f3462ea9b5fb7b98a1b0da.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/5aeffb62c4f3462ea9b5fb7b98a1b0da.png)
 
 
 <a id="section-29"></a>
@@ -4948,7 +4948,7 @@ this.$nextTick(() => {
 
 1. 作用：在插入、更新或移除 DOM元素时，在合适的时候给元素添加样式类名。
 2. 图示：
-![在这里插入图片描述](https://img-blog.csdnimg.cn/9ce811248ee34fb8aa96fa0d1e6e2747.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/9ce811248ee34fb8aa96fa0d1e6e2747.png)
 
 
 4. 写法：
@@ -5162,7 +5162,7 @@ this.$nextTick(() => {
 
 ## 2.9 vue脚手架配置代理
 可以用来解决跨域的问题
-![在这里插入图片描述](https://img-blog.csdnimg.cn/01ae5e73323a4c83b097ea9705c90dbf.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/01ae5e73323a4c83b097ea9705c90dbf.png)
 > ajax 是前端技术，你得有浏览器，才有window对象，才有xhr，才能发ajax请求，服务器之间通信就用传统的http请求就行了。
 ### 方法一
 
@@ -5338,7 +5338,7 @@ module.exports = {
 
 原理图：
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/b892bbf299b94d1db68bf657b5e0746a.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/b892bbf299b94d1db68bf657b5e0746a.png)
 
 <a id="section-35"></a>
 
@@ -6770,7 +6770,7 @@ const routeOptions = {
 
 1. 判断当前路由是否需要进行权限控制
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/d8b1f996e81a48a2a33a41fce71c25d5.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/d8b1f996e81a48a2a33a41fce71c25d5.png)
 
 5. 组件内守卫：
 >在具体组件内写守卫
@@ -6790,7 +6790,7 @@ const componentOptions = {
 1. 进入守卫：通过路由规则，进入该组件时被调用
 2. 离开守卫：通过路由规则，离开该组件时被调用
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/a1180709cc80417c9266343e7ec1637e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/a1180709cc80417c9266343e7ec1637e.png)
 
 <a id="section-55"></a>
 
@@ -6813,7 +6813,7 @@ const componentOptions = {
    3. 应用部署上线时需要后端人员支持，解决刷新页面服务端404的问题。
 
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/f0f05b4791944844a8ea9d496e2710f9.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5qC86Zu354uQ5oCd,size_20,color_FFFFFF,t_70,g_se,x_16)
+![在这里插入图片描述](Resources/vue2/f0f05b4791944844a8ea9d496e2710f9.png)
 
 
 参考文章：
