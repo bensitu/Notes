@@ -82,6 +82,8 @@ uv run --locked uvicorn task_tools.app:create_app --factory --host 127.0.0.1 --p
 
 打开 <http://127.0.0.1:8081/docs>。FastAPI 使用当前目录 tasks.db，不和 Java H2 / MySQL 共享；这个 API 没有登录，仅绑定本机供练习。结束服务用终端 Ctrl+C。
 
+SQLite 同一时刻只能有一个写入者。并发写入或长时间占用的事务可能让其他请求等待，等待超时后会出现 database is locked；增加线程并不能解除这个限制。这个示例适合本机单用户练习。扩展为多用户服务时，应缩短写入事务、按业务需要处理重试，并评估是否改用支持更多并发写入的数据库。原理见 [SQLite 的隔离与并发说明](https://www.sqlite.org/isolation.html)。
+
 ## 中间件路线
 
 在 taskboard 目录启动：

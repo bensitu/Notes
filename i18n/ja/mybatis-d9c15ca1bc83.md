@@ -3260,7 +3260,7 @@ SqlSessionFactory はキャッシュ管理を提供しますが、既定の第2�
 
 ### リバースエンジニアリングの設定ファイルを作成する :id=h-91c8bcfe2600
 
-- Maven プラグインは既定で generatorConfig.xml を読み込みます。configurationFile で別のファイルを指定することもできます。
+- Maven プラグインは既定で generatorConfig.xml を読み込みます。configurationFile で別のファイルを指定することもできます。下の replace-with-your-local-password は仮の値です。実行前に自分のローカルデータベースのパスワードへ置き換え、実際のパスワードはリポジトリにコミットしないでください。
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -3274,7 +3274,7 @@ SqlSessionFactory はキャッシュ管理を提供しますが、既定の第2�
         <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
                         connectionURL="jdbc:mysql://localhost:3306/mybatis"
                         userId="root"
-                        password="123456">
+                        password="replace-with-your-local-password">
         </jdbcConnection>
         <!-- See note 3 below. -->
         <javaModelGenerator targetPackage="com.atguigu.mybatis.pojo" targetProject=".\src\main\java">

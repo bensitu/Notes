@@ -3,9 +3,6 @@ import { test, expect } from '@playwright/test';
 
 const manifest = JSON.parse(await fs.readFile(new URL('../../.site-dist/site-manifest.json', import.meta.url), 'utf8'));
 const source = name => manifest.documents.find(doc => doc.source === name);
-test.beforeEach(async ({ page }) => {
-  await page.route('https://img-blog.csdnimg.cn/**', route => route.abort());
-});
 
 test('all published articles have current English and Japanese editions and localized navigation', async ({ page }) => {
   expect(manifest.translationWarnings).toEqual([]);
@@ -52,4 +49,17 @@ test('shared technical keywords prefer the selected language and Japanese pages 
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
   await page.getByRole('button', { name: 'ダークモードに切替', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+});
+
+test('all Vue diagrams load locally in Chinese, English and Japanese', async ({ page }) => {
+  const article = source('VUE基础.md');
+  for (const language of ['zh', 'en', 'ja']) {
+    const route = language === 'zh' ? article.route : manifest.translations.find(doc => doc.source === article.source && doc.language === language).route;
+    await page.goto('./#' + route);
+    const images = page.locator('#main img');
+    await expect(images).toHaveCount(49);
+    expect(await images.evaluateAll(nodes => nodes.every(image => new URL(image.src).origin === location.origin && new URL(image.src).pathname.includes('/assets/media/')))).toBe(true);
+    await images.evaluateAll(nodes => nodes.forEach(image => { image.loading = 'eager'; }));
+    await expect.poll(() => images.evaluateAll(nodes => nodes.every(image => image.complete && image.naturalWidth > 0)), { timeout: 15000 }).toBe(true);
+  }
 });

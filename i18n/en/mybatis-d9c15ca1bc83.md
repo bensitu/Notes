@@ -3260,7 +3260,7 @@ Example notes:
 
 ### Create the reverse-engineering configuration file :id=h-91c8bcfe2600
 
-- By default, the Maven plugin reads generatorConfig.xml; its configurationFile option can specify another file.
+- By default, the Maven plugin reads generatorConfig.xml; its configurationFile option can specify another file. The value replace-with-your-local-password below is a placeholder. Replace it with your own local database password before running the example, and keep real passwords out of the repository.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -3274,7 +3274,7 @@ Example notes:
         <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
                         connectionURL="jdbc:mysql://localhost:3306/mybatis"
                         userId="root"
-                        password="123456">
+                        password="replace-with-your-local-password">
         </jdbcConnection>
         <!-- See note 3 below. -->
         <javaModelGenerator targetPackage="com.atguigu.mybatis.pojo" targetProject=".\src\main\java">

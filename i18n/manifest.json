@@ -2221,8 +2221,8 @@
       "source": "MyBatis的使用.md",
       "slug": "mybatis-d9c15ca1bc83",
       "language": "en",
-      "source_hash": "4841d5ad33e1840bf481c3e04d315c4bb0bd484c322e42e1d61071a430832a5f",
-      "source_revision": "7801e10a3712525fe6b43bcf65fda3cebdc5eef6",
+      "source_hash": "a5920197d0467b4f9a46bc3db0d9917d97f4a2be4b23c6bd4ebc7f7262cc7744",
+      "source_revision": "9989bf719f4308de8a328cd605b6f2cacbe43705",
       "human_reviewed": false,
       "translation_method": "editorial-file-import",
       "heading_ids": [
@@ -2744,14 +2744,14 @@
         "常用数据：": "h-e1102932cedf",
         "h-e1102932cedf": "h-e1102932cedf"
       },
-      "structure_hash": "4c39f66fb98574c73cc2ec2771fd55decd6e48cee6ddb75a874975021e179be9"
+      "structure_hash": "71b04a3e7d0901b7715f99961db44ed37b1dca00dd55837ccfdc4569fb3a18cd"
     },
     {
       "source": "MyBatis的使用.md",
       "slug": "mybatis-d9c15ca1bc83",
       "language": "ja",
-      "source_hash": "4841d5ad33e1840bf481c3e04d315c4bb0bd484c322e42e1d61071a430832a5f",
-      "source_revision": "7801e10a3712525fe6b43bcf65fda3cebdc5eef6",
+      "source_hash": "a5920197d0467b4f9a46bc3db0d9917d97f4a2be4b23c6bd4ebc7f7262cc7744",
+      "source_revision": "9989bf719f4308de8a328cd605b6f2cacbe43705",
       "human_reviewed": false,
       "translation_method": "editorial-file-import",
       "heading_ids": [
@@ -3273,7 +3273,7 @@
         "常用数据：": "h-e1102932cedf",
         "h-e1102932cedf": "h-e1102932cedf"
       },
-      "structure_hash": "4c39f66fb98574c73cc2ec2771fd55decd6e48cee6ddb75a874975021e179be9"
+      "structure_hash": "71b04a3e7d0901b7715f99961db44ed37b1dca00dd55837ccfdc4569fb3a18cd"
     },
     {
       "source": "MySQL数据库与表的基本操作.md",

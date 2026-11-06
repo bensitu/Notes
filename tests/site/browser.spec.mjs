@@ -4,10 +4,6 @@ import { test, expect } from '@playwright/test';
 const manifest = JSON.parse(await fs.readFile(new URL('../../.site-dist/site-manifest.json', import.meta.url), 'utf8'));
 const doc = name => manifest.documents.find(item => item.source === name);
 
-test.beforeEach(async ({ page }) => {
-  await page.route('https://img-blog.csdnimg.cn/**', route => route.abort());
-});
-
 test('homepage, generated categories, search, theme and keyboard work under the project base', async ({ page }) => {
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
