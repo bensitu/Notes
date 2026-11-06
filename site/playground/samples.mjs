@@ -1,4 +1,4 @@
-export const samples = [
+const sourceSamples = [
   {
     id: 'html-basics', title: 'HTML / CSS / JavaScript', kind: 'html',
     description: 'HTML 定义内容，CSS 控制外观，JavaScript 响应点击。先修改标题或颜色，再点“运行”观察变化。',
@@ -28,5 +28,47 @@ export const samples = [
     files: {},
   },
 ];
+
+const translations = {
+  'html-basics': {
+    en: { description: 'HTML defines content, CSS controls appearance, and JavaScript responds to clicks. Change the heading or color, then select “Run” to see the result.' },
+    ja: { description: 'HTMLは内容を定義し、CSSは見た目を整え、JavaScriptはクリックに応答します。見出しや色を変更し、「実行」で結果を確認しましょう。' },
+  },
+  'react-counter': {
+    en: { description: 'useState stores component state. React updates the page after a button changes that state. Edit the JSX and run to see the result. Global React and ReactDOM are provided; import and TypeScript are not supported here.' },
+    ja: { description: 'useStateはコンポーネントの状態を保持します。ボタンで状態を変えるとReactが画面を更新します。JSXを編集して実行しましょう。グローバルのReactとReactDOMが利用でき、importとTypeScriptには対応していません。' },
+  },
+  'vue-counter': {
+    en: { description: 'ref stores reactive data. Vue updates the corresponding template content when it changes. Global Vue is provided with the browser template compiler; this playground does not compile .vue single-file components or support import.' },
+    ja: { description: 'refはリアクティブなデータを保持し、変化するとVueが対応するテンプレートの内容を更新します。テンプレートコンパイラー付きのグローバルVueを利用します。.vue単一ファイルコンポーネントのコンパイルとimportには対応していません。' },
+  },
+  'ssr-compare': {
+    en: { title: 'CSR / SSR / Hydration', description: 'This browser simulation demonstrates the principles. Follow the steps to see whether initial HTML contains readable content, when buttons become interactive, and how hydration takes over the existing page. It does not start a Node server or run Next.js or Nuxt.' },
+    ja: { title: 'CSR / SSR / ハイドレーション', description: 'ブラウザー内で仕組みを再現するデモです。初期HTMLに本文があるか、ボタンがいつ操作可能になるか、ハイドレーションが既存のページをどう引き継ぐかを順に確認します。Nodeサーバーの起動やNext.js、Nuxtの実行は行いません。' },
+  },
+};
+const interfaceStrings = {
+  en: {
+    '我的第一个交互页面': 'My first interactive page', '每天进步一点点': 'A little progress every day',
+    '已完成的练习：': 'Completed exercises:', '已完成 ': 'Exercises completed: ', ' 次练习': '',
+    '完成一次练习': 'Complete one exercise', '练习计数器': 'practice counter',
+    '今天的目标已完成': "Today's goal is complete", '继续练习吧': 'Keep practicing',
+  },
+  ja: {
+    '我的第一个交互页面': '初めての操作できるページ', '每天进步一点点': '毎日少しずつ上達',
+    '已完成的练习：': '完了した練習：', '已完成 ': '完了した練習：', ' 次练习': '回',
+    '完成一次练习': '練習を1回完了', '练习计数器': '練習カウンター',
+    '今天的目标已完成': '今日の目標を達成しました', '继续练习吧': '練習を続けましょう',
+  },
+};
+export const samples = sourceSamples.map(sample => ({
+  ...sample,
+  locales: Object.fromEntries(['en', 'ja'].map(language => [language, {
+    ...translations[sample.id][language],
+    files: Object.fromEntries(Object.entries(sample.files).map(([name, source]) => [name,
+      Object.entries(interfaceStrings[language]).reduce((text, [original, translated]) => text.replaceAll(original, translated), source),
+    ])),
+  }])),
+}));
 
 export const playgroundRoute = language => (language === 'zh' ? '' : '/' + language) + '/playground';

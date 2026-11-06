@@ -20,7 +20,7 @@ npm run serve:site
 4. 使用 `console.log()` 查看变量；语法错误和运行错误显示在控制台。报错时先看文件名和错误提示，改好后再运行。
 5. “重置示例”恢复当前示例的全部文件；“停止”移除当前预览。运行或重置都会重新建立页面，计数器等状态也从头开始。
 
-切换示例会保留本次页面会话中的代码草稿。刷新页面后恢复原始示例；代码不上传服务器，也不写入浏览器长期存储。需要保留自己的练习时，请复制到本地文件。网址中的 `?demo=react-counter` 等参数只指定示例，不包含修改后的代码。
+切换示例会保留本次页面会话中的代码草稿。中文、英文和日文分别保存草稿：首次切换到某种语言时显示该语言的初始示例，切回时恢复对应草稿。刷新页面后恢复原始示例；代码不上传服务器，也不写入浏览器长期存储。需要保留自己的练习时，请复制到本地文件。网址中的 `?demo=react-counter` 等参数只指定示例，不包含修改后的代码。
 
 ## 每种示例能练什么
 
@@ -55,7 +55,7 @@ React 与 Vue 使用真实的框架运行库。React 示例用 Babel 在预览�
 - `site/playground/samples.mjs` 保存初始代码、说明和配套文章映射。新增示例时使用稳定的 ASCII id，避免改动别人保存的网址。
 - `site/playground/host.mjs` 管理编辑器、草稿、预览生命周期、控制台和 SSR 模拟；`runner.js` 只在预览内部执行代码。
 - `scripts/build-playground.mjs` 打包运行库，复制许可证并生成示例数据。直接依赖固定版本，完整依赖见根 package-lock.json。
-- 生成的中文、英文、日文入口共用相同示例；外层操作按钮随语言切换。示例代码、说明和 SSR 演示文字当前使用中文。
+- 生成的中文、英文、日文入口共用相同的教学逻辑。操作按钮、文件分组的无障碍名称、示例说明、预览中的初始文字、加载错误和 SSR 模拟的步骤与解释随语言切换。代码中的变量名与框架 API 保持一致；用户自己编辑的代码不会自动翻译。配套阅读使用对应语言的文章标题与地址，缺少译文时明确标注中文原文。
 - `tests/site/playground.spec.mjs` 验证编辑、运行、重置、框架交互、错误反馈、预览隔离、SSR 流程、320px 布局与语言路由。运行 `npm run build:site`、`npm run validate:site` 和 `npm run test:site:browser` 验证。
 
 参考：[React createRoot](https://react.dev/reference/react-dom/client/createRoot)、[Vue 浏览器入门](https://vuejs.org/guide/quick-start.html)、[Babel Standalone](https://babeljs.io/docs/babel-standalone)、[iframe sandbox](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe)。

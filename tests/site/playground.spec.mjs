@@ -104,8 +104,114 @@ test('local URL boundaries render correctly and playground works at 320px, in da
   await expect(page).toHaveURL(/#\/en\/playground\?demo=react-counter$/);
   await expect(page.locator('#pg-sample')).toHaveValue('react-counter');
   await expect(page.getByRole('button', { name: 'Run', exact: true })).toBeVisible();
-  await expect(preview(page).getByRole('heading')).toHaveText('React 练习计数器');
+  await expect(preview(page).getByRole('heading')).toHaveText('React practice counter');
   await page.locator('#language-select').selectOption('ja');
   await expect(page).toHaveURL(/#\/ja\/playground\?demo=react-counter$/);
   await expect(page.getByRole('button', { name: '実行', exact: true })).toBeVisible();
+  await expect(preview(page).getByRole('heading')).toHaveText('React 練習カウンター');
+});
+
+const localized = {
+  en: {
+    next: 'Next step', restart: 'Start over', disabled: 'Simulate disabled JavaScript',
+    steps: ['Waiting for response', 'Initial HTML received', 'Browser JavaScript ready', 'SSR hydration complete'],
+    empty: 'Empty container', noJS: 'SSR still displays its initial content', completed: 'Exercises completed: 1',
+    initial: 'Initial HTML (scripts and state data omitted)', hint: 'does not disable JavaScript on this site',
+    description: 'This browser simulation', files: 'Files', run: 'Run', reset: 'Reset example',
+    html: 'A little progress every day', react: 'React practice counter', vue: 'Vue practice counter', goal: "Today's goal is complete",
+    load: 'Could not load the examples.', runtime: 'Could not load runtime:', error: 'Execution failed; see console',
+  },
+  ja: {
+    next: '次のステップ', restart: '最初から', disabled: 'JavaScriptの無効化をシミュレート',
+    steps: ['応答を待機', '初期HTMLを受信', 'ブラウザーのJavaScriptが準備完了', 'SSRのハイドレーションが完了'],
+    empty: '空のコンテナー', noJS: 'SSRの初期本文は表示されます', completed: '完了した練習：1回',
+    initial: '初期HTML（スクリプトと状態データは省略）', hint: 'このサイトのJavaScriptは無効にしません',
+    description: 'ブラウザー内で仕組みを再現', files: 'ファイル', run: '実行', reset: 'サンプルをリセット',
+    html: '毎日少しずつ上達', react: 'React 練習カウンター', vue: 'Vue 練習カウンター', goal: '今日の目標を達成しました',
+    load: 'サンプルを読み込めませんでした。', runtime: 'ランタイムを読み込めませんでした：', error: '実行エラー。コンソールを確認してください',
+  },
+};
+
+for (const [language, t] of Object.entries(localized)) {
+  test(`${language} SSR labels, steps, accessibility text and disabled-JS interaction are localized`, async ({ page }) => {
+    await page.goto(`./#/${language}/playground?demo=ssr-compare`);
+    const next = page.getByRole('button', { name: t.next, exact: true });
+    const cards = page.locator('.pg-sim-card');
+    await expect(page.locator('.pg-description')).toContainText(t.description);
+    await expect(page.locator('.pg-steps li')).toHaveText(t.steps.map((text, index) => `${index + 1}. ${text}`));
+    await expect(page.locator('.pg-steps [aria-current="step"]')).toHaveText(`1. ${t.steps[0]}`);
+    await expect(cards.nth(1).locator('.pg-caption').first()).toHaveText(t.initial);
+    await expect(page.locator('.pg-simulation > .pg-hint')).toContainText(t.hint);
+    const related = page.locator('.pg-related a').first();
+    const article = manifest.translations.find(doc => doc.source === 'SSR与水合原理.md' && doc.language === language);
+    await expect(related).toHaveText(article.label);
+    await expect(related).toHaveAttribute('href', '#' + article.route);
+    await next.click();
+    await expect(cards.nth(0).locator('.pg-sim-view')).toContainText(t.empty);
+    await expect(cards.nth(1).getByRole('button')).toBeDisabled();
+    await next.click();
+    await expect(cards.nth(0).getByRole('button')).toBeEnabled();
+    await expect(cards.nth(1).getByRole('button')).toBeDisabled();
+    await next.click();
+    await cards.nth(1).getByRole('button').click();
+    await expect(cards.nth(1).locator('.pg-sim-view')).toContainText(t.completed);
+    await expect(next).toBeDisabled();
+    await page.getByRole('button', { name: t.restart, exact: true }).click();
+    await expect(page.locator('.pg-steps [aria-current="step"]')).toHaveText(`1. ${t.steps[0]}`);
+    await page.getByRole('checkbox', { name: t.disabled, exact: true }).check();
+    await next.click();
+    await expect(next).toBeDisabled();
+    await expect(cards.nth(1).getByRole('button')).toBeDisabled();
+    await expect(page.locator('.pg-explanation')).toContainText(t.noJS);
+    await page.getByRole('checkbox', { name: t.disabled, exact: true }).uncheck();
+    await expect(next).toBeEnabled();
+    await expect(page.locator('.pg-steps [aria-current="step"]')).toHaveText(`1. ${t.steps[0]}`);
+    await page.setViewportSize({ width: 320, height: 760 });
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  });
+
+  test(`${language} examples localize their instructions and preview while keeping framework interactions`, async ({ page }) => {
+    await page.goto(`./#/${language}/playground`);
+    await expect(page.getByRole('group', { name: t.files, exact: true })).toBeVisible();
+    await expect(preview(page).locator('html')).toHaveAttribute('lang', language);
+    await expect(preview(page).getByRole('heading')).toHaveText(t.html);
+    await preview(page).getByRole('button').click();
+    await expect(preview(page).locator('#count')).toHaveText('1');
+    for (const [id, heading] of [['react-counter', t.react], ['vue-counter', t.vue]]) {
+      await page.locator('#pg-sample').selectOption(id);
+      await expect(preview(page).getByRole('heading')).toHaveText(heading);
+      await expect(page.locator('.pg-description')).not.toContainText('已提供');
+      await preview(page).getByRole('button').click();
+      await expect(preview(page).locator('p').first()).toHaveText(t.completed);
+    }
+    for (let index = 0; index < 2; index++) await preview(page).getByRole('button').click();
+    await expect(preview(page).getByText(t.goal, { exact: true })).toBeVisible();
+  });
+
+  test(`${language} catalog and runtime failures use localized errors`, async ({ page }) => {
+    await page.route('**/playground-samples.json', route => route.fulfill({ status: 503, body: 'Unavailable' }));
+    await page.goto(`./#/${language}/playground`);
+    await expect(page.getByRole('alert')).toContainText(t.load);
+    await page.unroute('**/playground-samples.json');
+    await page.route('**/playground-vue.js', route => route.abort());
+    await page.reload();
+    await page.locator('#pg-sample').selectOption('vue-counter');
+    await expect(page.locator('.pg-status')).toHaveText(t.error);
+    await expect(page.locator('.pg-logs')).toContainText(t.runtime);
+  });
+}
+
+test('switching languages preserves separate drafts and uses localized defaults on first visit', async ({ page }) => {
+  await page.goto('./#/en/playground?demo=react-counter');
+  const code = 'ReactDOM.createRoot(document.getElementById("app")).render(<h1>My draft</h1>);';
+  await page.getByRole('textbox').fill(code);
+  await page.getByRole('button', { name: 'Run', exact: true }).click();
+  await expect(preview(page).getByRole('heading')).toHaveText('My draft');
+  await page.locator('#language-select').selectOption('ja');
+  await expect(preview(page).getByRole('heading')).toHaveText(localized.ja.react);
+  await page.locator('#language-select').selectOption('en');
+  await expect(page.getByRole('textbox')).toHaveValue(code);
+  await expect(preview(page).getByRole('heading')).toHaveText('My draft');
+  await page.getByRole('button', { name: 'Reset example', exact: true }).click();
+  await expect(preview(page).getByRole('heading')).toHaveText(localized.en.react);
 });
