@@ -10,7 +10,9 @@ import { TranslationState } from '../../scripts/translation/state.mjs';
 import { createAzureTranslator } from '../../scripts/translation/azure.mjs';
 import { readManifest, runTranslation, pilotSources } from '../../scripts/translation/pipeline.mjs';
 import { validateTranslations } from '../../scripts/translation/validate.mjs';
-import { createResolver, loadNotes, transformDocument } from '../../scripts/site-lib.mjs';
+import { createResolver, hash, loadNotes, parser, transformDocument } from '../../scripts/site-lib.mjs';
+import { exportBatch, importBatch } from '../../scripts/translation/batch.mjs';
+import { structure } from '../../scripts/translation/markdown.mjs';
 
 const glossary = JSON.parse(await fs.readFile(new URL('../../scripts/translation/glossary.json', import.meta.url), 'utf8'));
 const env = { TRANSLATION_ENABLED: 'true', AZURE_TRANSLATOR_SKU: 'F0', TRANSLATION_F0_CONFIRMED: 'true', AZURE_TRANSLATOR_KEY: 'mock-only', AZURE_TRANSLATOR_REGION: 'mock' };
@@ -51,9 +53,9 @@ test('published translations retain anchors and media, and unresolved language t
   const translatedFile = path.join(root, 'i18n', 'ja', ja.file.split('/').at(-1));
   await fs.appendFile(translatedFile, '\n\u0060\u0060\u0060js\nbroken_code();\n\u0060\u0060\u0060\n');
   await assert.rejects(validateTranslations(root), /translation_structure_changed/);
-  const isolated = await buildSite({ root });
-  assert.equal(isolated.translations.length, 1);
-  assert.ok(isolated.documents.length > 0);
+  const previousOutput = await fs.readFile(path.join(root, '.site-dist/site-manifest.json'), 'utf8');
+  await assert.rejects(buildSite({ root }), /translation_structure_changed/);
+  assert.equal(await fs.readFile(path.join(root, '.site-dist/site-manifest.json'), 'utf8'), previousOutput);
   await validateSite(path.join(root, '.site-dist'));
   await fs.rename(path.join(root, 'React基础与组件.md'), path.join(root, 'Renamed.md'));
   const maintenance = await runTranslation({ root, state, translator: translator(state), glossary });
@@ -85,4 +87,30 @@ test('actual three-article pilot completes structurally under a mocked API, with
   t.diagnostic(`Mock pilot only: 3 sources, 6 translations, ${report.used_this_run} conservatively estimated characters; no Azure calls.`);
   for (const name of pilotSources) assert.equal(await fs.readFile(path.join(root, name), 'utf8'), files[name]);
   await validateTranslations(root);
+});
+
+test('invalid translation links and metadata prevent publication without replacing a valid output', async t => {
+  const root = await fixture(t, {
+    'README.md': '# Home\n',
+    'Note.md': '# Note\n\n![Image](Resources/image.png)\n',
+    'Resources/image.png': 'fixture',
+    'scripts/translation/glossary.json': JSON.stringify(glossary),
+  });
+  const batch = await exportBatch(root);
+  for (const doc of batch.documents) for (const unit of doc.units) unit.translated = unit.text;
+  await importBatch(root, batch, { revision: 'test' });
+  await buildSite({ root });
+  const previous = await fs.readFile(path.join(root, '.site-dist/site-manifest.json'), 'utf8');
+  const manifest = await readManifest(root);
+  const entry = manifest.entries.find(entry => entry.language === 'en');
+  const file = path.join(root, 'i18n/en', entry.slug + '.md');
+  const text = (await fs.readFile(file, 'utf8')).replace('Resources/image.png', 'Resources/missing.png');
+  await fs.writeFile(file, text);
+  entry.structure_hash = hash(JSON.stringify(structure(parser.parse(text))), 64);
+  await fs.writeFile(path.join(root, 'i18n/manifest.json'), JSON.stringify(manifest));
+  await assert.rejects(buildSite({ root }), /invalid_translation_link/);
+  assert.equal(await fs.readFile(path.join(root, '.site-dist/site-manifest.json'), 'utf8'), previous);
+  await fs.writeFile(path.join(root, 'i18n/manifest.json'), '{broken');
+  await assert.rejects(buildSite({ root }), SyntaxError);
+  assert.equal(await fs.readFile(path.join(root, '.site-dist/site-manifest.json'), 'utf8'), previous);
 });

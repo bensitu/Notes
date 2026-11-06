@@ -20,7 +20,7 @@ export async function buildSite({ root, outDir, basePath = '/Notes/', revision =
   if (!relativeOut || relativeOut.startsWith('..') || path.isAbsolute(relativeOut) || path.basename(outDir) !== '.site-dist') throw new Error('Output must be a .site-dist directory within the source workspace');
   basePath = normalizeBase(basePath);
   const { documents, readme } = await loadNotes(root);
-  const published = await loadPublished(root, documents);
+  const published = await loadPublished(root, documents, { strict: true });
   const resources = await listFiles(root, 'Resources');
   const toolingRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   const inputs = [...documents.map(doc => doc.source + '\0' + doc.original), basePath, revision];
@@ -52,7 +52,7 @@ export async function buildSite({ root, outDir, basePath = '/Notes/', revision =
     resolver.checked.push(...localResolver.checked);
     localePages[language] = { converted, nav: generateNav(documents, { language, translations: published[language] }) };
   }
-  for (const warning of published.warnings) console.warn(warning);
+  if (published.warnings.length) throw new Error('Invalid translation publication:\n' + published.warnings.join('\n'));
   const assets = `assets/app/${version}`;
   const destination = async (name, content) => {
     const filename = path.join(outDir, name);
@@ -77,6 +77,8 @@ export async function buildSite({ root, outDir, basePath = '/Notes/', revision =
     for (const doc of published[language].values()) await destination(`${language}/${doc.slug}.md`, localePages[language].converted.get(doc.source));
   }
   await destination('_404.md', '# 未找到这篇笔记\n\n地址可能有误，或文章已从源仓库移除。请使用全文搜索，或[返回全部笔记](/)。\n');
+  await destination('en/_404.md', '# Note not found\n\nThe address may be incorrect, or the article may have been removed. Search the notes or [return to all notes](/en/).\n');
+  await destination('ja/_404.md', '# ノートが見つかりません\n\nアドレスが間違っているか、記事が削除された可能性があります。検索するか、[すべてのノートに戻ってください](/ja/)。\n');
   await destination('.nojekyll', '');
   for (const source of resources) {
     const extension = path.extname(source).toLowerCase();
@@ -135,7 +137,7 @@ export async function buildSite({ root, outDir, basePath = '/Notes/', revision =
   await destination(`${assets}/search-index.json`, JSON.stringify(search));
   const config = { basePath, version, assetPath: basePath + assets + '/', repository: manifest.repository, revision, languages };
   const html = (await fs.readFile(path.join(toolingRoot, 'site/index.html'), 'utf8'))
-    .replaceAll('@@BASE@@', basePath).replaceAll('@@ASSETS@@', basePath + assets + '/').replace('@@CONFIG@@', JSON.stringify(config).replaceAll('<', '\\u003c'))
+    .replaceAll('@@BASE@@', () => basePath).replaceAll('@@ASSETS@@', () => basePath + assets + '/').replace('@@CONFIG@@', () => JSON.stringify(config).replaceAll('<', '\\u003c'))
     .replace('@@LANGUAGES@@', languages.map(lang => `<script defer src="${basePath}${assets}/prism-${lang}.min.js"></script>`).join('\n'));
   await destination('index.html', html);
   console.log(`Built ${nav.ordered.length} articles, ${resolver.media.size} resources at ${basePath}; version ${version}`);

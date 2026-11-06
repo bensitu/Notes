@@ -2,7 +2,7 @@ import { visit } from 'unist-util-visit';
 import { parseFragment } from 'parse5';
 import { hash, parser, printer, textOf, escapeHtml } from '../site-lib.mjs';
 
-export const conversionVersion = 1;
+export const conversionVersion = 2;
 export const canonical = text => text.replace(/\r\n?/g, '\n');
 export const sourceHash = doc => hash(canonical(doc.original), 64);
 const markerPattern = /\[\[NT\d+\]\]/g;
@@ -27,14 +27,17 @@ function htmlShape(html) {
 export function structure(tree) {
   function shape(node) {
     if (node.type === 'text') return null;
-    if (node.type === 'html') return { type: 'html', value: htmlShape(node.value) };
+    if (node.type === 'html') return { type: 'html', value: htmlShape(canonical(node.value)) };
     const base = {};
     for (const key of ['type', 'depth', 'ordered', 'start', 'spread', 'checked', 'align', 'lang', 'meta', 'value', 'url', 'identifier', 'title', 'alt', 'label']) {
-      if (node[key] !== undefined && !(key === 'alt' && ['image', 'imageReference'].includes(node.type))) base[key] = node[key];
+      if (node[key] !== undefined && !(key === 'alt' && ['image', 'imageReference'].includes(node.type))) base[key] = typeof node[key] === 'string' ? canonical(node[key]) : node[key];
     }
     if (node.children) {
       base.children = node.children.map(shape).filter(Boolean);
-      if (['paragraph', 'heading', 'tableCell'].includes(node.type)) base.children.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b), 'en'));
+      if (['paragraph', 'heading', 'tableCell'].includes(node.type)) base.children.sort((a, b) => {
+        const left = JSON.stringify(a), right = JSON.stringify(b);
+        return left < right ? -1 : left > right ? 1 : 0;
+      });
     }
     return base;
   }
@@ -90,7 +93,7 @@ export function prepareDocument(doc, language, glossary) {
       if (offset < node.value.length) template += token({ kind: 'raw', value: node.value.slice(offset) });
     } else template = node.children.map(inline).join('');
     if (!template.replace(markerPattern, '').trim()) { applyUnit({ node, mode, template, tokens }, template); return; }
-    units.push({ node, mode, template, tokens, fingerprint: hash(JSON.stringify({ template: canonical(template).replace(/\s+/g, ' ').trim(), tokens, language, glossary, conversionVersion }), 64) });
+    units.push({ node, mode, template, tokens, fingerprint: hash(JSON.stringify({ template: canonical(template).replace(/\s+/g, ' ').trim(), tokens, language, glossary, conversionVersion }, (_key, value) => typeof value === 'string' ? canonical(value) : value), 64) });
   }
   visit(tree, node => {
     if (node.type === 'heading') {

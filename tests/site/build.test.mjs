@@ -44,4 +44,9 @@ test('root and project bases are explicit, and output deletion cannot target sou
   const built = await buildSite({ root, basePath: '/' });
   assert.equal(built.basePath, '/');
   await validateSite(path.join(root, '.site-dist'));
+  const revision = 'release-$&-$`-$\u0027';
+  await buildSite({ root, basePath: '/', revision });
+  const html = await fs.readFile(path.join(root, '.site-dist/index.html'), 'utf8');
+  assert.ok(html.includes(JSON.stringify(revision)));
+  assert.ok(!html.includes('@@CONFIG@@'));
 });

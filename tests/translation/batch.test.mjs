@@ -49,3 +49,25 @@ test('file import rejects stale sources, missing placeholders and locked transla
   await fs.writeFile(path.join(root, 'i18n/manifest.json'), JSON.stringify(manifest));
   await assert.rejects(importBatch(root, batch, { revision: 'test' }), /locked/);
 });
+
+test('CRLF translation imports remain valid after LF checkout, without accepting code changes', async t => {
+  const { root } = await setup(t);
+  const source = path.join(root, '文章.md');
+  const original = await fs.readFile(source, 'utf8');
+  await fs.writeFile(source, original.replaceAll('\n', '\r\n'));
+  const batch = await exportBatch(root);
+  for (const doc of batch.documents) for (const unit of doc.units) unit.translated = unit.text;
+  await importBatch(root, batch, { revision: 'crlf' });
+  const fingerprints = batch.documents.map(doc => doc.units.map(unit => unit.id));
+  await fs.writeFile(source, original);
+  for (const entry of (await readManifest(root)).entries) {
+    const file = path.join(root, 'i18n', entry.language, entry.slug + '.md');
+    await fs.writeFile(file, (await fs.readFile(file, 'utf8')).replace(/\r\n?/g, '\n'));
+  }
+  assert.deepEqual((await exportBatch(root)).documents.map(doc => doc.units.map(unit => unit.id)), fingerprints);
+  await validateTranslations(root, { complete: true });
+  const entry = (await readManifest(root)).entries[0];
+  const file = path.join(root, 'i18n', entry.language, entry.slug + '.md');
+  await fs.writeFile(file, (await fs.readFile(file, 'utf8')).replace('const x = "中文";', 'const x = "changed";'));
+  await assert.rejects(validateTranslations(root), /translation_structure_changed/);
+});
