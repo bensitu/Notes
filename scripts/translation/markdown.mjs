@@ -56,7 +56,12 @@ export function prepareDocument(doc, language, glossary) {
   let headingIndex = 0;
   const termMap = new Map(glossary.terms.map(term => [term.source, term[language]]));
   const alternatives = [...termMap.keys()].sort((a, b) => b.length - a.length).map(term => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-  const protectedWords = new RegExp(['\\[\\[NT\\d+\\]\\]', ...alternatives, '\\b(?:[A-Z][A-Z0-9_]{1,}|[A-Za-z_$]+[A-Z][A-Za-z\\d_$]*|[A-Za-z_$]+(?:[._/][A-Za-z\\d_$+-]+)+|v?\\d+(?:\\.\\d+)+)\\b'].join('|'), 'g');
+  // Match identifiers only at their start. Underscores belong to the path segments,
+  // so only dots and slashes can repeat as separators.
+  const qualifiedName = '(?:[A-Za-z_$]+[./]|[A-Za-z_$][A-Za-z$]*_)[A-Za-z\\d_$+-]+(?:[./][A-Za-z\\d_$+-]+)*';
+  const identifier = `(?<![A-Za-z\\d_$])(?:[A-Z][A-Z0-9_]{1,}|[A-Za-z_$][a-z_$]*[A-Z][A-Za-z\\d_$]*|${qualifiedName})\\b`;
+  const version = '\\bv?\\d+(?:\\.\\d+)+\\b';
+  const protectedWords = new RegExp(['\\[\\[NT\\d+\\]\\]', ...alternatives, identifier, version].join('|'), 'g');
 
   function unit(node, mode) {
     const tokens = [];

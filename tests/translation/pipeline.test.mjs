@@ -55,6 +55,18 @@ test('whole semantic blocks preserve formatting, code, table cells, HTML and sou
   assert.ok(chunks.every(chunk => chunk.length <= 1800));
 });
 
+test('technical terms stay protected alongside long identifier-like text', () => {
+  const repeated = 'a$'.repeat(4000);
+  const text = `正文 [[NT0042]] 水合 HTTPS getValue $privateName config_name node_modules/react com.example.Bean v24.16.0 ${repeated}`;
+  const doc = { tree: { type: 'root', children: [{ type: 'paragraph', children: [{ type: 'text', value: text }] }] }, headings: [] };
+  const { units: [unit] } = prepareDocument(doc, 'en', glossary);
+  assert.equal(unit.template, `正文 [[NT0000]] [[NT0001]] [[NT0002]] [[NT0003]] [[NT0004]] [[NT0005]] [[NT0006]] [[NT0007]] [[NT0008]] ${repeated}`);
+  assert.deepEqual(unit.tokens.map(token => token.node.value), [
+    '[[NT0042]]', 'hydration', 'HTTPS', 'getValue', '$privateName', 'config_name',
+    'node_modules/react', 'com.example.Bean', 'v24.16.0',
+  ]);
+});
+
 test('incremental runs reuse blocks, protect reviewed files and pause for an open PR', async t => {
   const options = await setup(t);
   const first = await runTranslation(options);
